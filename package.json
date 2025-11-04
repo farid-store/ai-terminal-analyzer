@@ -1,0 +1,13 @@
+{
+"name": "xau-usd-dashboard-secure",
+"version": "1.0.0",
+"description": "Financial dashboard with secure Gemini API call via Vercel Serverless Function.",
+"main": "api/analyze.js",
+"scripts": {
+"start": "echo 'Run this on Vercel'",
+"test": "echo 'Error: no test specified' && exit 1"
+},
+"dependencies": {
+"@google/genai": "^0.1.0"
+}
+}
