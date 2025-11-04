@@ -13,9 +13,8 @@
     <!-- Chart.js Datalabels Plugin (optional, for bar chart labels) -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <!-- Font Awesome (for icons and loading spinner) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJg1zJvJgP+HwJjVjF8t8m8oGf4t7I3b5gL6R8t5gW0p4O3F9t3/l8E6i/w4lQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Google GenAI SDK (for Gemini calls) -->
-    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.1.0/dist/client.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJg1zJvJvF8t8m8oGf4t7I3b5gL6R8t5gW0p4O3F9t3/l8E6i/w4lQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <style>
         /* Menggunakan font Inter secara default */
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f9; }
@@ -67,7 +66,7 @@
         
         <div class="input-group mb-3">
             <input type="text" id="newsQuery" class="form-control rounded-l-lg p-3 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: 'Apa faktor pemicu utama kenaikan di Q3?' atau 'Bagaimana tren harga di bulan Januari?'" aria-label="Analisis Query">
-            <button class="btn btn-primary px-4 rounded-r-lg" type="button" id="searchNewsBtn" disabled>
+            <button class="btn btn-primary px-4 rounded-r-lg" type="button" id="searchNewsBtn">
                 <i class="fas fa-search"></i> Cek Analisis
             </button>
         </div>
@@ -79,7 +78,7 @@
 
         <!-- Hasil Analisis -->
         <pre id="newsResult" class="text-sm">
-[CONSOLE] Menunggu inisialisasi...
+[CONSOLE] Menunggu input kueri. Panggilan API aman melalui Vercel Serverless Function.
         </pre>
     </section>
 
@@ -137,13 +136,6 @@
 
     <script>
     // ******************************************************************
-    // ** KONFIGURASI API KEY (Inline) **
-    // GANTI "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU" DENGAN KUNCI API ANDA YANG SEBENARNYA!
-    // ******************************************************************
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
-    const model = 'gemini-2.5-flash';
-
-    // ******************************************************************
     // ** DATASET LOKAL (Data Contoh Historis XAU/USD 2020-2025) **
     // ******************************************************************
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -154,7 +146,7 @@
         // 2020
         { monthYear: 'Jan-2020', year: 2020, month: 1, trend: 'Naik', desc: 'Ketegangan geopolitik awal tahun', factor: 'Eskalasi konflik Timur Tengah' },
         { monthYear: 'Feb-2020', year: 2020, month: 2, trend: 'Netral', desc: 'Konsolidasi setelah lonjakan awal', factor: 'Fokus pasar ke data ekonomi AS' },
-        { monthYear: 'Mar-2020', year: 2020, month: 3, trend: 'Turun', desc: 'Penjualan likuidasi besar-besaran (Pandemi)', factor: 'Panic selling, Dolar AS menguat' },
+        { monthYear: 'Mar-22', year: 2020, month: 3, trend: 'Turun', desc: 'Penjualan likuidasi besar-besaran (Pandemi)', factor: 'Panic selling, Dolar AS menguat' },
         { monthYear: 'Apr-2020', year: 2020, month: 4, trend: 'Naik', desc: 'Stimulus fiskal dan moneter global', factor: 'Pelonggaran kuantitatif The Fed' },
         { monthYear: 'Mei-2020', year: 2020, month: 5, trend: 'Naik', desc: 'Ketidakpastian ekonomi jangka panjang', factor: 'Ketakutan resesi global' },
         { monthYear: 'Jun-2020', year: 2020, month: 6, trend: 'Naik', desc: 'Suku bunga mendekati nol', factor: 'Inflasi jangka panjang diharapkan' },
@@ -231,7 +223,6 @@
     ];
 
     // Data Harga Kontinu (Untuk Line Chart)
-    // Harga di sini adalah harga penutupan bulanan yang disederhanakan/imajiner
     const priceData = [
         1550, 1600, 1580, 1500, 1650, 1700, 1800, 1950, 1920, 1850, 1830, 1780, // 2020
         1850, 1750, 1700, 1750, 1800, 1850, 1750, 1700, 1750, 1700, 1650, 1800, // 2021
@@ -250,10 +241,9 @@
     }
 
     // ******************************************************************
-    // ** FUNGSI CHART.JS DAN TABLE **
+    // ** FUNGSI CHART.JS DAN TABLE (Logika tidak berubah) **
     // ******************************************************************
 
-    // 1. Heatmap
     function drawHeatmap() {
         const years = [2020, 2021, 2022, 2023, 2024, 2025];
         const container = document.getElementById('heatmapContainer');
@@ -303,9 +293,8 @@
         });
     }
 
-    // 2. Bar Chart Frekuensi Trend
     function drawBarChart() {
-        Chart.register(ChartDataLabels); // Register plugin
+        Chart.register(ChartDataLabels); 
         const trendCounts = rawData.reduce((acc, curr) => {
             acc[curr.trend] = (acc[curr.trend] || 0) + 1;
             return acc;
@@ -317,9 +306,9 @@
                 label: 'Jumlah Kemunculan Trend Bulanan (2020-2025)',
                 data: [trendCounts['Naik'] || 0, trendCounts['Turun'] || 0, trendCounts['Netral'] || 0],
                 backgroundColor: [
-                    'rgba(25, 135, 84, 0.7)', // Hijau (Naik)
-                    'rgba(220, 53, 69, 0.7)',  // Merah (Turun)
-                    'rgba(255, 193, 7, 0.7)'   // Kuning (Netral)
+                    'rgba(25, 135, 84, 0.7)', 
+                    'rgba(220, 53, 69, 0.7)',  
+                    'rgba(255, 193, 7, 0.7)'   
                 ],
                 borderColor: [
                     'rgba(25, 135, 84, 1)', 
@@ -359,7 +348,6 @@
         new Chart(document.getElementById('barChart'), config);
     }
 
-    // 3. Line Chart (Kontinu)
     function getContinousPriceData() {
         const labels = rawData.map(d => d.monthYear);
         return { labels: labels, prices: priceData };
@@ -399,110 +387,77 @@
         new Chart(document.getElementById('lineChartContinous'), config);
     }
 
-    // 4. Populate Table
     function populateTable() {
         const tableBody = document.querySelector('#dataTable tbody');
         tableBody.innerHTML = ''; 
 
-        // Tampilkan data terbaru di atas
         const reversedData = [...rawData].reverse();
 
         reversedData.forEach(item => {
             const row = tableBody.insertRow();
             
-            // Kolom Bulan/Tahun
             row.insertCell().textContent = item.monthYear;
             
-            // Kolom Trend dengan badge
             const trendCell = row.insertCell();
             const badge = document.createElement('span');
             badge.textContent = item.trend;
             badge.className = `badge rounded-pill ${item.trend === 'Naik' ? 'bg-success' : item.trend === 'Turun' ? 'bg-danger' : 'bg-warning text-dark'}`;
             trendCell.appendChild(badge);
 
-            // Kolom Deskripsi
             row.insertCell().textContent = item.desc;
-            
-            // Kolom Faktor Pemicu
             row.insertCell().textContent = item.factor;
         });
     }
 
     // **************************************************
-    // ** LOGIKA ANALISIS GEMINI DENGAN DATA LOKAL (FIXED) **
+    // ** LOGIKA PANGGILAN API BARU (Ke Serverless Function) **
     // **************************************************
 
     function formatDataForGemini() {
         let formatted = "Tabel Data Historis XAU/USD (Bulan, Trend, Deskripsi, Faktor):\n\n";
         rawData.forEach(item => {
-            // Gunakan format yang ringkas untuk prompt
             formatted += `- ${item.monthYear}: Trend **${item.trend}**. Deskripsi: ${item.desc}. Faktor: ${item.factor}.\n`;
         });
         return formatted;
     }
 
     /**
-     * Memanggil Gemini API untuk menganalisis data historis lokal.
+     * Memanggil Vercel Serverless Function untuk menganalisis data historis lokal secara aman.
      * @param {string} query Kueri analisis dari pengguna.
      * @returns {Promise<string>} Hasil analisis dalam format Markdown.
      */
     async function analyzeLocalDataWithGemini(query) {
         
-        // Cek API Key LAGI sebelum inisialisasi
-        if (!GEMINI_API_KEY || GEMINI_API_KEY === "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU") {
-            return "**[ERROR]** GEMINI_API_KEY belum diisi. Silakan ganti placeholder dengan kunci API Anda yang valid.";
-        }
-        
-        // Pastikan library GenAI sudah termuat
-        if (typeof GoogleGenAI === 'undefined') {
-            return "**[FATAL ERROR]** Library Google GenAI tidak termuat. Periksa koneksi internet Anda atau tautan CDN."
-        }
-        
-        // Inisialisasi Klien Gemini
-        const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         const historicalData = formatDataForGemini();
-
-        const prompt = `[PERAN: Anda adalah analis keuangan AI yang bertugas menganalisis data historis XAU/USD (Emas) yang disediakan. Analisis Anda harus STRIKTLY berdasarkan data yang diberikan dan menjawab kueri pengguna. Jangan gunakan pengetahuan eksternal atau data real-time.]
-
-DATA HISTORIS YANG TERSEDIA (2020 - 2025):
----
-${historicalData}
----
-
-Kueri Pengguna: "${query}"
-
-Berdasarkan data historis di atas, lakukan analisis berikut:
-1. Identifikasi dan ringkas 3 poin utama (Trend, Faktor) yang paling relevan dengan kueri pengguna.
-2. Berikan narasi/jawaban mendetail yang menjelaskan data terkait kueri.
-3. Berikan kesimpulan singkat (maksimum 1 kalimat) yang menjawab pertanyaan inti pengguna berdasarkan data.`;
+        // ** PERUBAHAN KRUSIAL: Memanggil endpoint serverless yang aman **
+        const apiUrl = '/api/analyze'; 
 
         try {
-            const response = await ai.models.generateContent({
-                model: model,
-                contents: prompt,
-                config: {
-                    systemInstruction: "You are a professional financial analyst specialized in XAU/USD historical data. Your response must be formatted using Markdown, be professional, and strictly based only on the provided historical data. Use clear headings and lists.",
-                    temperature: 0.2 
-                }
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, historicalData }) // Kirim kueri dan data ke server
             });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Tangani error dari serverless function
+                const errorDetails = result.details || result.error || 'Serverless function gagal merespons.';
+                return `[FATAL ERROR - SERVER] Status ${response.status}: ${errorDetails}`;
+            }
 
             // 4. Format Output
             let output = `**[ANALISIS DATA LOKAL OLEH GEMINI AI]**\n`;
             output += `(Analisis ini didasarkan pada data Heatmap statis tahun 2020-2025, bukan data pasar real-time.)\n\n`;
-            output += response.text;
+            output += result.text; // Ambil teks dari respons JSON
             output += `\n\n---\n[EXECUTION COMPLETE] Analisis berdasarkan data historis yang tersedia.`;
             
             return output;
 
         } catch (error) {
-            console.error('Error generating content with Gemini:', error);
-            const errorMessage = error.message || String(error);
-            if (errorMessage.includes("API key not valid")) {
-                 return `[FATAL ERROR] Gagal memproses Gemini API: Kunci API Anda tidak valid. Harap periksa kembali **GEMINI_API_KEY** Anda.`;
-            } else if (errorMessage.includes("400")) {
-                 return `[FATAL ERROR] Gagal memproses Gemini API (400 Bad Request). Kemungkinan: Kunci API tidak valid atau kueri terlalu panjang.`;
-            }
-            return `[FATAL ERROR] Gagal memproses Gemini API: ${errorMessage}. Pastikan API Key valid.`;
+            console.error('Error fetching Vercel API:', error);
+            return `[FATAL ERROR - JARINGAN] Gagal menghubungi serverless function. Cek konsol browser atau log Vercel: ${error.message}`;
         }
     }
 
@@ -525,22 +480,11 @@ Berdasarkan data historis di atas, lakukan analisis berikut:
         const searchStatus = document.getElementById('searchStatus');
         const newsResultPre = document.getElementById('newsResult');
 
-        // Cek Kunci API
-        const VALID_KEY = GEMINI_API_KEY !== "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU";
+        // Awalnya nonaktifkan tombol sampai ada input
+        searchNewsBtn.disabled = true;
 
-        if (!VALID_KEY) {
-            searchNewsBtn.disabled = true;
-            newsResultPre.innerHTML = `**[!! WARNING !!]** Gemini API Key belum dimasukkan! Silakan edit file <code class="text-red-400">index.html</code> dan ganti **GEMINI_API_KEY** dengan kunci Anda yang valid di bagian awal <code class="text-red-400">&lt;script&gt;</code>. Fitur AI dinonaktifkan.`;
-        } else {
-            newsResultPre.textContent = "[CONSOLE] Gemini AI Terminal siap. Masukkan kueri analisis data Anda di atas.";
-            searchNewsBtn.disabled = true; // Awalnya nonaktif
-        }
-
-        // Hanya aktifkan tombol jika ada input DAN key sudah valid
         newsQueryInput.addEventListener('input', () => {
-             if (VALID_KEY) {
-                searchNewsBtn.disabled = newsQueryInput.value.trim() === '';
-            }
+            searchNewsBtn.disabled = newsQueryInput.value.trim() === '';
         });
 
         searchNewsBtn.addEventListener('click', async () => {
@@ -549,14 +493,13 @@ Berdasarkan data historis di atas, lakukan analisis berikut:
 
             searchNewsBtn.disabled = true;
             searchStatus.style.display = 'block';
-            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> **[STATUS]** Mengirim kueri ke Google Gemini...';
+            searchStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> **[STATUS]** Mengirim kueri ke Google Gemini (via Serverless Function)...';
             newsResultPre.textContent = `[CONSOLE] Menganalisis data historis untuk kueri: ${query} ...`;
             
             try {
                 const aiResponse = await analyzeLocalDataWithGemini(query);
                 newsResultPre.innerHTML = aiResponse; // innerHTML agar markdown Gemini terbaca
             } catch (error) {
-                // Tangani kesalahan yang tidak tertangkap di analyzeLocalDataWithGemini
                 console.error('Error during AI process:', error);
                 newsResultPre.textContent = `[FATAL ERROR] Kesalahan tak terduga: ${error.message}`;
             } finally {
