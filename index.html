@@ -3,18 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Chatbot</title>
+    <title>Terminal Trading AI Gemini</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="chatbot-container">
-        <h1>🤖 Gemini Chat</h1>
-        <div class="chat-box" id="chat-box">
+    <div class="terminal-container">
+        <header class="terminal-header">
+            <span class="title">📈 Gemini Trading Analyst</span>
+        </header>
+
+        <div class="main-content">
+            <div class="panel chat-panel">
+                <div class="chat-box" id="chat-box">
+                    <div class="message gemini-message">
+                        Selamat datang! Saya Gemini AI, asisten trading Anda. Anda bisa mengunggah chart, bertanya tentang berita, atau analisis pasar terkini.
+                    </div>
+                </div>
+                
+                <form class="input-form" id="input-form">
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    
+                    <button type="button" id="upload-btn" title="Unggah Chart Analisis">🖼️</button>
+                    
+                    <input type="text" id="user-input" placeholder="Tanya tentang market, ekonomi, atau gambar yang diunggah..." required>
+                    <button type="submit">Kirim</button>
+                </form>
+
+                <div id="image-preview-container" style="display: none;">
+                    <img id="image-preview" src="#" alt="Pratinjau Gambar" />
+                    <button type="button" id="remove-image-btn">❌ Hapus Gambar</button>
+                </div>
             </div>
-        <form class="input-form" id="input-form">
-            <input type="text" id="user-input" placeholder="Tanyakan sesuatu..." required>
-            <button type="submit">Kirim</button>
-        </form>
+
+            <div class="panel market-panel">
+                <h2>Data Market (Live)</h2>
+                <p>Harga Saham: **AAPL** $180.50 (+0.5%)</p>
+                <p>Indeks S&P 500: 5123.45</p>
+                <p class="placeholder-text">Panel ini dapat dihubungkan ke API data real-time menggunakan WebSocket.</p>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
