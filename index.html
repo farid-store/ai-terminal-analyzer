@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Market Dashboard — Heatmaps, News, Stories, Gemini AI Chat</title>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Modern scrollbar for dark theme */
@@ -615,6 +615,30 @@
     </div>
 </section>
 
+<section>
+    <div class="layout-grid-new mt-6">
+    <div class="space-y-6 left-col"> 
+        
+        <div class="bg-gray-800 p-4 rounded-xl shadow-lg h-[480px] flex flex-col">
+            <h3 class="text-lg font-bold text-slate-100 mb-2 border-b border-gray-700 pb-2">
+                <span id="chart-title">XAU/USD - Harga Emas (Data Lokal: All-Time)</span>
+            </h3>
+
+            <div class="flex justify-start space-x-2 mb-3">
+                <button data-period="1Y" class="period-btn px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-200">1 Tahun</button>
+                <button data-period="3Y" class="period-btn px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-200">3 Tahun</button>
+                <button data-period="5Y" class="period-btn px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-200">5 Tahun</button>
+                <button data-period="AT" class="period-btn px-3 py-1 text-sm rounded-full bg-blue-600 text-white font-semibold transition-colors duration-200">All-Time</button>
+            </div>
+            
+            <div class="flex-grow relative">
+                <canvas id="xauLineChart" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
+        </div> 
+    </div>
+</section>
 
 <button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-12 h-12 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-md font-bold transition duration-300 transform hover:scale-105 z-[900]">
     AI
@@ -1024,6 +1048,137 @@
     });
 
     imageInput.addEventListener('change', handleImageFileChange);
+
+    /* =========================================================================
+ * 💡 FUNGSI CHART XAU/USD DENGAN DATA LOKAL
+ * ========================================================================= */
+
+let xauChart;
+const ctx = document.getElementById('xauLineChart');
+const periodButtons = document.querySelectorAll('.period-btn');
+const chartTitle = document.getElementById('chart-title');
+
+// Fungsi untuk mendapatkan data berdasarkan periode
+function getChartDataByPeriod(period) {
+    const todayYear = new Date().getFullYear();
+    let filterYear;
+    
+    // Logika filter tahun
+    if (period === '1Y') {
+        filterYear = todayYear - 1;
+    } else if (period === '3Y') {
+        filterYear = todayYear - 3;
+    } else if (period === '5Y') {
+        filterYear = todayYear - 5;
+    } else if (period === 'AT') { // All Time
+        filterYear = 2015; // Tahun awal data Anda
+    } else {
+        return { labels: [], data: [] }; // Default
+    }
+
+    const filteredData = historicalData.filter(d => d.year >= filterYear);
+    
+    return {
+        // Gunakan monthYear sebagai label (misal: Jan 2015)
+        labels: filteredData.map(d => d.monthYear), 
+        // Gunakan rata-rata High dan Low sebagai nilai garis (High+Low)/2
+        data: filteredData.map(d => (d.high + d.low) / 2) 
+    };
+}
+
+// Fungsi utama untuk merender atau mengupdate chart
+function renderXauChart(period) {
+    const { labels, data } = getChartDataByPeriod(period);
+    
+    // Hapus chart lama jika ada
+    if (xauChart) {
+        xauChart.destroy();
+    }
+
+    // Tentukan warna garis (opsional: bisa disesuaikan dengan tren)
+    const lineColor = '#3b82f6'; // Biru terang
+
+    // Konfigurasi Chart.js
+    xauChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Harga Rata-Rata XAU/USD',
+                data: data,
+                borderColor: lineColor, 
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderWidth: 2,
+                pointRadius: 0, 
+                fill: true,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#e5e7eb', maxRotation: 45, minRotation: 45 }
+                },
+                y: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { 
+                        color: '#e5e7eb',
+                        callback: function(value, index, ticks) {
+                            return '$' + value.toLocaleString(); // Format mata uang
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { 
+                    mode: 'index', 
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += '$' + context.parsed.y.toFixed(2).toLocaleString();
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Update judul dan tombol aktif
+    chartTitle.textContent = `XAU/USD - Harga Emas (Data Lokal: ${period === 'AT' ? 'All-Time' : period})`;
+    periodButtons.forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white', 'font-semibold');
+        btn.classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+
+        if (btn.getAttribute('data-period') === period) {
+            btn.classList.add('bg-blue-600', 'text-white', 'font-semibold');
+            btn.classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+        }
+    });
+}
+
+/* --- Event Listener untuk Tombol Periode --- */
+periodButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        const period = e.target.getAttribute('data-period');
+        renderXauChart(period);
+    });
+});
+
+// Panggil pertama kali saat halaman dimuat (default All-Time)
+document.addEventListener('DOMContentLoaded', () => {
+    renderXauChart('AT');
+});
 
 </script>
 </body>
