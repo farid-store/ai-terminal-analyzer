@@ -3,12 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Market Dashboard — Data Analysis, Charts, Heatmaps, News, Stories, Gemini AI Chat</title>
+    <title>Market Dashboard — Heatmaps, News, Stories, Gemini AI Chat</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.1.0/dist/index.umd.js"></script> 
     <style>
         /* Modern scrollbar for dark theme */
         .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -22,24 +19,28 @@
         /* Main Grid: Responsive adjustment */
         .layout-grid-new {
             display: grid;
+            /* Default Desktop: Chart + Forex (2fr) | Heatmaps S/C (1fr) | News (380px) */
             grid-template-columns: 2fr 1fr 380px; 
             gap: 1.5rem; 
         }
         @media (max-width: 1400px) {
-            .layout-grid-new { grid-template-columns: 2fr 1fr 300px; } 
+            .layout-grid-new { grid-template-columns: 2fr 1fr 300px; } /* Medium-large screens adjustment */
         }
         
-        /* MOBILE/TABLET STACKING (Below 1100px) */
+        /* 💡 MOBILE/TABLET STACKING (Below 1100px) */
         @media (max-width: 1100px) {
             .layout-grid-new { 
-                grid-template-columns: 1fr; 
+                grid-template-columns: 1fr; /* Stack into a single column */
             }
-            .right-col { order: 3; } 
+            .right-col { order: 3; } /* Move news column to bottom */
             .left-col { min-height: 480px !important; }
+
+            /* Ensure widgets fill space nicely on mobile */
             .forex-cross-rates { height: 280px !important; } 
             .forex-heatmap { height: 350px !important; }
         }
         
+        /* New structure for combined heatmaps in center */
         .center-col-heatmaps {
             display: grid;
             grid-template-rows: repeat(2, minmax(0, 1fr)); 
@@ -48,61 +49,21 @@
         @media (min-width: 1101px) {
             .col-center { min-height: 900px; } 
         }
+
     </style>
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased font-sans">
 
 <script>
     // =========================================================================
-    // 🛑 PERHATIAN PENTING: PENGGUNAAN KUNCI API DI CLIENT-SIDE (Browser)
-    // ⚠️ Metode ini TIDAK AMAN UNTUK APLIKASI PRODUKSI. Kunci API Anda akan 
-    // terekspos ke publik. Google dan saya menyarankan menggunakan server proxy 
-    // yang aman untuk aplikasi yang sebenarnya.
-    // GANTI DENGAN KUNCI API ANDA YANG ASLI:
-    const GEMINI_API_KEY = "PASTE_KUNCI_API_ANDA_DI_SINI"; 
+    // 🛑 KUNCI API ANDA DIMASUKKAN DI SINI. INI SANGAT TIDAK AMAN!
+    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
+    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
 
+    // Model IDs
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
-    let chartInstance = null; // Global variable for Chart.js instance
-
-    // 🚀 INISIALISASI KLIEN GEMINI
-    // Panggil GenAI dari namespace global
-    const { GoogleGenAI } = window.GoogleGenAI; 
-
-    // Cek apakah kunci API telah dimasukkan
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_KUNCI_API_ANDA_DI_SINI") {
-        document.addEventListener('DOMContentLoaded', () => {
-             document.getElementById('chatNotes').textContent = "⚠️ KUNCI API BELUM DIMASUKKAN. Gemini AI tidak akan berfungsi.";
-             document.getElementById('chatNotes').classList.remove('hidden');
-        });
-        var ai = null;
-        console.error("KUNCI API BELUM DIMASUKKAN!");
-    } else {
-        var ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
-    }
-
-    /**
-     * Mengubah objek File menjadi format GenerativePart yang dibutuhkan oleh Gemini API.
-     * @param {File} file Objek file yang diupload.
-     * @returns {Promise<object>} Objek GenerativePart.
-     */
-    async function fileToGenerativePart(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64Data = event.target.result.split(',')[1];
-                resolve({
-                    inlineData: {
-                        data: base64Data,
-                        mimeType: file.type,
-                    },
-                });
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
 </script>
 
 <header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
@@ -114,13 +75,12 @@
                 </svg>
                 <div class="text-xl font-bold tracking-tight">Market<span class="text-emerald-400">Hub</span></div>
             </div>
-             <button id="openChatBtnMobile" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold shadow-lg transition duration-200 text-sm md:hidden">
+            <button id="openChatBtnMobile" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold shadow-lg transition duration-200 text-sm md:hidden">
                 AI Chat
             </button>
         </div>
 
-        <div class="flex-1 w-full md:w-auto hidden md:block"> 
-            <div class="tradingview-widget-container" style="height:44px;">
+        <div class="flex-1 w-full md:w-auto hidden md:block"> <div class="tradingview-widget-container" style="height:44px;">
                 <div class="tradingview-widget-container__widget"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
                 {
@@ -143,8 +103,7 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 mt-2 md:mt-0 hidden md:flex"> 
-            <button id="openChatBtnHeader" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold shadow-lg transition duration-200 text-sm">
+        <div class="flex items-center gap-2 mt-2 md:mt-0 hidden md:flex"> <button id="openChatBtnHeader" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold shadow-lg transition duration-200 text-sm">
                 <span class="hidden sm:inline">Ask </span>AI
             </button>
         </div>
@@ -273,7 +232,22 @@
                     <div class="text-xs text-emerald-400 mt-1">Implication: USD strength; gold reacts.</div>
                     <div class="text-xs text-gray-500 mt-2">Apr 10, 2025</div>
                 </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Fed holds rates steady</div>
+                    <div class="text-xs text-amber-400 mt-1">Market expects data-driven changes.</div>
+                    <div class="text-xs text-gray-500 mt-2">Mar 22, 2025</div>
                 </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Major Tech Earnings Beat</div>
+                    <div class="text-xs text-emerald-400 mt-1">S&P 500 futures jump on optimism.</div>
+                    <div class="text-xs text-gray-500 mt-2">Mar 01, 2025</div>
+                </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Oil volatility increases</div>
+                    <div class="text-xs text-amber-400 mt-1">Geopolitical tensions rise.</div>
+                    <div class="text-xs text-gray-500 mt-2">Feb 18, 2025</div>
+                </div>
+            </div>
 
             <div id="tabStories" class="hidden space-y-3 custom-scroll flex-1 overflow-y-auto pr-3">
                 <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
@@ -281,9 +255,13 @@
                     <div class="text-xs text-slate-400 mt-1">Central bank demand and real yields.</div>
                     <div class="text-xs text-gray-500 mt-2">Feb 11, 2025</div>
                 </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Crypto market rotation</div>
+                    <div class="text-xs text-slate-400 mt-1">On-chain metrics lead the new trend.</div>
+                    <div class="text-xs text-gray-500 mt-2">Jan 08, 2025</div>
                 </div>
-            
             </div>
+        </div>
         
         <div class="mt-6 pt-4 border-t border-gray-800">
             <h4 class="text-sm font-semibold mb-3 text-slate-300">Quick Actions</h4>
@@ -314,7 +292,7 @@
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3.412c-3.051 0-4.588 1.48-4.588 4.588v2.412z"/></svg>
                 </a>
                 <a href="https://instagram.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Instagram">
-                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.121-.196-.488-.196-1.213-.369-2.279-.418-1.057-.048-1.367-.064-4.12-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
+                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.636-1.121-.703-.291-1.513-.468-2.693-.523-1.12-.052-1.474-.064-4.298-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
                 </a>
                 <a href="mailto:your.email@example.com" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Email">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.287l-12-9.912v15.912h24v-15.912l-12 9.912z"/></svg>
@@ -325,7 +303,7 @@
 
 </main>
 
-<section class="max-w-[1400px] mx-auto px-4 pb-6 mt-6">
+<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6">
     <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">Global Market Context</h2>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
@@ -358,96 +336,56 @@
     </div>
 </section>
 
-<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6 csv-analysis-section">
-    <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">CSV Data Analysis & Visualization</h2>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-        
-        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-full flex flex-col justify-start space-y-4">
-            
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">1. Upload CSV File</label>
-                <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
-            </div>
-
-            <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
-                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Mode Analisis:</label>
-                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>
-                    <option value="all_daily">Semua Tahun (Rata-rata Harian)</option>
-                </select>
-                
-                <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
-                    3. Tampilkan Chart
-                </button>
-            </div>
-            
-            <div id="dataStatus" class="text-xs text-red-400 p-2 text-center bg-gray-800 rounded-lg hidden"></div>
-        </div>
-
-        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[400px]">
-            <h4 id="chartTitle" class="text-lg font-bold text-slate-200 mb-3">Chart Data (Hasil Analisis CSV)</h4>
-            <div class="h-[400px] md:h-[500px] flex items-center justify-center">
-                <canvas id="csvChartCanvas"></canvas>
-                <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV dan klik 'Tampilkan Chart'.</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
 <button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]">
     AI
 </button>
 
 <div id="chatModal" class="fixed right-6 bottom-6 w-[320px] max-w-[calc(100%-32px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
     <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50">
-        <div class="w-8 h-8 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-sm">G</div>
-        <div class="text-sm font-semibold text-slate-100">Gemini AI Chat</div>
+        <div class="w-10 h-10 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-lg">G</div>
+        <div>
+            <div class="text-base font-semibold text-slate-100">Gemini AI Chat</div>
+            <div class="text-xs text-emerald-400">Analisis Teks & Gambar</div>
+        </div>
         <button id="closeChat" class="ml-auto text-slate-400 hover:text-white transition duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
 
-    <div id="chatBody" class="p-3 custom-scroll flex flex-col gap-3 h-[350px] overflow-y-auto bg-gray-950/70">
+    <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[350px] overflow-y-auto bg-gray-950/70">
         <div class="self-start max-w-[85%]">
-            <div class="px-3 py-2 rounded-lg bg-gray-800 text-slate-200 text-sm">
+            <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-red-400 font-semibold">⚠️ Mode ini menggunakan Kunci API di browser (tidak aman untuk produksi).</span>
+                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span>
             </div>
         </div>
     </div>
 
-    <div class="p-3 border-t border-gray-800 bg-gray-800/50">
-        <div id="chatInputArea" class="flex flex-col gap-2">
-            <div class="flex gap-2">
-                <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan..." />
-                <button id="sendBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 text-sm">
-                    Kirim
-                </button>
-            </div>
+    <div class="p-4 border-t border-gray-800 bg-gray-800/50">
+        <div class="flex gap-3">
+            <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan: mis. analisa candle 1D XAU" />
+            <button id="sendBtn" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Kirim</button>
+        </div>
 
-            <div id="imageInputContainer" class="flex items-center gap-2">
-                <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 flex-1 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
-                <button id="sendImageBtn" class="px-2 py-1 rounded-lg border border-gray-600 hover:bg-gray-700 text-xs transition duration-200 text-slate-300" disabled>
-                    Kirim Gbr
+        <div class="mt-3 flex flex-col gap-2">
+            <label class="text-xs text-slate-400">Multi-modal:</label>
+            <div class="flex items-center gap-2">
+                <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
+                <button id="sendImageBtn" class="px-3 py-1.5 rounded-lg border border-gray-600 hover:bg-gray-700 text-sm transition duration-200 text-slate-300 min-w-[100px]" disabled>
+                    Kirim Gambar
                 </button>
             </div>
         </div>
 
-        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-bold hidden"></div>
+        <div id="chatNotes" class="mt-3 text-xs text-red-500 font-bold">⚠️ PERINGATAN: Kunci API terekspos langsung di browser! Gunakan dengan hati-hati.</div>
     </div>
 </div>
 
 <script>
-    // =========================================================================
-    // UI/UX Logic (Tabs, Chart TradingView, Chat)
-    // =========================================================================
-    
-    // --- Tabs Logic ---
+    /* ======== UI: Tabs & Chart Symbol (LOGIC) ======== */
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabStoriesBtn = document.getElementById('tabStoriesBtn');
     const tabNews = document.getElementById('tabNews');
@@ -473,36 +411,42 @@
     });
     setActiveBtn(tabNewsBtn, tabStoriesBtn);
 
-    // --- TradingView Symbol Logic (disederhanakan) ---
+
     const applySymbol = document.getElementById('applySymbol');
-    if (applySymbol) {
-        applySymbol.addEventListener('click', () => {
-            const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
-            const container = document.querySelector('#advancedChart .tradingview-widget-container');
-            let oldScript = document.getElementById('tv-advanced-script');
-            if (oldScript) oldScript.remove();
-            Array.from(container.children).forEach(child => child.remove());
-            
-            const widgetPlaceholder = document.createElement('div');
-            widgetPlaceholder.className = 'tradingview-widget-container__widget';
-            widgetPlaceholder.style.cssText = 'height:100%;width:100%';
-            container.appendChild(widgetPlaceholder);
-
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.async = true;
-            script.id = 'tv-advanced-script';
-            script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-            
-            const config = {
-                "symbol": sym, "theme": "dark", "autosize": true, "interval": "D", "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)"
-            };
-            script.textContent = JSON.stringify(config, null, 2); 
-            container.appendChild(script);
+    applySymbol.addEventListener('click', () => {
+        const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
+        const container = document.querySelector('#advancedChart .tradingview-widget-container');
+        
+        let oldScript = document.getElementById('tv-advanced-script');
+        if (oldScript) oldScript.remove();
+        
+        // Hapus elemen widget lama
+        Array.from(container.children).forEach(child => {
+            child.remove();
         });
-    }
 
-    // --- Chat UI Logic (disederhanakan) ---
+        // Pastikan placeholder widget ada
+        const widgetPlaceholder = document.createElement('div');
+        widgetPlaceholder.className = 'tradingview-widget-container__widget';
+        widgetPlaceholder.style.cssText = 'height:100%;width:100%';
+        container.appendChild(widgetPlaceholder);
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.id = 'tv-advanced-script';
+        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+        
+        const config = {
+            "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": sym, "theme": "dark", "timezone": "Etc/UTC",
+            "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
+        };
+        script.textContent = JSON.stringify(config, null, 2); 
+        
+        container.appendChild(script);
+    });
+
+    /* ======== Chat UI show/hide & Helpers (LOGIC) ======== */
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -515,416 +459,210 @@
     const chatBody = document.getElementById('chatBody');
     const imageInput = document.getElementById('imageInput');
 
-    let botMessageBubble = null;
-
     function showChat(){ 
         chatModal.classList.remove('hidden'); 
         chatFab.classList.add('hidden'); 
-        setTimeout(() => { chatModal.style.transform = 'translateY(0) scale(1)'; messageInput.focus(); }, 10);
+        setTimeout(() => {
+            // Terapkan translasi/scale ke modal untuk animasi
+            chatModal.style.transform = 'translateY(0) scale(1)';
+            messageInput.focus(); 
+        }, 10);
     }
     function hideChat(){ 
         chatModal.classList.add('hidden'); 
         chatFab.classList.remove('hidden'); 
-        chatModal.style.transform = ''; 
+        chatModal.style.transform = ''; // Reset transform
     }
+    // Set posisi awal (tersembunyi/kecil)
     chatModal.style.transform = 'translateY(50px) scale(0.95)';
 
     chatFab.addEventListener('click', showChat);
     openChatBtnHeader.addEventListener('click', showChat);
     openChatBtnAside.addEventListener('click', showChat);
-    openChatBtnMobile.addEventListener('click', showChat); 
+    openChatBtnMobile.addEventListener('click', showChat); // Tambah event untuk tombol mobile
     closeChat.addEventListener('click', hideChat);
-    imageInput.addEventListener('change', () => {
-        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
-    });
 
-    sendBtn.addEventListener('click', () => { 
-        const message = messageInput.value.trim();
-        if (message) {
-            appendMsg('user', message); 
-            messageInput.value = '';
-            sendGeminiMessage(message);
-        }
-    });
-
-    sendImageBtn.addEventListener('click', () => { 
-        if (imageInput.files[0]) {
-            const imageFile = imageInput.files[0];
-            appendMsg('user', { fileName: imageFile.name }, true);
-            sendGeminiImage(imageFile, messageInput.value.trim());
-            messageInput.value = '';
-            imageInput.value = '';
-            sendImageBtn.disabled = true;
-        }
-    });
-    
     function appendMsg(who, content, isImage = false){
         const wrap = document.createElement('div');
         wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
+        
         const bubble = document.createElement('div');
-        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
+        bubble.className = 'px-4 py-3 rounded-xl text-sm break-words';
         
         if(who === 'user'){
             bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
-            bubble.textContent = content;
         } else {
-            bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-            bubble.style.whiteSpace = 'pre-wrap';
-            bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            if(content === '(AI is thinking...)' || content === '(AI analyzing image...)') {
+                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
+                 bubble.textContent = content;
+            } else {
+                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+                 bubble.style.whiteSpace = 'pre-wrap';
+                 // Mengganti Markdown sederhana ke HTML
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            }
         }
         
-        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD: ${content.fileName}] ${messageInput.value.trim() ? '('+messageInput.value.trim()+')' : ''}`; }
+        if (isImage) {
+             const imgElement = document.createElement('img');
+             imgElement.src = content.imagePreview;
+             imgElement.alt = 'Uploaded Chart';
+             imgElement.className = 'max-w-full h-auto rounded-lg mb-2 border border-gray-700';
+             wrap.appendChild(imgElement);
+             bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`;
+        }
 
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);
         chatBody.scrollTop = chatBody.scrollHeight;
+
         return bubble; 
     }
 
-    function setChatState(thinking) {
-        messageInput.disabled = thinking;
-        sendBtn.disabled = thinking;
-        imageInput.disabled = thinking;
-        sendImageBtn.disabled = thinking || !imageInput.files.length;
+    function disableInputs(disable = true) {
+        messageInput.disabled = disable;
+        sendBtn.disabled = disable;
+        sendImageBtn.disabled = disable;
+        imageInput.disabled = disable;
     }
 
-    // 🚀 REVISI: Fungsi inti untuk mengirim pesan (Teks) menggunakan SDK langsung
-    async function sendGeminiMessage(message) {
-        if (!ai) return; // Hentikan jika AI tidak terinisialisasi
-        setChatState(true);
-        botMessageBubble = appendMsg('bot', 'AI sedang berpikir...');
+    /* ======== Gemini Direct API Request (CORE LOGIC) ======== */
+    async function callGemini(bodyParts, type) {
+        disableInputs(true); // Disable inputs while processing
 
-        try {
-            const response = await ai.models.generateContent({
-                model: TEXT_MODEL,
-                contents: [{ role: "user", parts: [{ text: message }] }]
-            });
+        const model = type === 'text' ? TEXT_MODEL : MULTIMODAL_MODEL;
+        const loadingMessage = type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)';
+        let thinkingBubble = appendMsg('bot', loadingMessage);
 
-            const botResponse = response.text || "Gagal mendapatkan respons dari AI.";
-            
-            // Perbarui bubble chat
-            botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-            botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
-            botMessageBubble.classList.add('bg-gray-800');
-
-        } catch (error) {
-            console.error('Gemini API Error:', error);
-            botMessageBubble.textContent = `❌ Error API: ${error.message}. Cek apakah Kunci API Anda valid dan memiliki kuota.`;
-            botMessageBubble.classList.add('text-red-400');
-        } finally {
-            setChatState(false);
-        }
-    }
-
-    // 🚀 REVISI: Fungsi inti untuk mengirim pesan (Gambar) menggunakan SDK langsung
-    async function sendGeminiImage(imageFile, prompt) {
-        if (!ai) return; // Hentikan jika AI tidak terinisialisasi
-        setChatState(true);
-        botMessageBubble = appendMsg('bot', 'AI sedang menganalisis gambar...');
-
-        try {
-            // 1. Konversi File Gambar ke GenerativePart
-            const imagePart = await fileToGenerativePart(imageFile);
-
-            // 2. Susun konten
-            const contents = [
-                { role: "user", parts: [imagePart, { text: prompt || "Analisis dan jelaskan chart/gambar ini." }] }
-            ];
-
-            // 3. Panggil API Multimodal
-            const response = await ai.models.generateContent({
-                model: MULTIMODAL_MODEL,
-                contents: contents
-            });
-            
-            const botResponse = response.text || "Gagal mendapatkan respons dari AI setelah menganalisis gambar.";
-
-            // Perbarui bubble chat
-            botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-            botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
-            botMessageBubble.classList.add('bg-gray-800');
-            
-        } catch (error) {
-            console.error('Gemini Image API Error:', error);
-            botMessageBubble.textContent = `❌ Error API/Pemrosesan Gambar: ${error.message}.`;
-            botMessageBubble.classList.add('text-red-400');
-        } finally {
-            setChatState(false);
-        }
-    }
-    
-    // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (Sama seperti sebelumnya, sudah OK)
-    // =========================================================================
-    const csvFileInput = document.getElementById('csvFileInput');
-    const csvControls = document.getElementById('csvControls');
-    const yearSelector = document.getElementById('yearSelector');
-    const processCsvBtn = document.getElementById('processCsvBtn');
-    const dataStatus = document.getElementById('dataStatus');
-    const chartPlaceholder = document.getElementById('chartPlaceholder');
-    const csvChartCanvas = document.getElementById('csvChartCanvas');
-    const chartTitleElement = document.getElementById('chartTitle');
-    
-    let parsedCsvData = null;
-    let availableYears = new Set();
-    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-
-    // 1. Parsing CSV
-    csvFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-            csvControls.classList.add('hidden');
-            dataStatus.classList.add('hidden');
+        if (!GEMINI_API_KEY) {
+            thinkingBubble.textContent = "❌ ERROR: GEMINI_API_KEY tidak dikonfigurasi.";
+            thinkingBubble.classList.remove('animate-pulse', 'bg-gray-700', 'text-slate-400');
+            thinkingBubble.classList.add('bg-red-900', 'text-red-300');
+            disableInputs(false);
             return;
         }
-        dataStatus.classList.remove('hidden');
-        dataStatus.textContent = 'Memproses file...';
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            delimiter: '\t', // Menggunakan tab sebagai delimiter
-            complete: (results) => {
-                parsedCsvData = results.data.filter(row => row['<DATE>'] && row['<CLOSE>']);
-                
-                yearSelector.innerHTML = '<option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>';
-                yearSelector.innerHTML += '<option value="all_daily">Semua Tahun (Rata-rata Harian)</option>';
-
-                availableYears.clear();
-                parsedCsvData.forEach(row => {
-                    const dateString = row['<DATE>'].substring(0, 4);
-                    if (dateString.length === 4) {
-                        availableYears.add(dateString);
-                    }
-                });
-                
-                Array.from(availableYears).sort().reverse().forEach(year => {
-                    yearSelector.innerHTML += `<option value="${year}_daily">${year} (Harian)</option>`;
-                    yearSelector.innerHTML += `<option value="${year}_monthly">${year} (Bulanan)</option>`;
-                });
-
-                if (parsedCsvData.length > 0) {
-                    csvControls.classList.remove('hidden');
-                    processCsvBtn.disabled = false;
-                    dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
-                    dataStatus.classList.remove('text-red-400');
-                    dataStatus.classList.add('text-emerald-400');
-                    // Tampilkan chart default
-                    processCsvBtn.click();
-                } else {
-                    dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
-                    dataStatus.classList.add('text-red-400');
-                    csvControls.classList.add('hidden');
-                }
-            },
-            error: (error) => {
-                dataStatus.textContent = `❌ Error parsing file: ${error.message}`;
-                dataStatus.classList.add('text-red-400');
-                csvControls.classList.add('hidden');
-            }
-        });
-    });
-
-    // 2. Data Processing & Visualization
-    processCsvBtn.addEventListener('click', () => {
-        if (!parsedCsvData) return;
-        dataStatus.textContent = 'Membuat Chart...';
-
-        const [selectedYear, mode] = yearSelector.value.split('_');
-        let chartData = { labels: [], data: [] };
-        let title = '';
-        let xAxisLabel = '';
 
         try {
-            if (mode === 'monthly') {
-                chartData = processMonthlyAverages(selectedYear);
-                title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Rata-rata Harga Tutup Bulanan Tahun ${selectedYear}`;
-                xAxisLabel = 'Bulan';
-            } else if (mode === 'daily') {
-                 chartData = processDailyData(selectedYear);
-                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Semua Tahun)' : `Harga Tutup Harian Tahun ${selectedYear}`;
-                 xAxisLabel = selectedYear === 'all' ? 'Bulan/Tanggal' : 'Tanggal';
+            const url = `${GEMINI_API_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
+            const apiBody = {
+                contents: [{ role: "user", parts: bodyParts }]
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(apiBody)
+            });
+
+            thinkingBubble.remove();
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                const errorMessage = `API Error ${res.status}: ${errorData.error?.message || 'Unknown API Error'}`;
+                appendMsg('bot', `<span class="text-red-400 font-semibold">${errorMessage}</span>`);
+                return;
             }
 
-            renderChart(chartData.labels, chartData.data, title, xAxisLabel);
-            dataStatus.textContent = `✅ Chart berhasil diperbarui: ${title}`;
-            dataStatus.classList.remove('text-red-400');
-            dataStatus.classList.add('text-emerald-400');
+            const data = await res.json();
+            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        } catch (error) {
-            dataStatus.textContent = `❌ Error saat membuat chart: ${error.message}`;
-            dataStatus.classList.add('text-red-400');
-            dataStatus.classList.remove('text-emerald-400');
-            console.error(error);
+            if (responseText) {
+                appendMsg('bot', responseText);
+            } else {
+                appendMsg('bot', "Maaf, AI tidak memberikan respons teks. Mungkin ada masalah filter keamanan atau API tidak merespons.");
+            }
+            
+        } catch (e) {
+            thinkingBubble.remove();
+            appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Jaringan/Sistem Error: ${e.message}</span>`);
+        } finally {
+            disableInputs(false); // Enable inputs
         }
+    }
+
+
+    /* ======== Base64 Converter & Message Senders ======== */
+
+    function fileToGenerativePart(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64Data = reader.result.split(',')[1];
+                resolve({
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type
+                    }
+                });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function handleSend() {
+        const message = messageInput.value.trim();
+        if (message === '') return;
+
+        appendMsg('user', message);
+        messageInput.value = '';
+
+        const bodyParts = [{ text: message }];
+
+        callGemini(bodyParts, 'text');
+    }
+
+    async function handleSendImage() {
+        const file = imageInput.files[0];
+        const message = messageInput.value.trim();
+        
+        if (!file) return;
+
+        const imagePreview = URL.createObjectURL(file);
+        appendMsg('user', { imagePreview, fileName: file.name }, true);
+        
+        try {
+             var imagePart = await fileToGenerativePart(file);
+        } catch (error) {
+             appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Error saat membaca file: ${error.message}</span>`);
+             imageInput.value = '';
+             sendImageBtn.disabled = true;
+             return;
+        }
+
+        const bodyParts = [imagePart];
+        if (message) {
+            bodyParts.push({ text: message });
+        } else {
+            bodyParts.push({ text: "Analisis gambar chart trading ini dan berikan prediksi atau sentimen pasar." });
+        }
+
+        messageInput.value = '';
+        imageInput.value = '';
+        sendImageBtn.disabled = true;
+
+        callGemini(bodyParts, 'multimodal');
+    }
+
+
+    /* ======== Event Listeners ======== */
+
+    // Tombol Kirim untuk pesan teks
+    sendBtn.addEventListener('click', handleSend);
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !messageInput.disabled) handleSend();
     });
 
-    // Helper: Process Monthly Averages (FIXED LOGIC)
-    function processMonthlyAverages(targetYear) {
-        const aggregation = {}; // Key: 'MM' for all_monthly, or 'YYYY-MM' for specific year_monthly
+    // Tombol Kirim Gambar
+    sendImageBtn.addEventListener('click', handleSendImage);
 
-        parsedCsvData.forEach(row => {
-            const dateString = row['<DATE>'].substring(0, 10); // Ambil YYYY.MM.DD
-            const dateParts = dateString.split('.');
-            if (dateParts.length < 3) return;
-            
-            const year = dateParts[0];
-            const month = dateParts[1]; // MM
-            const closePrice = parseFloat(row['<CLOSE>']);
+    // Aktifkan tombol Kirim Gambar saat file dipilih
+    imageInput.addEventListener('change', () => {
+        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
+    });
 
-            if (isNaN(closePrice)) return;
-            
-            if (targetYear !== 'all' && year !== targetYear) return;
-
-            const key = targetYear === 'all' ? month : `${year}-${month}`; 
-
-            if (!aggregation[key]) {
-                aggregation[key] = { sum: 0, count: 0 };
-            }
-            aggregation[key].sum += closePrice;
-            aggregation[key].count += 1;
-        });
-
-        let keys = Object.keys(aggregation);
-        
-        if (targetYear === 'all') {
-            keys.sort(); // Sort by month number (01 to 12)
-        } else {
-            keys.sort(); // Sort by YYYY-MM
-        }
-        
-        const labels = keys.map(key => {
-            if (targetYear === 'all') {
-                // Key is 'MM'
-                return MONTHS[parseInt(key, 10) - 1];
-            } else {
-                // Key is 'YYYY-MM'
-                const [year, month] = key.split('-');
-                return `${MONTHS[parseInt(month, 10) - 1]} ${year}`;
-            }
-        });
-        
-        const data = keys.map(key => {
-            return parseFloat((aggregation[key].sum / aggregation[key].count).toFixed(2));
-        });
-
-        // Jika 'all_monthly', pastikan semua bulan ada di label
-        if (targetYear === 'all') {
-            const fullData = Array(12).fill(null);
-            const fullLabels = [...MONTHS];
-            
-            labels.forEach((label, index) => {
-                const monthIndex = MONTHS.indexOf(label);
-                if(monthIndex !== -1) {
-                    fullData[monthIndex] = data[index];
-                }
-            });
-            return { labels: fullLabels, data: fullData };
-        }
-
-        return { labels, data };
-    }
-
-
-    // Helper: Process Daily Data for a Year or All Years (Average) (FIXED LOGIC)
-    function processDailyData(targetYear) {
-        const aggregation = {}; // Key: 'MM.DD' for all_daily, or 'YYYY.MM.DD' for specific year_daily
-        
-        parsedCsvData.forEach(row => {
-            const dateString = row['<DATE>'].substring(0, 10); // YYYY.MM.DD
-            const dateParts = dateString.split('.');
-            if (dateParts.length < 3) return;
-            
-            const year = dateParts[0];
-            const monthDay = `${dateParts[1]}.${dateParts[2]}`; // MM.DD
-            const closePrice = parseFloat(row['<CLOSE>']);
-
-            if (isNaN(closePrice)) return;
-
-            if (targetYear !== 'all') {
-                if (year !== targetYear) return;
-                // Specific year: key is full date
-                const key = dateString;
-                if (!aggregation[key]) { aggregation[key] = { sum: 0, count: 0 }; }
-                aggregation[key].sum = closePrice; // Assuming only one entry per day
-                aggregation[key].count = 1;
-
-            } else {
-                // All years: key is month.day (average for that day across all years)
-                const key = monthDay;
-                if (!aggregation[key]) { aggregation[key] = { sum: 0, count: 0 }; }
-                aggregation[key].sum += closePrice;
-                aggregation[key].count += 1;
-            }
-        });
-        
-        let keys = Object.keys(aggregation);
-        keys.sort();
-
-        const labels = keys.map(key => {
-            return targetYear === 'all' ? key.replace('.', '/') : key;
-        });
-        
-        const data = keys.map(key => {
-            return parseFloat((aggregation[key].sum / aggregation[key].count).toFixed(2));
-        });
-
-        return { labels: labels, data: data };
-    }
-
-    // 3. Render Chart.js
-    function renderChart(labels, data, title, xAxisLabel) {
-        chartPlaceholder.classList.add('hidden');
-        csvChartCanvas.style.display = 'block';
-        chartTitleElement.textContent = title;
-        
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        chartInstance = new Chart(csvChartCanvas, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Harga Tutup (USD)',
-                    data: data,
-                    borderColor: '#10B981', 
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    pointRadius: labels.length > 50 ? 0 : 3 
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: title,
-                        color: '#E2E8F0',
-                        font: { size: 14 }
-                    },
-                    legend: { display: false },
-                    tooltip: { mode: 'index', intersect: false }
-                },
-                scales: {
-                    x: {
-                        title: { display: true, text: xAxisLabel, color: '#94A3B8' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#CBD5E1', maxRotation: 45, minRotation: 0 }
-                    },
-                    y: {
-                        title: { display: true, text: 'Harga (USD)', color: '#94A3B8' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#CBD5E1' }
-                    }
-                }
-            }
-        });
-    }
-
+    // Pastikan tombol kirim gambar mati saat modal dimuat
+    sendImageBtn.disabled = true; 
 </script>
 </body>
 </html>
