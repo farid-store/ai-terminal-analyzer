@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 🛑 PERINGATAN: MENEMPATKAN KUNCI API DI SINI SANGAT BERISIKO KEAMANAN!
+    // KUNCI INI AKAN DAPAT DIAKSES OLEH SIAPA PUN.
+    // GANTI DENGAN KUNCI GEMINI API ANDA DI BAWAH INI:
+    const GEMINI_API_KEY = "GANTI_DENGAN_KUNCI_API_GEMINI_ANDA_DI_SINI";
+    
+    // Pastikan library @google/genai sudah dimuat (disediakan di index.html)
+    if (typeof GoogleGenAI === 'undefined') {
+        console.error("Library GoogleGenAI tidak dimuat. Pastikan Anda memiliki tag <script> yang benar.");
+        return;
+    }
+
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    const model = 'gemini-2.5-flash';
+
     const chatButton = document.getElementById('chat-button');
     const chatPopup = document.getElementById('chat-popup');
     const closeChat = document.getElementById('close-chat');
@@ -32,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         appendMessage('user', userMessage);
         chatInputText.value = ''; // Kosongkan input
+        chatInputText.disabled = true; // Nonaktifkan input saat menunggu respon
 
-        // Kirim pesan ke Serverless Function Vercel
         getGeminiResponse(userMessage);
     }
 
@@ -47,51 +61,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- FUNGSI INTEGRASI GEMINI API VIA VERCEL BACKEND ---
+    // --- FUNGSI INTEGRASI GEMINI API LANGSUNG (FRONTEND) ---
     
-    // Fungsi untuk mendapatkan respons dari Gemini melalui Serverless Function Vercel
     async function getGeminiResponse(userQuery) {
-        appendMessage('bot', '⏳ Sedang berpikir...');
+        appendMessage('bot', '⏳ Sedang memproses analisis...');
         
-        // Alamat endpoint Vercel Anda. Menggunakan path relatif /api/chat
-        // Vercel akan otomatis menyelesaikan URL lengkap setelah di-deploy.
-        const serverUrl = '/api/chat'; 
-
         try {
-            const response = await fetch(serverUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: userQuery }),
+            const response = await ai.models.generateContent({
+                model: model,
+                contents: userQuery,
             });
 
-            const data = await response.json();
-            
             // Hapus pesan loading
             const loadingMessage = chatBody.lastElementChild;
-            if (loadingMessage && loadingMessage.textContent.includes('Sedang berpikir')) {
+            if (loadingMessage && loadingMessage.textContent.includes('Sedang memproses')) {
                 chatBody.removeChild(loadingMessage);
             }
 
-            if (data.error) {
-                // Tampilkan pesan error dari backend
-                appendMessage('bot', `Kesalahan: ${data.error}`);
-            } else {
-                // Tampilkan respons AI dari backend Vercel
-                appendMessage('bot', data.text);
-            }
+            // Tampilkan respons AI
+            appendMessage('bot', response.text);
 
         } catch (error) {
-            console.error('Error fetching chat response:', error);
+            console.error('Gemini API Error:', error);
             
             // Hapus pesan loading
             const loadingMessage = chatBody.lastElementChild;
-            if (loadingMessage && loadingMessage.textContent.includes('Sedang berpikir')) {
+            if (loadingMessage && loadingMessage.textContent.includes('Sedang memproses')) {
                 chatBody.removeChild(loadingMessage);
             }
             
-            appendMessage('bot', 'Maaf, terjadi kesalahan koneksi atau jaringan. Periksa server Vercel Anda.');
+            appendMessage('bot', '🚫 Maaf, terjadi kesalahan API (Mungkin Kunci API salah atau habis kuota).');
+        } finally {
+            chatInputText.disabled = false;
+            chatInputText.focus();
         }
     }
 });
