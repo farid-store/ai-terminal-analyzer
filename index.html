@@ -3,149 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Keuangan Gemini Pro</title>
+    <title>Dashboard Analisis Pasar - Profesional</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="terminal-container">
-        
-        <div class="ticker-tape-container">
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/" rel="noopener nofollow" target="_blank"><span class="blue-text">Ticker tape</span></a><span class="trademark"> by TradingView</span></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                {
-                    "symbols": [
-                        { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500 Index" },
-                        { "proName": "FX_IDC:EURUSD", "title": "EUR to USD" },
-                        { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
-                        { "proName": "OANDA:XAUUSD", "title": "Gold" },
-                        { "proName": "IDX:COMPOSITE", "title": "IHSG" }
-                    ],
-                    "colorTheme": "dark",
-                    "locale": "en",
-                    "isTransparent": false,
-                    "showSymbolLogo": true,
-                    "displayMode": "adaptive"
-                }
-                </script>
-            </div>
-        </div>
 
-        <nav class="navbar">
-            <div class="logo">TERMINAL.AI</div>
-            <div class="nav-links">
-                <a href="#" class="active">📈 Market View</a>
-                <a href="#">💡 AI Insights</a>
-                <a href="#">⚙️ Settings</a>
-            </div>
-            <div class="user-info">
-                <span>🟢 LIVE FEED</span>
-            </div>
-        </nav>
+    <header class="header">
+        <h1>📊 Dashboard Analisis Pasar</h1>
+    </header>
 
-        <div class="main-grid">
-            
-            <div class="grid-item primary-chart-panel">
-                <div class="tradingview-widget-container" id="main-chart-widget">
-                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-                    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a><span class="trademark"> by TradingView</span></div>
+    <main class="dashboard-container">
+
+        <section class="left-panel">
+            <div class="widget-card full-height">
+                <div class="tradingview-widget-container chart-main-container" id="advanced-chart-widget">
+                    <div class="tradingview-widget-container__widget" style="height:calc(100% - 0px);width:100%"></div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
                     {
-                        "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, 
-                        "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, 
-                        "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", 
-                        "theme": "dark", "timezone": "Etc/UTC", "backgroundColor": "#0F0F0F", 
-                        "gridColor": "rgba(242, 242, 242, 0.06)", "watchlist": [], "withdateranges": false, 
-                        "compareSymbols": [], "studies": [], "autosize": true
+                    "allow_symbol_change": true,
+                    "calendar": false,
+                    "details": false,
+                    "hide_side_toolbar": true,
+                    "hide_top_toolbar": false,
+                    "hide_legend": false,
+                    "hide_volume": false,
+                    "hotlist": false,
+                    "interval": "D",
+                    "locale": "en",
+                    "save_image": true,
+                    "style": "1",
+                    "symbol": "OANDA:XAUUSD",
+                    "theme": "dark",
+                    "timezone": "Etc/UTC",
+                    "backgroundColor": "#0F0F0F",
+                    "gridColor": "rgba(242, 242, 242, 0.06)",
+                    "watchlist": [],
+                    "withdateranges": false,
+                    "compareSymbols": [],
+                    "studies": [],
+                    "autosize": true
                     }
                     </script>
                 </div>
             </div>
+            
+            <div class="widget-card ticker-tape-container">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                    {
+                    "symbols": [
+                        { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500 Index" },
+                        { "proName": "FOREXCOM:NSXUSD", "title": "US 100 Cash CFD" },
+                        { "proName": "FX_IDC:EURUSD", "title": "EUR to USD" },
+                        { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
+                        { "proName": "BITSTAMP:ETHUSD", "title": "Ethereum" },
+                        { "proName": "OANDA:XAUUSD", "title": "Gold" },
+                        { "proName": "IDX:COMPOSITE", "title": "IHSG" }
+                    ],
+                    "colorTheme": "dark", "locale": "en", "largeChartUrl": "", "isTransparent": false,
+                    "showSymbolLogo": true, "displayMode": "adaptive"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
 
-            <div class="grid-item side-panels-container">
-                
-                <div class="side-panel chat-panel">
-                    <h3 class="panel-title">🧠 GEMINI AI ANALYST</h3>
-                    <div class="chat-box" id="chat-box">
-                        <div class="message gemini-message">
-                            Selamat datang! Unggah chart, tanyakan berita, atau minta analisis geopolitik.
-                        </div>
-                    </div>
-                    
-                    <form class="input-form" id="input-form">
-                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                        <button type="button" id="upload-btn" title="Unggah Chart Analisis">🖼️</button>
-                        <input type="text" id="user-input" placeholder="Tanyakan analisis market..." required>
-                        <button type="submit">Kirim</button>
-                    </form>
-                    <div id="image-preview-container" style="display: none;">
-                        <img id="image-preview" src="#" alt="Pratinjau Gambar" />
-                        <button type="button" id="remove-image-btn">❌ Hapus Gambar</button>
+        <section class="center-panel">
+            <div class="heatmap-grid">
+                <div class="widget-card">
+                    <h2>Stock Heatmap</h2>
+                    <div class="tradingview-widget-container heatmap-widget">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                        { "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector",
+                        "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false,
+                        "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false,
+                        "width": "100%", "height": "calc(100% - 30px)" }
+                        </script>
                     </div>
                 </div>
 
-                <div class="side-panel data-panel">
-                    <h3 class="panel-title">📊 MARKET FLOW & NEWS</h3>
-                    <div class="data-sub-grid">
-                        
-                        <div class="sub-grid-item rates-widget">
-                             <div class="tradingview-widget-container">
-                                <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
-                                {
-                                "colorTheme": "dark", "isTransparent": false, "locale": "en", 
-                                "currencies": ["EUR", "USD", "JPY", "GBP", "IDR"],
-                                "backgroundColor": "#0F0F0F", "width": "100%", "height": "100%"
-                                }
-                                </script>
-                            </div>
-                        </div>
-
-                        <div class="sub-grid-item calendar-widget">
-                            <div class="tradingview-widget-container">
-                                <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                                {
-                                "colorTheme": "dark", "isTransparent": false, "locale": "en", 
-                                "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", 
-                                "importanceFilter": "-1,0,1", "width": "100%", "height": "100%"
-                                }
-                                </script>
-                            </div>
-                        </div>
-
-                        <div class="sub-grid-item heatmap-widget">
-                            <div class="tradingview-widget-container">
-                                <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-                                {
-                                "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", 
-                                "grouping": "sector", "locale": "en", "colorTheme": "dark", "hasTopBar": false, 
-                                "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, 
-                                "width": "100%", "height": "100%"
-                                }
-                                </script>
-                            </div>
-                        </div>
-
-                        <div class="sub-grid-item news-widget">
-                            <div class="tradingview-widget-container">
-                                <div class="tradingview-widget-container__widget"></div>
-                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
-                                {
-                                "displayMode": "regular", "feedMode": "all_symbols", "colorTheme": "dark", 
-                                "isTransparent": false, "locale": "en", "width": "100%", "height": "100%"
-                                }
-                                </script>
-                            </div>
-                        </div>
-
+                <div class="widget-card">
+                    <h2>Crypto Heatmap</h2>
+                    <div class="tradingview-widget-container heatmap-widget">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+                        { "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5",
+                        "locale": "en", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false,
+                        "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "calc(100% - 30px)" }
+                        </script>
                     </div>
                 </div>
             </div>
+
+            <div class="forex-grid">
+                <div class="widget-card">
+                    <h2>Forex Cross Rates</h2>
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+                        { "colorTheme": "dark", "isTransparent": false, "locale": "en",
+                        "currencies": [ "EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR" ],
+                        "backgroundColor": "#0F0F0F", "width": "100%", "height": 400 }
+                        </script>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <h2>Forex Heatmap</h2>
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
+                        { "colorTheme": "dark", "isTransparent": false, "locale": "en",
+                        "currencies": [ "EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR" ],
+                        "backgroundColor": "#0F0F0F", "width": "100%", "height": 400 }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="right-panel">
+            <div class="widget-card full-height">
+                <h2>Top Stories</h2>
+                <div class="tradingview-widget-container full-height">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                    { "displayMode": "regular", "feedMode": "all_symbols", "colorTheme": "dark",
+                    "isTransparent": false, "locale": "en", "width": "100%", "height": "calc(50% - 30px)" }
+                    </script>
+                </div>
+                
+                <h2>Economic Calendar</h2>
+                <div class="tradingview-widget-container full-height">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                    { "colorTheme": "dark", "isTransparent": false, "locale": "en",
+                    "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
+                    "importanceFilter": "-1,0,1", "width": "100%", "height": "calc(50% - 30px)" }
+                    </script>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <button id="chat-button" class="chat-button" title="Chat dengan Gemini AI">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div id="chat-popup" class="chat-popup hidden">
+        <div class="chat-header">
+            <h3>🤖 Gemini AI Assistant</h3>
+            <button id="close-chat" class="close-chat">&times;</button>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="chat-message bot">Halo! Saya asisten analisis pasar bertenaga Gemini. Bagaimana saya bisa membantu Anda hari ini?</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-input-text" placeholder="Ketik pesan Anda...">
+            <button id="send-chat-message"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
