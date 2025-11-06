@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appendMessage('user', userMessage);
         chatInputText.value = ''; // Kosongkan input
 
-        // Kirim pesan ke Gemini API (Asumsi: Anda sudah menyiapkan fungsi di sini)
+        // Kirim pesan ke Serverless Function Vercel
         getGeminiResponse(userMessage);
     }
 
@@ -47,34 +47,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    // --- INTEGRASI GEMINI API ---
+    // --- FUNGSI INTEGRASI GEMINI API VIA VERCEL BACKEND ---
     
-    // CATATAN PENTING: Untuk alasan keamanan, Anda TIDAK boleh menempatkan 
-    // API Key langsung di kode frontend (JavaScript) jika web akan di-hosting 
-    // publik. Sebaiknya, buatlah endpoint di server (misalnya menggunakan Node.js, 
-    // Python, atau PHP) yang menangani permintaan ke Gemini API.
-    
-    // Fungsi Placeholder untuk Respon Gemini
+    // Fungsi untuk mendapatkan respons dari Gemini melalui Serverless Function Vercel
     async function getGeminiResponse(userQuery) {
-        // Tampilkan pesan loading bot
         appendMessage('bot', '⏳ Sedang berpikir...');
         
-        // Hapus pesan loading sebelumnya (Anda mungkin perlu ID untuk ini, tapi ini adalah cara sederhana)
-        // Kita anggap pesan terakhir adalah "Sedang berpikir"
-        const loadingMessage = chatBody.lastElementChild;
-        if (loadingMessage && loadingMessage.textContent.includes('Sedang berpikir')) {
+        // Alamat endpoint Vercel Anda. Menggunakan path relatif /api/chat
+        // Vercel akan otomatis menyelesaikan URL lengkap setelah di-deploy.
+        const serverUrl = '/api/chat'; 
+
+        try {
+            const response = await fetch(serverUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userQuery }),
+            });
+
+            const data = await response.json();
+            
             // Hapus pesan loading
-            chatBody.removeChild(loadingMessage);
+            const loadingMessage = chatBody.lastElementChild;
+            if (loadingMessage && loadingMessage.textContent.includes('Sedang berpikir')) {
+                chatBody.removeChild(loadingMessage);
+            }
+
+            if (data.error) {
+                // Tampilkan pesan error dari backend
+                appendMessage('bot', `Kesalahan: ${data.error}`);
+            } else {
+                // Tampilkan respons AI dari backend Vercel
+                appendMessage('bot', data.text);
+            }
+
+        } catch (error) {
+            console.error('Error fetching chat response:', error);
+            
+            // Hapus pesan loading
+            const loadingMessage = chatBody.lastElementChild;
+            if (loadingMessage && loadingMessage.textContent.includes('Sedang berpikir')) {
+                chatBody.removeChild(loadingMessage);
+            }
+            
+            appendMessage('bot', 'Maaf, terjadi kesalahan koneksi atau jaringan. Periksa server Vercel Anda.');
         }
-        
-        // GANTI BAGIAN INI dengan kode yang memanggil server-side endpoint Anda
-        // yang terhubung ke Gemini API.
-        
-        // Contoh Respon Mockup (Ganti dengan respon API nyata)
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulasi delay API
-        const mockResponse = `Saya sedang memproses pertanyaan Anda tentang: "${userQuery}". Silakan integrasikan kunci API Gemini Anda di sini untuk mendapatkan analisis pasar yang sesungguhnya!`;
-        
-        appendMessage('bot', mockResponse);
     }
 });
