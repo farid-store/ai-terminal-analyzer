@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🛑 PERINGATAN: MENEMPATKAN KUNCI API DI SINI SANGAT BERISIKO KEAMANAN!
     // KUNCI INI AKAN DAPAT DIAKSES OLEH SIAPA PUN.
     // GANTI DENGAN KUNCI GEMINI API ANDA DI BAWAH INI:
-    const GEMINI_API_KEY = "GANTI_DENGAN_KUNCI_API_GEMINI_ANDA_DI_SINI";
+    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU";
     
     // Pastikan library @google/genai sudah dimuat (disediakan di index.html)
     if (typeof GoogleGenAI === 'undefined') {
