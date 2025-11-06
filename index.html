@@ -19,7 +19,7 @@
         /* Main Grid: Responsive adjustment */
         .layout-grid-new {
             display: grid;
-            /* New Grid: Chart (2fr) | Heatmaps (1fr) | News (380px) */
+            /* New Grid: Chart + Forex (2fr) | Heatmaps S/C (1fr) | News (380px) */
             grid-template-columns: 2fr 1fr 380px; 
             gap: 1.5rem; /* 6 * 0.25rem = 1.5rem */
         }
@@ -32,14 +32,25 @@
             .right-col { order: 3; } /* Move news column to bottom */
             .left-col { min-height: 480px !important; }
         }
+        
+        /* New structure for combined heatmaps in center */
+        .center-col-heatmaps {
+            display: grid;
+            grid-template-rows: repeat(2, minmax(0, 1fr)); /* Dua baris dengan tinggi sama */
+            gap: 1.5rem;
+        }
+        @media (min-width: 1101px) {
+            /* Pastikan tinggi minimal di desktop */
+            .col-center { min-height: 900px; } 
+        }
+
     </style>
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased font-sans">
 
 <script>
-    // 🛑 PENTING: KUNCI API DIHAPUS DARI SINI UNTUK KEAMANAN & MENGATASI CORS
-    // Asumsi: Semua permintaan akan diarahkan ke Server Proxy
-    const PROXY_ENDPOINT = "/api/gemini-chat"; // Ini harus disiapkan di Backend Anda
+    // 🛑 KUNCI API DIHAPUS. Endpoint ini akan merujuk ke Vercel Function: api/gemini-chat.js
+    const PROXY_ENDPOINT = "/api/gemini-chat"; 
     
     // Model IDs
     const TEXT_MODEL = "gemini-2.5-flash"; 
@@ -140,29 +151,6 @@
                 </div>
             </div>
         </section>
-    </div>
-
-    <div class="col-center space-y-6">
-        
-        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[500px]">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View (S&P 500)</h3>
-                <div class="text-sm text-gray-400">24H Performance</div>
-            </div>
-            <div class="h-[420px] rounded-xl overflow-hidden border border-gray-700">
-                <div class="tradingview-widget-container" style="height:100%">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Stock Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-                    {
-                        "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
-                    }
-                    </script>
-                </div>
-            </div>
-        </section>
 
         <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[400px]">
             <div class="flex items-center justify-between mb-3">
@@ -186,12 +174,36 @@
             </div>
         </section>
 
-        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[400px]">
+    </div>
+
+    <div class="col-center center-col-heatmaps">
+        
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View (S&P 500)</h3>
+                <div class="text-sm text-gray-400">24H Performance</div>
+            </div>
+            <div class="h-[calc(100%-48px)] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Stock Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                    {
+                        "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-lg font-bold text-slate-200">Crypto Coin Heatmap</h3>
                 <div class="text-sm text-gray-400">Market Cap & 24H Change</div>
             </div>
-            <div class="h-[320px] rounded-xl overflow-hidden border border-gray-700">
+            <div class="h-[calc(100%-48px)] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
                     <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
@@ -338,7 +350,7 @@
             <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-red-400 font-semibold">⚠️ NOTE: Chat ini akan error (CORS) jika Anda belum menyiapkan Backend Proxy di: <code class="bg-gray-900 px-1 rounded text-xs">${PROXY_ENDPOINT}</code></span>
+                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span> Permintaan diarahkan ke Vercel Function <code class="bg-gray-900 px-1 rounded text-xs">${PROXY_ENDPOINT}</code> untuk mengatasi CORS.
             </div>
         </div>
     </div>
@@ -357,12 +369,12 @@
             </button>
         </div>
 
-        <div id="chatNotes" class="mt-3 text-xs text-gray-500">PENTING: Anda harus menyiapkan <span class="text-emerald-400">Backend Proxy</span> di alamat <span class="text-emerald-400">/api/gemini-chat</span> untuk mengatasi CORS dan menyembunyikan API Key.</div>
+        <div id="chatNotes" class="mt-3 text-xs text-gray-500">Anda harus menyiapkan <span class="text-emerald-400">Vercel Serverless Function</span> di folder <span class="text-emerald-400">api/gemini-chat.js</span>.</div>
     </div>
 </div>
 
 <script>
-    /* ======== UI: Tabs & Chart Symbol (Tidak Berubah) ======== */
+    /* ======== UI: Tabs & Chart Symbol (LOGIC) ======== */
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabStoriesBtn = document.getElementById('tabStoriesBtn');
     const tabNews = document.getElementById('tabNews');
@@ -397,6 +409,7 @@
         let oldScript = document.getElementById('tv-advanced-script');
         if (oldScript) oldScript.remove();
         
+        // Hapus elemen widget lama kecuali copyright
         Array.from(container.children).forEach(child => {
             if (!child.classList.contains('tradingview-widget-copyright')) {
                 child.remove();
@@ -423,7 +436,7 @@
         container.appendChild(script);
     });
 
-    /* ======== Chat UI show/hide (Tidak Berubah) ======== */
+    /* ======== Chat UI show/hide & Helpers (LOGIC) ======== */
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -499,19 +512,12 @@
     }
 
 
-    /* ======== Gemini request (text) (DIREVISI UNTUK PROXY) ======== */
-    async function callGeminiText(prompt){
-        let thinkingBubble = appendMsg('bot','(AI is thinking...)');
+    /* ======== Gemini Proxy Request (CORE LOGIC) ======== */
+    async function callGemini(body, type){
+        let thinkingBubble = appendMsg('bot', type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)');
         try {
-            // Mengirim permintaan ke server proxy lokal, bukan langsung ke Google
             const url = PROXY_ENDPOINT; 
-
-            const body = {
-                model: TEXT_MODEL,
-                type: 'text',
-                prompt: prompt
-            };
-
+            
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -519,12 +525,12 @@
             });
 
             if(!res.ok){
-                const errorText = await res.text();
-                throw new Error(`Proxy/Server error ${res.status}: ${errorText || 'Unknown error'}`);
+                const errorData = await res.json();
+                throw new Error(`Proxy/Vercel Function Error ${res.status}: ${errorData.error || 'Unknown Vercel Error'}`);
             }
 
             const j = await res.json();
-            let reply = j.text || 'No valid response content from proxy.';
+            let reply = j.text || 'No valid response content from AI.';
             
             // Update the thinking bubble
             thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
@@ -537,63 +543,30 @@
 
         } catch (err){
             removeLastBotBubble();
-            appendMsg('bot', `Error: ${err.message}\n\nPerlu diatasi: Siapkan **Backend Proxy** di ${PROXY_ENDPOINT} untuk mengatasi CORS!`);
+            appendMsg('bot', `Error: ${err.message}\n\nPastikan Vercel Function di ${PROXY_ENDPOINT} sudah ter-deploy dan variabel lingkungan (API Key) sudah disetel!`);
             console.error(err);
             throw err;
         }
     }
 
-    /* ======== GEMINI IMAGE ANALYSIS (DIREVISI UNTUK PROXY) ======== */
-    async function callGeminiImage(file, userNote = ''){
-        const base64 = await toBase64(file);
-        let thinkingBubble = appendMsg('bot','(AI analyzing image...)');
-        
+    // send text
+    sendBtn.addEventListener('click', async ()=>{
+        const q = messageInput.value.trim();
+        if(!q) return;
+        appendMsg('user', q);
+        messageInput.value = '';
+        const body = { model: TEXT_MODEL, type: 'text', prompt: q };
         try {
-            // Mengirim permintaan ke server proxy lokal, bukan langsung ke Google
-            const url = PROXY_ENDPOINT; 
-            const mimeType = file.type;
+            await callGemini(body, 'text');
+        } catch(e){}
+    });
 
-            const body = {
-                model: MULTIMODAL_MODEL,
-                type: 'image',
-                prompt: userNote || 'Please analyze this chart for candlestick patterns, supports/resistances, trend direction, and any notable signals. Return a concise, actionable market analysis (bullet points).',
-                imageData: {
-                    mimeType: mimeType,
-                    data: base64
-                }
-            };
+    // send on Enter
+    messageInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+    });
 
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if(!res.ok){
-                const errorText = await res.text();
-                throw new Error(`Proxy/Server error ${res.status}: ${errorText || 'Unknown error'}`);
-            }
-
-            const j = await res.json();
-            let reply = j.text || 'No valid response content from proxy.';
-
-            // Update the thinking bubble
-            thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
-            thinkingBubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-            thinkingBubble.style.whiteSpace = 'pre-wrap';
-            thinkingBubble.textContent = reply;
-
-            chatBody.scrollTop = chatBody.scrollHeight;
-            return reply;
-
-        } catch(err){
-            removeLastBotBubble();
-            appendMsg('bot', `Error: ${err.message}\n\nPerlu diatasi: Siapkan **Backend Proxy** di ${PROXY_ENDPOINT} untuk mengatasi CORS!`);
-            console.error(err);
-            throw err;
-        }
-    }
-
+    // base64 helper
     function toBase64(file){
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -608,22 +581,6 @@
         });
     }
 
-    // send text
-    sendBtn.addEventListener('click', async ()=>{
-        const q = messageInput.value.trim();
-        if(!q) return;
-        appendMsg('user', q);
-        messageInput.value = '';
-        try {
-            await callGeminiText(q);
-        } catch(e){}
-    });
-
-    // send on Enter
-    messageInput.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
-    });
-
     // send image
     sendImageBtn.addEventListener('click', async ()=>{
         const f = imageInput.files && imageInput.files[0];
@@ -632,13 +589,25 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             const imagePreview = e.target.result;
+            const base64 = await toBase64(f);
+
             appendMsg('user', { imagePreview, fileName: f.name }, true); 
             
             const userNote = messageInput.value.trim();
             messageInput.value = '';
 
+            const body = {
+                model: MULTIMODAL_MODEL,
+                type: 'image',
+                prompt: userNote || 'Analyze this chart for patterns, trend, S/R levels, and give a concise market outlook.',
+                imageData: {
+                    mimeType: f.type,
+                    data: base64
+                }
+            };
+
             try {
-                await callGeminiImage(f, userNote);
+                await callGemini(body, 'image');
                 imageInput.value = '';
             } catch(e){}
         };
