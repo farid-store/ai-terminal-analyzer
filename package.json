@@ -1,13 +1,12 @@
 {
-  "name": "xau-usd-dashboard-secure",
+  "name": "nama-proyek-trading",
   "version": "1.0.0",
-  "description": "Financial dashboard with secure Gemini API call via Vercel Serverless Function.",
-  "main": "api/analyze.js",
+  "description": "Dashboard Trading dengan Chatbot Gemini",
+  "main": "api/chat.js",
   "scripts": {
-    "start": "echo 'Run this on Vercel'",
-    "test": "echo 'Error: no test specified' && exit 1"
+    "start": "echo 'Run this project via Vercel deployment.'"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.15.0"
+    "@google/genai": "^0.15.0"
   }
 }
