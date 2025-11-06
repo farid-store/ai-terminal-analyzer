@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Analisis Keuangan Gemini</title>
     <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
     <div class="terminal-container">
@@ -22,13 +23,22 @@
         </nav>
 
         <div class="main-grid">
+            
             <div class="grid-item left-panel">
-                <h3 class="panel-title">📊 MARKET WATCH</h3>
-                <div id="market-data-display">
-                    <p class="data-row">**SPX** 5123.45 <span class="change positive">+0.5%</span></p>
-                    <p class="data-row">**EUR/USD** 1.0780 <span class="change negative">-0.1%</span></p>
-                    <p class="data-row">**Crude Oil** 78.20 <span class="change positive">+1.2%</span></p>
+                <h3 class="panel-title">📉 REALTIME CHART</h3>
+                
+                <div class="pair-selector">
+                    <label for="asset-pair">Pilih Aset:</label>
+                    <select id="asset-pair">
+                        <option value="NASDAQ:AAPL">AAPL (Saham)</option>
+                        <option value="FX_IDC:EURUSD" selected>EUR/USD (Forex)</option>
+                        <option value="CRYPTOCAP:BTC">BTC/USD (Crypto)</option>
+                        <option value="TVC:GOLD">XAU/USD (Gold)</option>
+                    </select>
                 </div>
+
+                <div class="tradingview-widget-container" id="chart-container">
+                    </div>
             </div>
 
             <div class="grid-item center-panel">
@@ -42,6 +52,7 @@
                         <h4>Geopolitik: Krisis Laut Merah dan Dampak Logistik Global</h4>
                         <p>Diskusi mendalam tentang bagaimana ketegangan di Laut Merah mempengaruhi rantai pasokan dan inflasi energi di Eropa dan Asia.</p>
                     </div>
+                    <p class="placeholder-text">Konten di sini dapat diperbarui dengan data dari Gemini AI atau API News eksternal.</p>
                 </div>
             </div>
 
@@ -49,7 +60,10 @@
                 <h3 class="panel-title">🧠 GEMINI AI CHAT ANALYST</h3>
                 <div class="chat-panel">
                     <div class="chat-box" id="chat-box">
+                         <div class="message gemini-message">
+                            Selamat datang! Saya Gemini AI Analyst. Unggah chart Anda atau tanyakan tentang market.
                         </div>
+                    </div>
                     
                     <form class="input-form" id="input-form">
                         <input type="file" id="image-upload" accept="image/*" style="display: none;">
