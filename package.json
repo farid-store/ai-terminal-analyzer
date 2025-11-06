@@ -1,12 +1,15 @@
 {
-  "name": "nama-proyek-trading",
+  "name": "gemini-vercel-market-hub",
   "version": "1.0.0",
-  "description": "Dashboard Trading dengan Chatbot Gemini",
-  "main": "api/chat.js",
+  "description": "Dashboard with Vercel Serverless Function proxy for Google Gemini API.",
+  "main": "api/gemini-chat.js",
   "scripts": {
-    "start": "echo 'Run this project via Vercel deployment.'"
+    "start": "echo 'Run this project locally with a tool like Vercel CLI or similar.'",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@google/genai": "^0.15.0"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }
