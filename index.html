@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Analisis Keuangan Gemini</title>
+    <title>Terminal Keuangan Gemini Pro</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body>
     <div class="terminal-container">
@@ -18,86 +17,130 @@
                 {
                     "symbols": [
                         { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500 Index" },
-                        { "proName": "FOREXCOM:NSXUSD", "title": "US 100 Cash CFD" },
                         { "proName": "FX_IDC:EURUSD", "title": "EUR to USD" },
                         { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
-                        { "proName": "BITSTAMP:ETHUSD", "title": "Ethereum" },
                         { "proName": "OANDA:XAUUSD", "title": "Gold" },
                         { "proName": "IDX:COMPOSITE", "title": "IHSG" }
                     ],
                     "colorTheme": "dark",
                     "locale": "en",
-                    "largeChartUrl": "",
                     "isTransparent": false,
                     "showSymbolLogo": true,
-                    "displayMode": "regular"
+                    "displayMode": "adaptive"
                 }
                 </script>
             </div>
-            </div>
+        </div>
+
         <nav class="navbar">
             <div class="logo">TERMINAL.AI</div>
             <div class="nav-links">
-                <a href="#">🏠 Dashboard</a>
-                <a href="#">📈 Chart</a>
-                <a href="#">📰 News Feed</a>
-                <a href="#" class="active">💬 AI Analyst</a>
+                <a href="#" class="active">📈 Market View</a>
+                <a href="#">💡 AI Insights</a>
+                <a href="#">⚙️ Settings</a>
             </div>
             <div class="user-info">
-                <span>🟢 LIVE MARKET</span>
+                <span>🟢 LIVE FEED</span>
             </div>
         </nav>
 
         <div class="main-grid">
             
-            <div class="grid-item left-panel">
-                <h3 class="panel-title">📉 REALTIME CHART</h3>
-                <div class="pair-selector">
-                    <label for="asset-pair">Pilih Aset:</label>
-                    <select id="asset-pair">
-                        <option value="NASDAQ:AAPL">AAPL (Saham)</option>
-                        <option value="FX_IDC:EURUSD" selected>EUR/USD (Forex)</option>
-                        <option value="CRYPTOCAP:BTC">BTC/USD (Crypto)</option>
-                        <option value="TVC:GOLD">XAU/USD (Gold)</option>
-                    </select>
-                </div>
-                <div class="tradingview-widget-container" id="chart-container">
-                    </div>
-            </div>
-
-            <div class="grid-item center-panel">
-                <h3 class="panel-title">📰 NEWS & GEOPOLITICAL ANALYSIS</h3>
-                <div id="news-feed-display">
-                    <div class="article">
-                        <h4>Fed Minutes Impact USD Outlook</h4>
-                        <p>Analisis dampak keputusan Federal Reserve terhadap likuiditas dolar AS dan aset berisiko. Potensi pelemahan...</p>
-                    </div>
-                    <div class="article">
-                        <h4>Geopolitik: Krisis Laut Merah dan Dampak Logistik Global</h4>
-                        <p>Diskusi mendalam tentang bagaimana ketegangan di Laut Merah mempengaruhi rantai pasokan dan inflasi energi di Eropa dan Asia.</p>
-                    </div>
-                    <p class="placeholder-text">Konten di sini dapat diperbarui dengan data dari Gemini AI atau API News eksternal.</p>
+            <div class="grid-item primary-chart-panel">
+                <div class="tradingview-widget-container" id="main-chart-widget">
+                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a><span class="trademark"> by TradingView</span></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                    {
+                        "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, 
+                        "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, 
+                        "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", 
+                        "theme": "dark", "timezone": "Etc/UTC", "backgroundColor": "#0F0F0F", 
+                        "gridColor": "rgba(242, 242, 242, 0.06)", "watchlist": [], "withdateranges": false, 
+                        "compareSymbols": [], "studies": [], "autosize": true
+                    }
+                    </script>
                 </div>
             </div>
 
-            <div class="grid-item right-panel">
-                <h3 class="panel-title">🧠 GEMINI AI CHAT ANALYST</h3>
-                <div class="chat-panel">
+            <div class="grid-item side-panels-container">
+                
+                <div class="side-panel chat-panel">
+                    <h3 class="panel-title">🧠 GEMINI AI ANALYST</h3>
                     <div class="chat-box" id="chat-box">
-                         <div class="message gemini-message">
-                            Selamat datang! Saya Gemini AI Analyst. Unggah chart Anda atau tanyakan tentang market.
+                        <div class="message gemini-message">
+                            Selamat datang! Unggah chart, tanyakan berita, atau minta analisis geopolitik.
                         </div>
                     </div>
                     
                     <form class="input-form" id="input-form">
                         <input type="file" id="image-upload" accept="image/*" style="display: none;">
                         <button type="button" id="upload-btn" title="Unggah Chart Analisis">🖼️</button>
-                        <input type="text" id="user-input" placeholder="Tanya analisis chart, news, atau ekonomi..." required>
+                        <input type="text" id="user-input" placeholder="Tanyakan analisis market..." required>
                         <button type="submit">Kirim</button>
                     </form>
                     <div id="image-preview-container" style="display: none;">
                         <img id="image-preview" src="#" alt="Pratinjau Gambar" />
                         <button type="button" id="remove-image-btn">❌ Hapus Gambar</button>
+                    </div>
+                </div>
+
+                <div class="side-panel data-panel">
+                    <h3 class="panel-title">📊 MARKET FLOW & NEWS</h3>
+                    <div class="data-sub-grid">
+                        
+                        <div class="sub-grid-item rates-widget">
+                             <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+                                {
+                                "colorTheme": "dark", "isTransparent": false, "locale": "en", 
+                                "currencies": ["EUR", "USD", "JPY", "GBP", "IDR"],
+                                "backgroundColor": "#0F0F0F", "width": "100%", "height": "100%"
+                                }
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="sub-grid-item calendar-widget">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                                {
+                                "colorTheme": "dark", "isTransparent": false, "locale": "en", 
+                                "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", 
+                                "importanceFilter": "-1,0,1", "width": "100%", "height": "100%"
+                                }
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="sub-grid-item heatmap-widget">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                                {
+                                "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", 
+                                "grouping": "sector", "locale": "en", "colorTheme": "dark", "hasTopBar": false, 
+                                "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, 
+                                "width": "100%", "height": "100%"
+                                }
+                                </script>
+                            </div>
+                        </div>
+
+                        <div class="sub-grid-item news-widget">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                                {
+                                "displayMode": "regular", "feedMode": "all_symbols", "colorTheme": "dark", 
+                                "isTransparent": false, "locale": "en", "width": "100%", "height": "100%"
+                                }
+                                </script>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
