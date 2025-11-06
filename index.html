@@ -7,7 +7,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/dist/papaparse.min.js"></script>
     <style>
         /* Modern scrollbar for dark theme */
         .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -328,17 +328,21 @@
                 <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
             </div>
 
-            <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
+            <div id="csvControls" class="flex flex-col gap-4 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
                 
-                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Periode Tahun:</label>
-                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </select>
-                
-                <label for="aggregationSelector" class="block text-sm font-medium text-slate-300">3. Pilih Agregasi Data:</label>
-                <select id="aggregationSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <option value="monthly">Rata-rata Bulanan</option>
-                    <option value="daily">Data Harian</option>
-                </select>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">2. Pilih Periode Tahun:</label>
+                    <div id="yearSelectorContainer" class="flex flex-wrap gap-2 max-h-[150px] custom-scroll overflow-y-auto pr-2">
+                        </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">3. Pilih Agregasi Data:</label>
+                    <div class="flex bg-gray-700/50 rounded-lg p-1 space-x-1">
+                        <button type="button" data-mode="monthly" id="monthlyBtn" class="flex-1 py-1.5 rounded-md text-sm font-medium bg-emerald-600 text-black hover:bg-emerald-500 transition duration-150">Rata-rata Bulanan</button>
+                        <button type="button" data-mode="daily" id="dailyBtn" class="flex-1 py-1.5 rounded-md text-sm font-medium text-slate-300 hover:bg-gray-600 transition duration-150 bg-transparent">Data Harian</button>
+                    </div>
+                    <input type="hidden" id="aggregationMode" value="monthly"> </div>
 
                 <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
                     4. Tampilkan Chart
@@ -544,8 +548,10 @@
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
-    const yearSelector = document.getElementById('yearSelector');
-    const aggregationSelector = document.getElementById('aggregationSelector'); // Variabel baru
+    const yearSelectorContainer = document.getElementById('yearSelectorContainer'); // Kontainer baru untuk radio button
+    const monthlyBtn = document.getElementById('monthlyBtn');
+    const dailyBtn = document.getElementById('dailyBtn');
+    const aggregationMode = document.getElementById('aggregationMode'); // Input tersembunyi
     const processCsvBtn = document.getElementById('processCsvBtn');
     const dataStatus = document.getElementById('dataStatus');
     const chartPlaceholder = document.getElementById('chartPlaceholder');
@@ -556,22 +562,73 @@
     let availableYears = new Set();
     const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-    // Helper: Isi opsi tahun secara dinamis
+    // Helper: Isi opsi tahun secara dinamis menggunakan Radio Buttons
     function prepareAnalysisOptions() {
-        yearSelector.innerHTML = '<option value="all">Semua Tahun (Rata-rata)</option>';
-
+        yearSelectorContainer.innerHTML = '';
         availableYears.clear();
+
+        // Cari tahun yang tersedia dari data
         parsedCsvData.forEach(row => {
-            if (row['<DATE>']) {
+            // Asumsi kolom tanggal adalah <DATE> dan formatnya YYYY.MM.DD atau YYYY/MM/DD
+            if (row['<DATE>'] && row['<DATE>'].length >= 4) {
                 const year = row['<DATE>'].substring(0, 4);
-                availableYears.add(year);
+                if (!isNaN(parseInt(year))) { // Hanya tambahkan jika itu adalah tahun yang valid
+                    availableYears.add(year);
+                }
             }
         });
         
+        // Tambahkan opsi "Semua Tahun" (default)
+        yearSelectorContainer.innerHTML += `
+            <input type="radio" id="yearAll" name="yearSelector" value="all" class="hidden peer" checked>
+            <label for="yearAll" class="cursor-pointer px-3 py-1 text-sm rounded-full border border-gray-700 text-slate-300 peer-checked:bg-emerald-600 peer-checked:text-black peer-checked:border-emerald-600 hover:bg-gray-700 transition duration-150">
+                Semua Tahun
+            </label>
+        `;
+
+        // Tambahkan opsi tahun spesifik
         Array.from(availableYears).sort().reverse().forEach(year => {
-            yearSelector.innerHTML += `<option value="${year}">${year} (Data Spesifik)</option>`;
+            yearSelectorContainer.innerHTML += `
+                <input type="radio" id="year${year}" name="yearSelector" value="${year}" class="hidden peer">
+                <label for="year${year}" class="cursor-pointer px-3 py-1 text-sm rounded-full border border-gray-700 text-slate-300 peer-checked:bg-emerald-600 peer-checked:text-black peer-checked:border-emerald-600 hover:bg-gray-700 transition duration-150">
+                    ${year}
+                </label>
+            `;
+        });
+        
+        // Tambahkan event listener untuk radio button baru (agar langsung diproses saat memilih tahun)
+        yearSelectorContainer.querySelectorAll('input[name="yearSelector"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                if(processCsvBtn.disabled === false) { // Pastikan tombol aktif sebelum klik
+                     processCsvBtn.click();
+                }
+            });
         });
     }
+
+    // Helper: Fungsi untuk mengatur tampilan tombol agregasi dan menyimpan nilai
+    function setAggregationMode(mode) {
+        aggregationMode.value = mode;
+        if (mode === 'monthly') {
+            monthlyBtn.classList.add('bg-emerald-600', 'text-black');
+            monthlyBtn.classList.remove('text-slate-300', 'bg-transparent');
+            dailyBtn.classList.remove('bg-emerald-600', 'text-black');
+            dailyBtn.classList.add('text-slate-300', 'bg-transparent');
+        } else {
+            dailyBtn.classList.add('bg-emerald-600', 'text-black');
+            dailyBtn.classList.remove('text-slate-300', 'bg-transparent');
+            monthlyBtn.classList.remove('bg-emerald-600', 'text-black');
+            monthlyBtn.classList.add('text-slate-300', 'bg-transparent');
+        }
+        if(processCsvBtn.disabled === false) { // Langsung proses saat mode diubah, hanya jika data sudah di-load
+            processCsvBtn.click();
+        }
+    }
+
+    // Event Listeners untuk Agregasi
+    monthlyBtn.addEventListener('click', () => setAggregationMode('monthly'));
+    dailyBtn.addEventListener('click', () => setAggregationMode('daily'));
+
 
     // 1. Parsing CSV
     csvFileInput.addEventListener('change', (e) => {
@@ -587,12 +644,12 @@
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
-            delimiter: '\t', // Menggunakan tab sebagai delimiter
+            delimiter: '\t', 
             complete: (results) => {
                 parsedCsvData = results.data;
                 
-                prepareAnalysisOptions(); // Isi opsi tahun
-                aggregationSelector.value = 'monthly'; // Set default agregasi
+                prepareAnalysisOptions(); 
+                setAggregationMode('monthly'); // Set default mode (Ini akan memanggil processCsvBtn.click)
 
                 if (parsedCsvData.length > 0) {
                     csvControls.classList.remove('hidden');
@@ -600,8 +657,7 @@
                     dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
                     dataStatus.classList.remove('text-red-400');
                     dataStatus.classList.add('text-emerald-400');
-                    // Tampilkan chart default (Rata-rata Bulanan Semua Tahun)
-                    processCsvBtn.click();
+                    // Chart sudah dipanggil di setAggregationMode
                 } else {
                     dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
                     dataStatus.classList.add('text-red-400');
@@ -618,13 +674,18 @@
         });
     });
 
-    // 2. Data Processing & Visualization
+    // 2. Data Processing & Visualization (Memanggil dari tombol atau dari change event)
     processCsvBtn.addEventListener('click', () => {
         if (!parsedCsvData) return;
         dataStatus.textContent = 'Membuat Chart...';
 
-        const selectedYear = yearSelector.value;
-        const mode = aggregationSelector.value;
+        // Ambil nilai dari input radio yang checked
+        const selectedYearElement = document.querySelector('input[name="yearSelector"]:checked');
+        const selectedYear = selectedYearElement ? selectedYearElement.value : 'all';
+        
+        // Ambil nilai dari input tersembunyi (diatur oleh tombol toggle)
+        const mode = aggregationMode.value;
+
         let chartData = {};
         let title = '';
         let xAxisLabel = '';
@@ -660,7 +721,7 @@
         parsedCsvData.forEach(row => {
             if (!row['<DATE>'] || !row['<CLOSE>']) return;
             
-            const dateParts = row['<DATE>'].split('.'); // YYYY.MM.DD
+            const dateParts = row['<DATE>'].split('.'); // Asumsi format default YYYY.MM.DD
             if (dateParts.length < 3) return;
             const year = dateParts[0];
             const month = parseInt(dateParts[1], 10) - 1; 
@@ -716,23 +777,23 @@
             const closePrice = parseFloat(row['<CLOSE>']);
             if (isNaN(closePrice)) return;
 
-            const year = date.substring(0, 4);
+            const dateKeyRaw = date.substring(0, 10); // YYYY.MM.DD (Asumsi)
+            const year = dateKeyRaw.substring(0, 4);
             
             // Filter untuk hanya menggunakan entri harian (asumsi: tidak ada waktu atau waktu 00:00:00)
             const isDailyEntry = date.length <= 10 || date.endsWith('00:00:00');
             if (!isDailyEntry) return;
 
-            const dateKey = date.substring(0, 10); // YYYY.MM.DD
 
             if (targetYear !== 'all') {
                 if (year !== targetYear) return;
                 
                 // For a specific year, use full date (YYYY.MM.DD) as key
-                dailyPrices[dateKey] = closePrice;
-                dailyCounts[dateKey] = 1; 
+                dailyPrices[dateKeyRaw] = closePrice;
+                dailyCounts[dateKeyRaw] = 1; 
             } else {
                 // For all years, use MM.DD as key and calculate average price
-                const monthDay = dateKey.substring(5); // MM.DD
+                const monthDay = dateKeyRaw.substring(5); // MM.DD
                 dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
                 dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
             }
@@ -780,10 +841,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     title: {
-                        display: true,
-                        text: title,
-                        color: '#E2E8F0',
-                        font: { size: 14 }
+                        display: false, // Title dipindahkan ke luar canvas
                     },
                     legend: { display: false },
                     tooltip: { mode: 'index', intersect: false }
