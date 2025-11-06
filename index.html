@@ -226,29 +226,24 @@
         </div>
 
         <div id="tabContent" class="flex-1 min-h-[300px] flex flex-col">
-            <div id="tabNews" class="space-y-3 custom-scroll flex-1 overflow-y-auto pr-3">
-                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
-                    <div class="text-sm text-slate-200 font-semibold">US CPI higher than expected</div>
-                    <div class="text-xs text-emerald-400 mt-1">Implication: USD strength; gold reacts.</div>
-                    <div class="text-xs text-gray-500 mt-2">Apr 10, 2025</div>
-                </div>
-                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
-                    <div class="text-sm text-slate-200 font-semibold">Fed holds rates steady</div>
-                    <div class="text-xs text-amber-400 mt-1">Market expects data-driven changes.</div>
-                    <div class="text-xs text-gray-500 mt-2">Mar 22, 2025</div>
-                </div>
-                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
-                    <div class="text-sm text-slate-200 font-semibold">Major Tech Earnings Beat</div>
-                    <div class="text-xs text-emerald-400 mt-1">S&P 500 futures jump on optimism.</div>
-                    <div class="text-xs text-gray-500 mt-2">Mar 01, 2025</div>
-                </div>
-                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
-                    <div class="text-sm text-slate-200 font-semibold">Oil volatility increases</div>
-                    <div class="text-xs text-amber-400 mt-1">Geopolitical tensions rise.</div>
-                    <div class="text-xs text-gray-500 mt-2">Feb 18, 2025</div>
+            <div id="tabNews" class="custom-scroll flex-1 overflow-y-hidden pr-3 h-full">
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                    {
+                        "feedMode": "all_symbols",
+                        "isTransparent": true,
+                        "displayMode": "adaptive",
+                        "width": "100%",
+                        "height": "100%",
+                        "colorTheme": "dark",
+                        "locale": "en",
+                        "noSuggest": true,
+                        "dateRange": "12m"
+                    }
+                    </script>
                 </div>
             </div>
-
             <div id="tabStories" class="hidden space-y-3 custom-scroll flex-1 overflow-y-auto pr-3">
                 <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
                     <div class="text-sm text-slate-200 font-semibold">Long-term gold thesis</div>
@@ -517,7 +512,7 @@
                  bubble.textContent = content;
             } else {
                  // Untuk respons bot yang sebenarnya
-                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1').replace(/\n/g, '<br>');
             }
         }
         
