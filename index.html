@@ -1,634 +1,656 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Market Dashboard — Heatmaps, News, Stories, Gemini AI Chat</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Market Dashboard — Heatmaps, News, Stories, Gemini AI Chat</title>
 
-  <!-- Tailwind (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* tradingview sizing helpers */
-    .tradingview-widget-container { width:100%; height:100%; }
-    .tradingview-widget-container__widget { width:100%; height:100%; }
-    /* subtle scrollbar for chat body */
-    .chat-scroll::-webkit-scrollbar { width:8px; height:8px; }
-    .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius:8px; }
-    /* small responsive tweaks */
-    @media (max-width: 1100px) {
-      .layout-grid { grid-template-columns: 1fr; }
-      .right-col { order: 3; }
-    }
-  </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Modern scrollbar for dark theme */
+        .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+
+        /* tradingview sizing helpers */
+        .tradingview-widget-container { width: 100%; height: 100%; }
+        .tradingview-widget-container__widget { width: 100%; height: 100%; }
+
+        /* Main Grid: Responsive adjustment */
+        .layout-grid-modern {
+            display: grid;
+            grid-template-columns: 1fr 1fr 380px; /* Default for large screens */
+            gap: 1.5rem; /* 6 * 0.25rem = 1.5rem */
+        }
+        @media (max-width: 1400px) {
+            .layout-grid-modern { grid-template-columns: 1fr 1fr 300px; } /* Adjust right column on medium-large screens */
+        }
+        @media (max-width: 1100px) {
+            /* On smaller screens, stack columns */
+            .layout-grid-modern { grid-template-columns: 1fr; }
+            .right-col { order: 3; } /* Move right column to bottom */
+            .left-col { min-height: 480px !important; } /* smaller chart on smaller screens */
+        }
+    </style>
 </head>
-<body class="bg-[#050607] text-slate-100 antialiased">
+<body class="bg-gray-950 text-slate-100 antialiased font-sans">
 
-<!-- ============================
-     CONFIG: GEMINI API KEY
-     ============================
-     You requested the API key directly in JS (public).
-     Replace the string if you later want to change the key.
--->
 <script>
-  // === YOUR GEMINI / GOOGLE API KEY (PUBLIC IN JS) ===
-  const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU";
-  // === MODEL IDs ===
-  // For text completion / multimodal — adjust if your provider uses a different model name
-  const TEXT_MODEL = "text-bison-001"; // example model name
-  const MULTIMODAL_MODEL = "multimodal-bison-001"; // hypothetical multimodal model
-  // Upstream endpoint base (Google Generative-style)
-  const GENERATIVE_BASE = "https://generative.googleapis.com/v1/models";
+    // === YOUR GEMINI / GOOGLE API KEY (PUBLIC IN JS) ===
+    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU";
+    // === MODEL IDs (Adjust if needed for specific Gemini versions) ===
+    const TEXT_MODEL = "gemini-2.5-flash"; // Modern model for text
+    const MULTIMODAL_MODEL = "gemini-2.5-flash"; // Unified model for multimodal
+    // Upstream endpoint base (Google Generative-style)
+    const GENERATIVE_BASE = "https://generative.googleapis.com/v1beta";
+    // The Gemini models use a different endpoint for text/multimodal than the older Bison models
+    const GEMINI_ENDPOINT = (model) => `${GENERATIVE_BASE}/models/${encodeURIComponent(model)}:generateContent`;
 </script>
 
-<!-- HEADER: TICKER TAPE -->
-<header class="w-full bg-gradient-to-b from-[#071014] to-[#051011] border-b border-slate-800">
-  <div class="max-w-[1400px] mx-auto px-4 py-3 flex items-center gap-4">
-    <div class="flex items-center gap-3">
-      <div class="text-xl font-semibold">Market Dashboard</div>
-      <div class="text-sm text-slate-400">Realtime overview</div>
-    </div>
+<header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
+    <div class="max-w-[1400px] mx-auto px-4 py-3 flex flex-col md:flex-row items-center gap-4">
+        <div class="flex items-center gap-3 min-w-[200px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <div class="text-xl font-bold tracking-tight">Market<span class="text-emerald-400">Hub</span></div>
+        </div>
 
-    <!-- ticker tape (full width) -->
-    <div class="flex-1">
-      <div class="tradingview-widget-container" style="height:44px;">
-        <div class="tradingview-widget-container__widget"></div>
-        <div class="tradingview-widget-copyright" style="display:none;"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {
-          "symbols": [
-            {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
-            {"proName":"FOREXCOM:NSXUSD","title":"US 100"},
-            {"proName":"FX_IDC:EURUSD","title":"EUR/USD"},
-            {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
-            {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
-            {"proName":"OANDA:XAUUSD","title":"Gold"},
-            {"proName":"IDX:COMPOSITE","title":"IHSG"}
-          ],
-          "colorTheme":"dark",
-          "isTransparent":true,
-          "locale":"en",
-          "showSymbolLogo":true,
-          "displayMode":"adaptive"
-        }
-        </script>
-      </div>
-    </div>
+        <div class="flex-1 w-full md:w-auto">
+            <div class="tradingview-widget-container" style="height:44px;">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                {
+                    "symbols": [
+                        {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
+                        {"proName":"FOREXCOM:NSXUSD","title":"US 100"},
+                        {"proName":"FX_IDC:EURUSD","title":"EUR/USD"},
+                        {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
+                        {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
+                        {"proName":"OANDA:XAUUSD","title":"Gold"},
+                        {"proName":"IDX:COMPOSITE","title":"IHSG"}
+                    ],
+                    "colorTheme":"dark",
+                    "isTransparent":true,
+                    "locale":"en",
+                    "showSymbolLogo":true,
+                    "displayMode":"adaptive"
+                }
+                </script>
+            </div>
+        </div>
 
-    <div class="flex items-center gap-2">
-      <button id="openChatBtnHeader" class="px-3 py-1.5 rounded-md bg-emerald-500 text-black font-semibold shadow">AI Chat</button>
+        <div class="flex items-center gap-2 mt-2 md:mt-0">
+            <button id="openChatBtnHeader" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold shadow-lg transition duration-200 text-sm">
+                <span class="hidden sm:inline">Ask </span>AI
+            </button>
+        </div>
     </div>
-  </div>
 </header>
 
-<!-- MAIN GRID: left chart / center heatmaps / right news -->
-<main class="max-w-[1400px] mx-auto px-4 py-6 layout-grid grid grid-cols-[1fr,1fr,380px] gap-6">
+<main class="max-w-[1400px] mx-auto px-4 py-6 layout-grid-modern">
 
-  <!-- LEFT: Big Chart -->
-  <section class="col-left bg-[#0d1113] rounded-xl p-4 border border-slate-800 shadow min-h-[640px]">
-    <div class="flex items-center justify-between mb-3">
-      <div>
-        <h2 class="text-lg font-semibold">XAU / USD — Advanced Chart</h2>
-        <div class="text-sm text-slate-400">Daily • Theme: dark</div>
-      </div>
-      <div class="flex items-center gap-2 text-sm text-slate-400">
-        <label class="flex items-center gap-2">
-          <span>Symbol</span>
-          <input id="symbolInput" class="text-black px-2 py-1 rounded" value="OANDA:XAUUSD" />
-        </label>
-        <button id="applySymbol" class="px-3 py-1 rounded bg-slate-700">Apply</button>
-      </div>
-    </div>
-
-    <div id="advancedChart" class="h-[560px] rounded-md overflow-hidden border border-slate-800">
-      <!-- TradingView Advanced Chart -->
-      <div class="tradingview-widget-container" style="height:100%;width:100%">
-        <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-        <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-          <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a><span class="trademark"> by TradingView</span>
-        </div>
-        <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {
-        "allow_symbol_change": true,
-        "calendar": false,
-        "details": false,
-        "hide_side_toolbar": true,
-        "hide_top_toolbar": false,
-        "hide_legend": false,
-        "hide_volume": false,
-        "hotlist": false,
-        "interval": "D",
-        "locale": "en",
-        "save_image": true,
-        "style": "1",
-        "symbol": "OANDA:XAUUSD",
-        "theme": "dark",
-        "timezone": "Etc/UTC",
-        "backgroundColor": "#0F0F0F",
-        "gridColor": "rgba(242, 242, 242, 0.06)",
-        "watchlist": [],
-        "withdateranges": false,
-        "compareSymbols": [],
-        "studies": [],
-        "autosize": true
-      }
-        </script>
-      </div>
-    </div>
-  </section>
-
-  <!-- CENTER: Two heatmaps stacked (2 grid boxes with appropriate scale) -->
-  <section class="col-center space-y-4">
-    <div class="bg-[#0d1113] rounded-xl p-3 border border-slate-800 shadow h-[300px]">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-md font-semibold">Stock Heatmap — Sector View</h3>
-        <div class="text-sm text-slate-400">SPX500 • market cap scale</div>
-      </div>
-      <div class="h-[220px] rounded-md overflow-hidden">
-        <div class="tradingview-widget-container" style="height:100%">
-          <div class="tradingview-widget-container__widget"></div>
-          <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-            <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="blue-text">Stock Heatmap</span></a><span class="trademark"> by TradingView</span>
-          </div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-          {
-          "dataSource": "SPX500",
-          "blockSize": "market_cap_basic",
-          "blockColor": "change",
-          "grouping": "sector",
-          "locale": "en",
-          "symbolUrl": "",
-          "colorTheme": "dark",
-          "exchanges": [],
-          "hasTopBar": false,
-          "isDataSetEnabled": false,
-          "isZoomEnabled": true,
-          "hasSymbolTooltip": true,
-          "isMonoSize": false,
-          "width": "100%",
-          "height": "100%"
-        }
-          </script>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-[#0d1113] rounded-xl p-3 border border-slate-800 shadow h-[300px]">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-md font-semibold">Crypto / Forex Heatmap — Multi-scale</h3>
-        <div class="text-sm text-slate-400">Crypto & FX overview</div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 h-[220px]">
-        <div class="rounded-md overflow-hidden border border-slate-800">
-          <div class="tradingview-widget-container" style="height:100%">
-            <div class="tradingview-widget-container__widget"></div>
-            <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-              <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="blue-text">Crypto Heatmap</span></a><span class="trademark"> by TradingView</span>
+    <section class="col-left left-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[640px]">
+        <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+            <div>
+                <h2 class="text-lg font-bold">XAU / USD — Advanced Chart</h2>
+                <div class="text-sm text-gray-400">Daily • Live Data</div>
             </div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-            {
-            "dataSource": "Crypto",
-            "blockSize": "market_cap_calc",
-            "blockColor": "24h_close_change|5",
-            "locale": "en",
-            "symbolUrl": "",
-            "colorTheme": "dark",
-            "hasTopBar": false,
-            "isDataSetEnabled": false,
-            "isZoomEnabled": true,
-            "hasSymbolTooltip": true,
-            "isMonoSize": false,
-            "width": "100%",
-            "height": "100%"
-          }
-            </script>
-          </div>
-        </div>
-
-        <div class="rounded-md overflow-hidden border border-slate-800">
-          <div class="tradingview-widget-container" style="height:100%">
-            <div class="tradingview-widget-container__widget"></div>
-            <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-              <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="blue-text">Forex market</span></a><span class="trademark"> by TradingView</span>
+            <div class="flex items-center gap-2 text-sm text-gray-400 bg-gray-800 p-2 rounded-lg">
+                <label class="flex items-center gap-2">
+                    <span>Symbol</span>
+                    <input id="symbolInput" class="text-white px-2 py-1 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:border-emerald-500 w-32" value="OANDA:XAUUSD" />
+                </label>
+                <button id="applySymbol" class="px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Apply</button>
             </div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
-            {
-            "colorTheme": "dark",
-            "isTransparent": false,
-            "locale": "en",
-            "currencies": [
-              "EUR",
-              "USD",
-              "JPY",
-              "GBP",
-              "CHF",
-              "AUD",
-              "CAD",
-              "NZD",
-              "CNY",
-              "IDR"
-            ],
-            "backgroundColor": "#0F0F0F",
-            "width": "100%",
-            "height": "100%"
-          }
-            </script>
-          </div>
         </div>
-      </div>
-    </div>
 
-  </section>
+        <div id="advancedChart" class="h-[560px] rounded-xl overflow-hidden border border-gray-700">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                    <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">XAUUSD chart</span></a><span class="text-slate-500"> by TradingView</span>
+                </div>
+                <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                {
+                    "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", "theme": "dark", "timezone": "Etc/UTC",
+                    "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
+                }
+                </script>
+            </div>
+        </div>
+    </section>
 
-  <!-- RIGHT: News & Stories (tabs) -->
-  <aside class="right-col bg-[#0d1113] rounded-xl p-3 border border-slate-800 shadow">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-md font-semibold">Market News</h3>
-      <div class="flex gap-2">
-        <button id="tabNewsBtn" class="px-3 py-1 rounded-md bg-slate-700 text-sm">News</button>
-        <button id="tabStoriesBtn" class="px-3 py-1 rounded-md bg-transparent text-sm border border-slate-700">Stories</button>
-      </div>
-    </div>
+    <section class="col-center space-y-6">
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[310px]">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View</h3>
+                <div class="text-sm text-gray-400">S&P 500 • market cap</div>
+            </div>
+            <div class="h-[230px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Stock Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                    {
+                        "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </div>
 
-    <div id="tabNews" class="space-y-3 h-[520px] overflow-auto pr-2">
-      <!-- placeholder news cards -->
-      <div class="p-3 bg-gradient-to-b from-[#071015] to-transparent rounded-md border border-slate-800">
-        <div class="text-sm text-slate-300 font-semibold">US CPI higher than expected</div>
-        <div class="text-xs text-slate-400 mt-1">Implication: USD strength; gold reacts.</div>
-        <div class="text-xs text-slate-500 mt-2">Apr 10, 2025</div>
-      </div>
-      <div class="p-3 bg-gradient-to-b from-[#071015] to-transparent rounded-md border border-slate-800">
-        <div class="text-sm text-slate-300 font-semibold">Fed holds rates steady</div>
-        <div class="text-xs text-slate-400 mt-1">Market expects data-driven changes.</div>
-        <div class="text-xs text-slate-500 mt-2">Mar 22, 2025</div>
-      </div>
-      <!-- more placeholder cards -->
-    </div>
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[310px]">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-slate-200">Crypto & Forex Overview</h3>
+                <div class="text-sm text-gray-400">24H change</div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 h-[230px]">
+                <div class="rounded-xl overflow-hidden border border-gray-700">
+                    <div class="tradingview-widget-container" style="height:100%">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                            <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Crypto Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
+                        </div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+                        {
+                            "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
+                        }
+                        </script>
+                    </div>
+                </div>
 
-    <div id="tabStories" class="hidden space-y-3 h-[520px] overflow-auto pr-2">
-      <div class="p-3 bg-gradient-to-b from-[#071015] to-transparent rounded-md border border-slate-800">
-        <div class="text-sm text-slate-300 font-semibold">Long-term gold thesis</div>
-        <div class="text-xs text-slate-400 mt-1">Central bank demand and real yields.</div>
-        <div class="text-xs text-slate-500 mt-2">Feb 11, 2025</div>
-      </div>
-      <div class="p-3 bg-gradient-to-b from-[#071015] to-transparent rounded-md border border-slate-800">
-        <div class="text-sm text-slate-300 font-semibold">Crypto market rotation</div>
-        <div class="text-xs text-slate-400 mt-1">On-chain metrics lead the new trend.</div>
-        <div class="text-xs text-slate-500 mt-2">Jan 08, 2025</div>
-      </div>
-    </div>
+                <div class="rounded-xl overflow-hidden border border-gray-700">
+                    <div class="tradingview-widget-container" style="height:100%">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                            <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex market</span></a><span class="text-slate-500"> by TradingView</span>
+                        </div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+                        {
+                            "colorTheme": "dark", "isTransparent": false, "locale": "en", "currencies": ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR"], "backgroundColor": "#0D1113", "width": "100%", "height": "100%"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="mt-4">
-      <h4 class="text-sm font-semibold mb-2">Quick actions</h4>
-      <div class="flex flex-col gap-2">
-        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="py-2 rounded-md bg-slate-700">Focus XAU Chart</button>
-        <button id="openChatBtnAside" class="py-2 rounded-md bg-emerald-500 text-black font-semibold">Open AI Chat</button>
-        <a href="https://www.tradingview.com/" target="_blank" class="py-2 rounded-md text-center border border-slate-700">Open TradingView</a>
-      </div>
-    </div>
+    <aside class="right-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold">Market Analysis</h3>
+            <div class="flex gap-2 p-1 bg-gray-800 rounded-lg">
+                <button id="tabNewsBtn" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-sm font-medium transition duration-200">News</button>
+                <button id="tabStoriesBtn" class="px-3 py-1.5 rounded-md hover:bg-gray-700 text-sm font-medium transition duration-200">Stories</button>
+            </div>
+        </div>
 
-  </aside>
+        <div id="tabContent" class="flex-1 min-h-[500px] flex flex-col">
+            <div id="tabNews" class="space-y-3 custom-scroll flex-1 overflow-y-auto pr-3">
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">US CPI higher than expected</div>
+                    <div class="text-xs text-emerald-400 mt-1">Implication: USD strength; gold reacts.</div>
+                    <div class="text-xs text-gray-500 mt-2">Apr 10, 2025</div>
+                </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Fed holds rates steady</div>
+                    <div class="text-xs text-amber-400 mt-1">Market expects data-driven changes.</div>
+                    <div class="text-xs text-gray-500 mt-2">Mar 22, 2025</div>
+                </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Major Tech Earnings Beat</div>
+                    <div class="text-xs text-emerald-400 mt-1">S&P 500 futures jump on optimism.</div>
+                    <div class="text-xs text-gray-500 mt-2">Mar 01, 2025</div>
+                </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Oil volatility increases</div>
+                    <div class="text-xs text-amber-400 mt-1">Geopolitical tensions rise.</div>
+                    <div class="text-xs text-gray-500 mt-2">Feb 18, 2025</div>
+                </div>
+            </div>
+
+            <div id="tabStories" class="hidden space-y-3 custom-scroll flex-1 overflow-y-auto pr-3">
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Long-term gold thesis</div>
+                    <div class="text-xs text-slate-400 mt-1">Central bank demand and real yields.</div>
+                    <div class="text-xs text-gray-500 mt-2">Feb 11, 2025</div>
+                </div>
+                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
+                    <div class="text-sm text-slate-200 font-semibold">Crypto market rotation</div>
+                    <div class="text-xs text-slate-400 mt-1">On-chain metrics lead the new trend.</div>
+                    <div class="text-xs text-gray-500 mt-2">Jan 08, 2025</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 pt-4 border-t border-gray-800">
+            <h4 class="text-sm font-semibold mb-3 text-slate-300">Quick Actions</h4>
+            <div class="flex flex-col gap-2">
+                <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-medium transition duration-200 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0 0h-4m4-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Focus XAU Chart
+                </button>
+                <button id="openChatBtnAside" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Open AI Chat
+                </button>
+                <a href="https://www.tradingview.com/" target="_blank" class="py-2 rounded-lg text-center border border-gray-700 hover:bg-gray-800 text-sm transition duration-200">Open TradingView</a>
+            </div>
+        </div>
+    </aside>
 
 </main>
 
-<!-- FOOTER AREA: extra widgets (timeline + economic calendar) -->
-<section class="max-w-[1400px] mx-auto px-4 pb-10">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <div class="bg-[#0d1113] rounded-xl p-4 border border-slate-800 shadow">
-      <h4 class="text-md font-semibold mb-3">Top Stories / Timeline</h4>
-      <div class="h-[260px] rounded-md overflow-hidden">
-        <div class="tradingview-widget-container" style="height:100%">
-          <div class="tradingview-widget-container__widget"></div>
-          <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-            <a href="https://www.tradingview.com/news/top-providers/tradingview/" rel="noopener nofollow" target="_blank"><span class="blue-text">Top stories</span></a><span class="trademark"> by TradingView</span>
-          </div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
-          {
-          "displayMode":"regular",
-          "feedMode":"all_symbols",
-          "colorTheme":"dark",
-          "isTransparent":false,
-          "locale":"en",
-          "width":400,
-          "height":550
-        }
-          </script>
+<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6">
+    <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">Global Market Context</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
+            <h4 class="text-lg font-bold text-slate-200 mb-3">Top Stories / Timeline</h4>
+            <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/news/top-providers/tradingview/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Top stories</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                    {
+                        "displayMode":"regular", "feedMode":"all_symbols", "colorTheme":"dark", "isTransparent":false, "locale":"en", "width":"100%", "height":"100%"
+                    }
+                    </script>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div class="bg-[#0d1113] rounded-xl p-4 border border-slate-800 shadow">
-      <h4 class="text-md font-semibold mb-3">Economic Calendar</h4>
-      <div class="h-[260px] rounded-md overflow-hidden">
-        <div class="tradingview-widget-container" style="height:100%">
-          <div class="tradingview-widget-container__widget"></div>
-          <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95;">
-            <a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="blue-text">Economic Calendar</span></a><span class="trademark"> by TradingView</span>
-          </div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-          {
-          "colorTheme":"dark",
-          "isTransparent":false,
-          "locale":"en",
-          "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
-          "importanceFilter":"-1,0,1",
-          "width":400,
-          "height":550
-        }
-          </script>
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
+            <h4 class="text-lg font-bold text-slate-200 mb-3">Economic Calendar</h4>
+            <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Economic Calendar</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                    {
+                        "colorTheme":"dark", "isTransparent":false, "locale":"en", "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", "importanceFilter":"-1,0,1", "width":"100%", "height":"100%"
+                    }
+                    </script>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 
-<!-- FLOATING CHAT: FAB + modal -->
-<button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-lg bg-emerald-500 text-black flex items-center justify-center z-[900]">
-  AI
+<button id="chatFab" aria-label="Open AI chat" class="fixed right-8 bottom-8 w-16 h-16 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-xl font-bold transition duration-300 transform hover:scale-105 z-[900]">
+    AI
 </button>
 
-<div id="chatModal" class="fixed right-6 bottom-6 w-[420px] max-w-[calc(100%-48px)] bg-[#071214] border border-slate-800 rounded-xl shadow-lg z-[901] hidden flex-col overflow-hidden">
-  <div class="flex items-center gap-3 p-3 border-b border-slate-800">
-    <div class="w-10 h-10 rounded-lg bg-emerald-400 text-black font-bold flex items-center justify-center">AI</div>
-    <div>
-      <div class="text-sm font-semibold">Gemini AI (Public key)</div>
-      <div class="text-xs text-slate-400">Analisis teks & gambar (chart/candles)</div>
-    </div>
-    <button id="closeChat" class="ml-auto text-slate-400">✕</button>
-  </div>
-
-  <div id="chatBody" class="p-3 chat-scroll flex flex-col gap-2 h-[360px] overflow-auto bg-gradient-to-b from-transparent to-black/10">
-    <!-- messages will be appended here -->
-  </div>
-
-  <div class="p-3 border-t border-slate-800">
-    <div class="flex gap-2">
-      <input id="messageInput" class="flex-1 rounded-md bg-[#0b1113] border border-slate-800 px-3 py-2 text-sm" placeholder="Tanyakan: mis. analisa candle 1D XAU" />
-      <button id="sendBtn" class="px-3 py-2 rounded-md bg-emerald-500 text-black font-semibold">Kirim</button>
+<div id="chatModal" class="fixed right-8 bottom-8 w-[450px] max-w-[calc(100%-48px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
+    <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50">
+        <div class="w-10 h-10 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-lg">G</div>
+        <div>
+            <div class="text-base font-semibold text-slate-100">Gemini AI Chat</div>
+            <div class="text-xs text-emerald-400">Analisis Teks & Gambar (Chart)</div>
+        </div>
+        <button id="closeChat" class="ml-auto text-slate-400 hover:text-white transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
-    <div class="mt-2 flex items-center gap-2">
-      <label class="text-xs text-slate-400">Upload image (chart):</label>
-      <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300" />
-      <button id="sendImageBtn" class="ml-auto px-3 py-1 rounded-md border border-slate-700 text-sm">Kirim Gambar</button>
+    <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[400px] overflow-y-auto bg-gray-950/70">
+        <div class="self-start max-w-[85%]">
+            <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis teknikal!</div>
+        </div>
     </div>
 
-    <div id="chatNotes" class="mt-2 text-xs text-slate-500">Note: key disimpan di browser (public). Jika request gagal karena CORS, gunakan proxy backend.</div>
-  </div>
+    <div class="p-4 border-t border-gray-800 bg-gray-800/50">
+        <div class="flex gap-3">
+            <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan: mis. analisa candle 1D XAU" />
+            <button id="sendBtn" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Kirim</button>
+        </div>
+
+        <div class="mt-3 flex items-center gap-3">
+            <label class="text-xs text-slate-400">Upload Image:</label>
+            <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
+            <button id="sendImageBtn" class="ml-auto px-3 py-1.5 rounded-lg border border-gray-600 hover:bg-gray-700 text-sm transition duration-200 text-slate-300">
+                Kirim Gambar
+            </button>
+        </div>
+
+        <div id="chatNotes" class="mt-3 text-xs text-gray-500">Note: Gunakan `gemini-2.5-flash` untuk multimodal. Periksa konsol untuk error CORS jika request gagal.</div>
+    </div>
 </div>
 
-<!-- ================
-     SCRIPT: Behavior
-     ================ -->
 <script>
-  /* ======== UI: Tabs ======== */
-  const tabNewsBtn = document.getElementById('tabNewsBtn');
-  const tabStoriesBtn = document.getElementById('tabStoriesBtn');
-  const tabNews = document.getElementById('tabNews');
-  const tabStories = document.getElementById('tabStories');
+    /* ======== UI: Tabs ======== */
+    const tabNewsBtn = document.getElementById('tabNewsBtn');
+    const tabStoriesBtn = document.getElementById('tabStoriesBtn');
+    const tabNews = document.getElementById('tabNews');
+    const tabStories = document.getElementById('tabStories');
 
-  tabNewsBtn.addEventListener('click', ()=> {
-    tabNews.classList.remove('hidden'); tabStories.classList.add('hidden');
-    tabNewsBtn.classList.add('bg-slate-700'); tabStoriesBtn.classList.remove('bg-slate-700');
-  });
-  tabStoriesBtn.addEventListener('click', ()=> {
-    tabStories.classList.remove('hidden'); tabNews.classList.add('hidden');
-    tabStoriesBtn.classList.add('bg-slate-700'); tabNewsBtn.classList.remove('bg-slate-700');
-  });
-
-  /* ======== Chart symbol switch (reload advanced chart) ======== */
-  const applySymbol = document.getElementById('applySymbol');
-  applySymbol.addEventListener('click', ()=> {
-    const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
-    // Replace script contents of advanced chart by removing and re-adding script with new symbol
-    const oldScript = document.getElementById('tv-advanced-script');
-    if(oldScript) oldScript.remove();
-
-    // create new script tag with updated symbol JSON
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.id = 'tv-advanced-script';
-    const config = {
-      "allow_symbol_change": true,
-      "calendar": false,
-      "details": false,
-      "hide_side_toolbar": true,
-      "hide_top_toolbar": false,
-      "hide_legend": false,
-      "hide_volume": false,
-      "hotlist": false,
-      "interval": "D",
-      "locale": "en",
-      "save_image": true,
-      "style": "1",
-      "symbol": sym,
-      "theme": "dark",
-      "timezone": "Etc/UTC",
-      "backgroundColor": "#0F0F0F",
-      "gridColor": "rgba(242, 242, 242, 0.06)",
-      "watchlist": [],
-      "withdateranges": false,
-      "compareSymbols": [],
-      "studies": [],
-      "autosize": true
-    };
-    script.textContent = JSON.stringify(config, null, 2);
-    // TradingView embed script loader depends on external JS — easiest approach: append a script tag calling the remote embed with content JSON
-    // Because the embed expects itself to run with a JSON inside the tag, this method generally re-initializes the widget.
-    // Add the loader src
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    document.querySelector('#advancedChart .tradingview-widget-container').appendChild(script);
-  });
-
-  /* ======== Chat UI show/hide ======== */
-  const chatFab = document.getElementById('chatFab');
-  const chatModal = document.getElementById('chatModal');
-  const openChatBtnHeader = document.getElementById('openChatBtnHeader');
-  const openChatBtnAside = document.getElementById('openChatBtnAside');
-  const closeChat = document.getElementById('closeChat');
-  const sendBtn = document.getElementById('sendBtn');
-  const sendImageBtn = document.getElementById('sendImageBtn');
-  const messageInput = document.getElementById('messageInput');
-  const chatBody = document.getElementById('chatBody');
-  const imageInput = document.getElementById('imageInput');
-
-  function showChat(){ chatModal.classList.remove('hidden'); chatFab.classList.add('hidden'); messageInput.focus(); }
-  function hideChat(){ chatModal.classList.add('hidden'); chatFab.classList.remove('hidden'); }
-
-  chatFab.addEventListener('click', showChat);
-  openChatBtnHeader.addEventListener('click', showChat);
-  openChatBtnAside.addEventListener('click', showChat);
-  closeChat.addEventListener('click', hideChat);
-
-  function appendMsg(who, text){
-    const wrap = document.createElement('div');
-    wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
-    const bubble = document.createElement('div');
-    bubble.className = 'px-3 py-2 rounded-md text-sm';
-    bubble.style.whiteSpace = 'pre-wrap';
-    if(who === 'user'){
-      bubble.classList.add('bg-slate-700','text-white');
-    } else {
-      bubble.classList.add('bg-slate-800','text-slate-200');
+    function setActiveTab(active, inactive) {
+        active.classList.remove('hidden');
+        inactive.classList.add('hidden');
     }
-    bubble.textContent = text;
-    wrap.appendChild(bubble);
-    chatBody.appendChild(wrap);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }
 
-  /* ======== Gemini request (text) ========
-     NOTE: direct browser requests may be blocked by CORS depending on provider.
-     If you see CORS errors in console, use a small backend proxy.
-  */
-  async function callGeminiText(prompt){
-    appendMsg('bot','(AI is thinking...)');
-    try {
-      // Build endpoint — example: https://generative.googleapis.com/v1/models/text-bison-001:generate?key=API_KEY
-      const url = `${GENERATIVE_BASE}/${encodeURIComponent(TEXT_MODEL)}:generate?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-
-      // body shape depends on provider; this is a common simple shape
-      const body = {
-        prompt: {
-          text: prompt
-        },
-        // optional tuning
-        temperature: 0.2,
-        maxOutputTokens: 512
-      };
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      if(!res.ok){
-        const text = await res.text();
-        throw new Error(`Upstream error ${res.status}: ${text}`);
-      }
-
-      const j = await res.json();
-
-      // Try to extract reply string depending on provider shape
-      // Google sometimes returns 'candidates' or 'output' -> adjust accordingly
-      let reply = null;
-      if(j.candidates && j.candidates.length) reply = j.candidates.map(c=>c.content).join('\n\n');
-      else if(j.output && j.output.length) reply = j.output.map(o => (o.content || JSON.stringify(o))).join('\n\n');
-      else if(j.reply) reply = j.reply;
-      else reply = JSON.stringify(j).slice(0, 4000);
-
-      // remove last placeholder bot bubble
-      const botBubbles = chatBody.querySelectorAll('.bg-slate-800');
-      if(botBubbles && botBubbles.length) botBubbles[botBubbles.length-1].remove();
-
-      appendMsg('bot', reply);
-      return reply;
-    } catch (err){
-      const botBubbles = chatBody.querySelectorAll('.bg-slate-800');
-      if(botBubbles && botBubbles.length) botBubbles[botBubbles.length-1].remove();
-      appendMsg('bot', 'Error: ' + err.message + '\n\nJika ini CORS error, jalankan proxy backend.');
-      console.error(err);
-      throw err;
+    function setActiveBtn(activeBtn, inactiveBtn) {
+        activeBtn.classList.add('bg-gray-700');
+        inactiveBtn.classList.remove('bg-gray-700');
     }
-  }
 
-  /* ======== GEMINI IMAGE ANALYSIS ========
-     We convert image to base64 and send an instruction prompt containing the base64 block.
-     This will only work if your model endpoint accepts raw base64 images in the prompt (many do not).
-     If this fails, use a backend that uploads the image to provider's supported multipart endpoint.
-  */
-  async function callGeminiImage(file, userNote = ''){
-    appendMsg('bot','(AI analyzing image...)');
-    try {
-      const base64 = await toBase64(file);
-      // create descriptive prompt that instructs the model to analyze the image
-      const prompt = `Below is an image encoded in base64. The user asks: ${userNote || 'Please analyze this chart for candlestick patterns, supports/resistances, trend direction, and any notable signals.'}\n\nBASE64_IMAGE_START\n${base64}\nBASE64_IMAGE_END\n\nPlease analyze the image and return a concise, actionable market analysis (bullet points).`;
-
-      const url = `${GENERATIVE_BASE}/${encodeURIComponent(MULTIMODAL_MODEL)}:generate?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-
-      const body = {
-        prompt: { text: prompt },
-        temperature: 0.2,
-        maxOutputTokens: 1024
-      };
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      if(!res.ok){
-        const text = await res.text();
-        throw new Error(`Upstream error ${res.status}: ${text}`);
-      }
-
-      const j = await res.json();
-      let reply = null;
-      if(j.candidates && j.candidates.length) reply = j.candidates.map(c=>c.content).join('\n\n');
-      else if(j.output && j.output.length) reply = j.output.map(o => (o.content || JSON.stringify(o))).join('\n\n');
-      else reply = JSON.stringify(j).slice(0,4000);
-
-      const botBubbles = chatBody.querySelectorAll('.bg-slate-800');
-      if(botBubbles && botBubbles.length) botBubbles[botBubbles.length-1].remove();
-
-      appendMsg('bot', reply);
-      return reply;
-    } catch(err){
-      const botBubbles = chatBody.querySelectorAll('.bg-slate-800');
-      if(botBubbles && botBubbles.length) botBubbles[botBubbles.length-1].remove();
-      appendMsg('bot', 'Error: ' + err.message + '\n\nJika ini CORS error atau model tidak mendukung base64 in-prompt, gunakan backend.');
-      console.error(err);
-      throw err;
-    }
-  }
-
-  function toBase64(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        // remove the data:*/*;base64, prefix (we will send just raw base64)
-        const res = reader.result;
-        const comma = res.indexOf(',');
-        const base64 = comma >= 0 ? res.slice(comma + 1) : res;
-        resolve(base64);
-      };
-      reader.onerror = err => reject(err);
-      reader.readAsDataURL(file);
+    tabNewsBtn.addEventListener('click', () => {
+        setActiveTab(tabNews, tabStories);
+        setActiveBtn(tabNewsBtn, tabStoriesBtn);
     });
-  }
+    tabStoriesBtn.addEventListener('click', () => {
+        setActiveTab(tabStories, tabNews);
+        setActiveBtn(tabStoriesBtn, tabNewsBtn);
+    });
+    // Set initial active button style
+    setActiveBtn(tabNewsBtn, tabStoriesBtn);
 
-  // send text
-  sendBtn.addEventListener('click', async ()=>{
-    const q = messageInput.value.trim();
-    if(!q) return;
-    appendMsg('user', q);
-    messageInput.value = '';
-    try {
-      await callGeminiText(q);
-    } catch(e){}
-  });
 
-  // send on Enter
-  messageInput.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
-  });
+    /* ======== Chart symbol switch (reload advanced chart) ======== */
+    const applySymbol = document.getElementById('applySymbol');
+    applySymbol.addEventListener('click', () => {
+        const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
+        const container = document.querySelector('#advancedChart .tradingview-widget-container');
+        
+        // Remove old script and container children
+        let oldScript = document.getElementById('tv-advanced-script');
+        if (oldScript) oldScript.remove();
+        
+        // Clear all children except the copyright notice
+        Array.from(container.children).forEach(child => {
+            if (!child.classList.contains('tradingview-widget-copyright')) {
+                child.remove();
+            }
+        });
 
-  // send image
-  sendImageBtn.addEventListener('click', async ()=>{
-    const f = imageInput.files && imageInput.files[0];
-    if(!f){ alert('Pilih gambar terlebih dahulu'); return; }
-    appendMsg('user', '[GAMBAR] ' + f.name);
-    try {
-      await callGeminiImage(f, 'Analisa candle/price action/levels dari gambar ini.');
-    } catch(e){}
-  });
+        // Re-add the widget placeholder
+        const widgetPlaceholder = document.createElement('div');
+        widgetPlaceholder.className = 'tradingview-widget-container__widget';
+        widgetPlaceholder.style.cssText = 'height:calc(100% - 32px);width:100%';
+        container.insertBefore(widgetPlaceholder, container.querySelector('.tradingview-widget-copyright'));
 
-  // small accessibility: close chat with ESC
-  document.addEventListener('keydown', (e)=> {
-    if(e.key === 'Escape' && !chatModal.classList.contains('hidden')) hideChat();
-  });
+
+        // Create new script tag with updated symbol JSON
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.id = 'tv-advanced-script';
+        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+        
+        const config = {
+            "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": sym, "theme": "dark", "timezone": "Etc/UTC",
+            "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
+        };
+        // TradingView requires the JSON directly inside the script tag's content
+        script.textContent = JSON.stringify(config, null, 2); 
+        
+        container.appendChild(script);
+    });
+
+    /* ======== Chat UI show/hide ======== */
+    const chatFab = document.getElementById('chatFab');
+    const chatModal = document.getElementById('chatModal');
+    const openChatBtnHeader = document.getElementById('openChatBtnHeader');
+    const openChatBtnAside = document.getElementById('openChatBtnAside');
+    const closeChat = document.getElementById('closeChat');
+    const sendBtn = document.getElementById('sendBtn');
+    const sendImageBtn = document.getElementById('sendImageBtn');
+    const messageInput = document.getElementById('messageInput');
+    const chatBody = document.getElementById('chatBody');
+    const imageInput = document.getElementById('imageInput');
+
+    function showChat(){ 
+        chatModal.classList.remove('hidden'); 
+        chatFab.classList.add('hidden'); 
+        // Animate modal appearance
+        setTimeout(() => {
+            chatModal.style.transform = 'translateY(0) scale(1)';
+            messageInput.focus(); 
+        }, 10);
+    }
+    function hideChat(){ 
+        chatModal.classList.add('hidden'); 
+        chatFab.classList.remove('hidden'); 
+        // Reset animation state (optional, for smoother re-opening)
+        chatModal.style.transform = '';
+    }
+    // Initial state for animation
+    chatModal.style.transform = 'translateY(50px) scale(0.95)';
+
+
+    chatFab.addEventListener('click', showChat);
+    openChatBtnHeader.addEventListener('click', showChat);
+    openChatBtnAside.addEventListener('click', showChat);
+    closeChat.addEventListener('click', hideChat);
+
+    function appendMsg(who, content, isImage = false){
+        const wrap = document.createElement('div');
+        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'px-4 py-3 rounded-xl text-sm break-words';
+        
+        if(who === 'user'){
+            bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
+        } else {
+            // Apply different style for thinking indicator
+            if(content === '(AI is thinking...)' || content === '(AI analyzing image...)') {
+                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
+                 bubble.textContent = content;
+            } else {
+                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+                 // For bot replies, use pre-wrap for better formatting (like bullet points)
+                 bubble.style.whiteSpace = 'pre-wrap';
+                 bubble.textContent = content;
+            }
+        }
+        
+        // Add image preview if it's a user image message
+        if (isImage) {
+             const imgElement = document.createElement('img');
+             imgElement.src = content.imagePreview;
+             imgElement.alt = 'Uploaded Chart';
+             imgElement.className = 'max-w-full h-auto rounded-lg mb-2 border border-gray-700';
+             wrap.appendChild(imgElement);
+             bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`;
+        }
+
+
+        wrap.appendChild(bubble);
+        chatBody.appendChild(wrap);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        return bubble; // Return the bubble element for easy reference (e.g., to remove loading state)
+    }
+
+    function removeLastBotBubble() {
+        const botBubbles = chatBody.querySelectorAll('.self-start .bg-gray-700.animate-pulse');
+        if (botBubbles && botBubbles.length) {
+            botBubbles[botBubbles.length - 1].remove();
+        }
+    }
+
+
+    /* ======== Gemini request (text) ======== */
+    async function callGeminiText(prompt){
+        let thinkingBubble = appendMsg('bot','(AI is thinking...)');
+        try {
+            const url = GEMINI_ENDPOINT(TEXT_MODEL);
+
+            const body = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                config: { temperature: 0.2, maxOutputTokens: 512 }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': GEMINI_API_KEY // Use header for key for modern endpoint
+                },
+                body: JSON.stringify(body)
+            });
+
+            if(!res.ok){
+                const errorData = await res.json();
+                throw new Error(`Upstream error ${res.status}: ${errorData.error.message || JSON.stringify(errorData)}`);
+            }
+
+            const j = await res.json();
+            let reply = j.candidates?.[0]?.content?.parts?.[0]?.text || 'No valid response content.';
+            
+            // Update the thinking bubble
+            thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
+            thinkingBubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+            thinkingBubble.style.whiteSpace = 'pre-wrap';
+            thinkingBubble.textContent = reply;
+
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return reply;
+
+        } catch (err){
+            removeLastBotBubble();
+            appendMsg('bot', `Error: ${err.message}\n\nPeriksa konsol. Jika ini CORS error, gunakan proxy backend.`);
+            console.error(err);
+            throw err;
+        }
+    }
+
+    /* ======== GEMINI IMAGE ANALYSIS ======== */
+    async function callGeminiImage(file, userNote = ''){
+        const base64 = await toBase64(file);
+        let thinkingBubble = appendMsg('bot','(AI analyzing image...)');
+        
+        try {
+            const url = GEMINI_ENDPOINT(MULTIMODAL_MODEL);
+
+            const mimeType = file.type;
+
+            const prompt = userNote || 'Please analyze this chart for candlestick patterns, supports/resistances, trend direction, and any notable signals. Return a concise, actionable market analysis (bullet points).';
+
+            const body = {
+                contents: [{ 
+                    role: "user", 
+                    parts: [
+                        { text: prompt },
+                        { inlineData: { mimeType: mimeType, data: base64 } }
+                    ]
+                }],
+                config: { temperature: 0.2, maxOutputTokens: 1024 }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': GEMINI_API_KEY // Use header for key for modern endpoint
+                },
+                body: JSON.stringify(body)
+            });
+
+            if(!res.ok){
+                const errorData = await res.json();
+                throw new Error(`Upstream error ${res.status}: ${errorData.error.message || JSON.stringify(errorData)}`);
+            }
+
+            const j = await res.json();
+            let reply = j.candidates?.[0]?.content?.parts?.[0]?.text || 'No valid response content.';
+
+            // Update the thinking bubble
+            thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
+            thinkingBubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+            thinkingBubble.style.whiteSpace = 'pre-wrap';
+            thinkingBubble.textContent = reply;
+
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return reply;
+
+        } catch(err){
+            removeLastBotBubble();
+            appendMsg('bot', `Error: ${err.message}\n\nPeriksa konsol. Pastikan model yang digunakan mendukung input multimodal.`);
+            console.error(err);
+            throw err;
+        }
+    }
+
+    function toBase64(file){
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                // Remove the data:*/*;base64, prefix
+                const res = reader.result;
+                const comma = res.indexOf(',');
+                const base64 = comma >= 0 ? res.slice(comma + 1) : res;
+                resolve(base64);
+            };
+            reader.onerror = err => reject(err);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // send text
+    sendBtn.addEventListener('click', async ()=>{
+        const q = messageInput.value.trim();
+        if(!q) return;
+        appendMsg('user', q);
+        messageInput.value = '';
+        try {
+            await callGeminiText(q);
+        } catch(e){}
+    });
+
+    // send on Enter
+    messageInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+    });
+
+    // send image
+    sendImageBtn.addEventListener('click', async ()=>{
+        const f = imageInput.files && imageInput.files[0];
+        if(!f){ alert('Pilih gambar terlebih dahulu'); return; }
+
+        // Read the image data URL for local preview before sending
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const imagePreview = e.target.result;
+            // Display user message with image preview
+            appendMsg('user', { imagePreview, fileName: f.name }, true); 
+            
+            // The prompt/note is taken from the input field if available, then cleared
+            const userNote = messageInput.value.trim();
+            messageInput.value = '';
+
+            try {
+                // Call the Gemini Image analysis function
+                await callGeminiImage(f, userNote);
+                // Clear file input after successful send
+                imageInput.value = '';
+            } catch(e){}
+        };
+        reader.readAsDataURL(f);
+    });
+
+    // small accessibility: close chat with ESC
+    document.addEventListener('keydown', (e)=> {
+        if(e.key === 'Escape' && !chatModal.classList.contains('hidden')) hideChat();
+    });
+
+    // Scroll chat to bottom on initial load
+    window.addEventListener('load', () => {
+        chatBody.scrollTop = chatBody.scrollHeight;
+    });
 
 </script>
 
