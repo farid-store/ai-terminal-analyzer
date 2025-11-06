@@ -17,19 +17,20 @@
         .tradingview-widget-container__widget { width: 100%; height: 100%; }
 
         /* Main Grid: Responsive adjustment */
-        .layout-grid-modern {
+        .layout-grid-new {
             display: grid;
-            grid-template-columns: 1fr 1fr 380px; /* Default for large screens */
+            /* New Grid: Chart (2fr) | Heatmaps (1fr) | News (380px) */
+            grid-template-columns: 2fr 1fr 380px; 
             gap: 1.5rem; /* 6 * 0.25rem = 1.5rem */
         }
         @media (max-width: 1400px) {
-            .layout-grid-modern { grid-template-columns: 1fr 1fr 300px; } /* Adjust right column on medium-large screens */
+            .layout-grid-new { grid-template-columns: 2fr 1fr 300px; } /* Adjust right column on medium-large screens */
         }
         @media (max-width: 1100px) {
             /* On smaller screens, stack columns */
-            .layout-grid-modern { grid-template-columns: 1fr; }
-            .right-col { order: 3; } /* Move right column to bottom */
-            .left-col { min-height: 480px !important; } /* smaller chart on smaller screens */
+            .layout-grid-new { grid-template-columns: 1fr; }
+            .right-col { order: 3; } /* Move news column to bottom */
+            .left-col { min-height: 480px !important; }
         }
     </style>
 </head>
@@ -88,46 +89,68 @@
     </div>
 </header>
 
-<main class="max-w-[1400px] mx-auto px-4 py-6 layout-grid-modern">
+<main class="max-w-[1400px] mx-auto px-4 py-6 layout-grid-new">
 
-    <section class="col-left left-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[640px]">
-        <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
-            <div>
-                <h2 class="text-lg font-bold">XAU / USD — Advanced Chart</h2>
-                <div class="text-sm text-gray-400">Daily • Live Data</div>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-400 bg-gray-800 p-2 rounded-lg">
-                <label class="flex items-center gap-2">
-                    <span>Symbol</span>
-                    <input id="symbolInput" class="text-white px-2 py-1 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:border-emerald-500 w-32" value="OANDA:XAUUSD" />
-                </label>
-                <button id="applySymbol" class="px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Apply</button>
-            </div>
-        </div>
-
-        <div id="advancedChart" class="h-[560px] rounded-xl overflow-hidden border border-gray-700">
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-                <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-                <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                    <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">XAUUSD chart</span></a><span class="text-slate-500"> by TradingView</span>
+    <div class="space-y-6">
+        <section class="col-left left-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[600px]">
+            <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+                <div>
+                    <h2 class="text-lg font-bold">XAU / USD — Advanced Chart</h2>
+                    <div class="text-sm text-gray-400">Daily • Live Data</div>
                 </div>
-                <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                {
-                    "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", "theme": "dark", "timezone": "Etc/UTC",
-                    "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
-                }
-                </script>
+                <div class="flex items-center gap-2 text-sm text-gray-400 bg-gray-800 p-2 rounded-lg">
+                    <label class="flex items-center gap-2">
+                        <span>Symbol</span>
+                        <input id="symbolInput" class="text-white px-2 py-1 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:border-emerald-500 w-32" value="OANDA:XAUUSD" />
+                    </label>
+                    <button id="applySymbol" class="px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Apply</button>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <section class="col-center space-y-6">
-        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[310px]">
+            <div id="advancedChart" class="h-[600px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                    <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">XAUUSD chart</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                    {
+                        "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", "theme": "dark", "timezone": "Etc/UTC",
+                        "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[310px]">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View</h3>
-                <div class="text-sm text-gray-400">S&P 500 • market cap</div>
+                <h3 class="text-lg font-bold text-slate-200">Major Forex Cross Rates</h3>
+                <div class="text-sm text-gray-400">Live Quotes</div>
             </div>
             <div class="h-[230px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex market</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+                    {
+                        "colorTheme": "dark", "isTransparent": false, "locale": "en", "currencies": ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR"], "backgroundColor": "#0D1113", "width": "100%", "height": "100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-center space-y-6">
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[500px]">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View (S&P 500)</h3>
+                <div class="text-sm text-gray-400">24H Performance</div>
+            </div>
+            <div class="h-[420px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
                     <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
@@ -140,44 +163,28 @@
                     </script>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[310px]">
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[400px]">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-slate-200">Crypto & Forex Overview</h3>
-                <div class="text-sm text-gray-400">24H change</div>
+                <h3 class="text-lg font-bold text-slate-200">Crypto Coin Heatmap</h3>
+                <div class="text-sm text-gray-400">Market Cap & 24H Change</div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 h-[230px]">
-                <div class="rounded-xl overflow-hidden border border-gray-700">
-                    <div class="tradingview-widget-container" style="height:100%">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                            <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Crypto Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
-                        </div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-                        {
-                            "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
-                        }
-                        </script>
+            <div class="h-[320px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Crypto Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
                     </div>
-                </div>
-
-                <div class="rounded-xl overflow-hidden border border-gray-700">
-                    <div class="tradingview-widget-container" style="height:100%">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                            <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex market</span></a><span class="text-slate-500"> by TradingView</span>
-                        </div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
-                        {
-                            "colorTheme": "dark", "isTransparent": false, "locale": "en", "currencies": ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR"], "backgroundColor": "#0D1113", "width": "100%", "height": "100%"
-                        }
-                        </script>
-                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+                    {
+                        "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
+                    }
+                    </script>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <aside class="right-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl flex flex-col">
         <div class="flex items-center justify-between mb-4">
