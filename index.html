@@ -329,14 +329,19 @@
             </div>
 
             <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
-                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Mode Analisis:</label>
-                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>
-                    <option value="all_daily">Semua Tahun (Rata-rata Harian)</option>
-                </select>
                 
+                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Periode Tahun:</label>
+                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </select>
+                
+                <label for="aggregationSelector" class="block text-sm font-medium text-slate-300">3. Pilih Agregasi Data:</label>
+                <select id="aggregationSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="monthly">Rata-rata Bulanan</option>
+                    <option value="daily">Data Harian</option>
+                </select>
+
                 <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
-                    3. Tampilkan Chart
+                    4. Tampilkan Chart
                 </button>
             </div>
             
@@ -352,8 +357,6 @@
         </div>
     </div>
 </section>
-
-
 <button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]">
     AI
 </button>
@@ -537,11 +540,12 @@
     }
 
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (Dipindahkan & Ditingkatkan)
+    // 🚀 Data Analysis (CSV) Logic (REVISI)
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
     const yearSelector = document.getElementById('yearSelector');
+    const aggregationSelector = document.getElementById('aggregationSelector'); // Variabel baru
     const processCsvBtn = document.getElementById('processCsvBtn');
     const dataStatus = document.getElementById('dataStatus');
     const chartPlaceholder = document.getElementById('chartPlaceholder');
@@ -551,6 +555,23 @@
     let parsedCsvData = null;
     let availableYears = new Set();
     const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+    // Helper: Isi opsi tahun secara dinamis
+    function prepareAnalysisOptions() {
+        yearSelector.innerHTML = '<option value="all">Semua Tahun (Rata-rata)</option>';
+
+        availableYears.clear();
+        parsedCsvData.forEach(row => {
+            if (row['<DATE>']) {
+                const year = row['<DATE>'].substring(0, 4);
+                availableYears.add(year);
+            }
+        });
+        
+        Array.from(availableYears).sort().reverse().forEach(year => {
+            yearSelector.innerHTML += `<option value="${year}">${year} (Data Spesifik)</option>`;
+        });
+    }
 
     // 1. Parsing CSV
     csvFileInput.addEventListener('change', (e) => {
@@ -570,21 +591,8 @@
             complete: (results) => {
                 parsedCsvData = results.data;
                 
-                yearSelector.innerHTML = '<option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>';
-                yearSelector.innerHTML += '<option value="all_daily">Semua Tahun (Rata-rata Harian)</option>';
-
-                availableYears.clear();
-                parsedCsvData.forEach(row => {
-                    if (row['<DATE>']) {
-                        const year = row['<DATE>'].substring(0, 4);
-                        availableYears.add(year);
-                    }
-                });
-                
-                Array.from(availableYears).sort().reverse().forEach(year => {
-                    yearSelector.innerHTML += `<option value="${year}_daily">${year} (Harian)</option>`;
-                    yearSelector.innerHTML += `<option value="${year}_monthly">${year} (Bulanan)</option>`;
-                });
+                prepareAnalysisOptions(); // Isi opsi tahun
+                aggregationSelector.value = 'monthly'; // Set default agregasi
 
                 if (parsedCsvData.length > 0) {
                     csvControls.classList.remove('hidden');
@@ -592,17 +600,19 @@
                     dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
                     dataStatus.classList.remove('text-red-400');
                     dataStatus.classList.add('text-emerald-400');
-                    // Tampilkan chart default
+                    // Tampilkan chart default (Rata-rata Bulanan Semua Tahun)
                     processCsvBtn.click();
                 } else {
                     dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
                     dataStatus.classList.add('text-red-400');
+                    dataStatus.classList.remove('text-emerald-400');
                     csvControls.classList.add('hidden');
                 }
             },
             error: (error) => {
                 dataStatus.textContent = `❌ Error parsing file: ${error.message}`;
                 dataStatus.classList.add('text-red-400');
+                dataStatus.classList.remove('text-emerald-400');
                 csvControls.classList.add('hidden');
             }
         });
@@ -613,7 +623,8 @@
         if (!parsedCsvData) return;
         dataStatus.textContent = 'Membuat Chart...';
 
-        const [selectedYear, mode] = yearSelector.value.split('_');
+        const selectedYear = yearSelector.value;
+        const mode = aggregationSelector.value;
         let chartData = {};
         let title = '';
         let xAxisLabel = '';
@@ -621,12 +632,12 @@
         try {
             if (mode === 'monthly') {
                 chartData = processMonthlyAverages(selectedYear);
-                title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Rata-rata Harga Tutup Bulanan Tahun ${selectedYear}`;
+                title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Harga Tutup Bulanan Tahun ${selectedYear}`;
                 xAxisLabel = 'Bulan';
             } else if (mode === 'daily') {
                  chartData = processDailyData(selectedYear);
-                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Rata-rata Bulanan/Harian)' : `Harga Tutup Harian Tahun ${selectedYear}`;
-                 xAxisLabel = selectedYear === 'all' ? 'Bulan/Tanggal' : 'Tanggal';
+                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Semua Tahun)' : `Harga Tutup Harian Tahun ${selectedYear}`;
+                 xAxisLabel = selectedYear === 'all' ? 'Tanggal (MM/DD)' : 'Tanggal (YYYY.MM.DD)';
             }
 
             renderChart(chartData.labels, chartData.data, title, xAxisLabel);
@@ -659,27 +670,37 @@
             
             if (targetYear !== 'all' && year !== targetYear) return;
 
-            const key = targetYear === 'all' ? MONTHS[month] : `${MONTHS[month]} ${year}`;
+            // Key: Month index for 'all', or 'YYYY.MM' for specific year
+            const key = targetYear === 'all' ? month : `${year}.${String(month + 1).padStart(2, '0')}`;
 
             monthlyAverages[key] = (monthlyAverages[key] || 0) + closePrice;
             monthlyCounts[key] = (monthlyCounts[key] || 0) + 1;
         });
 
-        // Sorting labels: If all, sort by month index. If specific year, month order is preserved.
         let labels;
+        let data;
+
         if (targetYear === 'all') {
-            labels = MONTHS.filter((_, index) => monthlyAverages.hasOwnProperty(index)).map(m => m);
+            // For 'all', sort by month index (0-11)
+            labels = MONTHS;
+            data = MONTHS.map((_, index) => {
+                const avg = monthlyAverages[index] ? monthlyAverages[index] / monthlyCounts[index] : null;
+                return avg ? parseFloat(avg.toFixed(2)) : null;
+            });
         } else {
-            labels = Object.keys(monthlyAverages).sort((a,b) => MONTHS.indexOf(a.split(' ')[0]) - MONTHS.indexOf(b.split(' ')[0]));
+            // For specific year, sort by 'YYYY.MM' key and use 'MMM YYYY' as label
+            const sortedKeys = Object.keys(monthlyAverages).sort();
+            labels = sortedKeys.map(key => {
+                const [y, m] = key.split('.');
+                return `${MONTHS[parseInt(m, 10) - 1]} ${y}`;
+            });
+            data = sortedKeys.map(key => {
+                const avg = monthlyAverages[key] / monthlyCounts[key];
+                return parseFloat(avg.toFixed(2));
+            });
         }
 
-        const data = labels.map(label => {
-            let key = targetYear === 'all' ? MONTHS.indexOf(label) : label;
-            const avg = monthlyAverages[key] / monthlyCounts[key];
-            return parseFloat(avg.toFixed(2));
-        });
-
-        return { labels: targetYear === 'all' ? MONTHS : labels, data: data };
+        return { labels, data };
     }
 
 
@@ -696,22 +717,24 @@
             if (isNaN(closePrice)) return;
 
             const year = date.substring(0, 4);
+            
+            // Filter untuk hanya menggunakan entri harian (asumsi: tidak ada waktu atau waktu 00:00:00)
+            const isDailyEntry = date.length <= 10 || date.endsWith('00:00:00');
+            if (!isDailyEntry) return;
+
+            const dateKey = date.substring(0, 10); // YYYY.MM.DD
 
             if (targetYear !== 'all') {
                 if (year !== targetYear) return;
                 
                 // For a specific year, use full date (YYYY.MM.DD) as key
-                if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
-                    dailyPrices[date] = closePrice;
-                    dailyCounts[date] = 1;
-                }
+                dailyPrices[dateKey] = closePrice;
+                dailyCounts[dateKey] = 1; 
             } else {
                 // For all years, use MM.DD as key and calculate average price
-                 if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
-                    const monthDay = date.substring(5); // MM.DD
-                    dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
-                    dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
-                }
+                const monthDay = dateKey.substring(5); // MM.DD
+                dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
+                dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
             }
         });
         
@@ -722,7 +745,7 @@
         });
 
         if (targetYear === 'all') {
-             labels = labels.map(label => label.replace('.', '/'));
+             labels = labels.map(label => label.replace('.', '/')); // Format MM/DD
         }
 
         return { labels: labels, data: data };
