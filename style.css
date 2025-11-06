@@ -2,7 +2,7 @@
 :root {
     --bg-dark: #1f1f1f; /* Background Gelap */
     --text-light: #f0f0f0; /* Teks Utama */
-    --accent-color: #008080; /* Warna Aksen Biru-Hijau Khas */
+    --accent-color: #008080; /* Warna Aksen Biru-Hijau Khas Terminal */
     --border-color: #383838; /* Garis Pemisah Halus */
     --positive: #00ff00; /* Hijau untuk Kenaikan */
     --negative: #ff3333; /* Merah untuk Penurunan */
@@ -22,15 +22,27 @@ body {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    /* Pastikan tinggi 100% viewport */
 }
 
-/* --- NAVBAR --- */
+/* ---------------------------------------------------- */
+/* --- 1. TICKER TAPE WIDGET --- */
+/* ---------------------------------------------------- */
+.ticker-tape-container {
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+    background-color: #111; 
+}
+
+/* ---------------------------------------------------- */
+/* --- 2. NAVBAR --- */
+/* ---------------------------------------------------- */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 20px;
-    background-color: #111;
+    background-color: #111; 
     border-bottom: 1px solid var(--accent-color);
 }
 .logo {
@@ -54,25 +66,36 @@ body {
     color: var(--positive);
 }
 
-/* --- MAIN GRID (3 Kolom) --- */
+/* ---------------------------------------------------- */
+/* --- 3. MAIN GRID (3 KOLOM) --- */
+/* ---------------------------------------------------- */
 .main-grid {
     display: flex;
     flex-grow: 1;
-    overflow: hidden;
+    overflow: hidden; /* Konten di dalam grid bisa di-scroll, tapi grid itu sendiri fixed */
 }
 
 .grid-item {
     padding: 15px;
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Ukuran Kolom: Kiri=Chart (40%), Tengah=News (30%), Kanan=Chat (30%) */
+.panel-title {
+    color: var(--accent-color);
+    margin-top: 0;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1.1em;
+    flex-shrink: 0; /* Pastikan judul tidak menyusut */
+}
+
+/* Ukuran Kolom (Menggunakan flex: proporsi) */
 .left-panel {
     flex: 4; /* Chart: Paling Besar */
     min-width: 400px;
-    display: flex;
-    flex-direction: column;
 }
 .center-panel {
     flex: 3; /* News/Analisis: Menengah */
@@ -80,25 +103,17 @@ body {
 .right-panel {
     flex: 3; /* Chatbot: Menengah */
     min-width: 300px;
-    display: flex;
-    flex-direction: column;
-    border-right: none; /* Hilangkan garis di paling kanan */
+    border-right: none; 
 }
 
-/* Judul Panel */
-.panel-title {
-    color: var(--accent-color);
-    margin-top: 0;
-    padding-bottom: 5px;
-    border-bottom: 1px dashed var(--border-color);
-    font-size: 1.1em;
-}
-
-/* --- KOLOM KIRI: Chart TradingView --- */
+/* ---------------------------------------------------- */
+/* --- 4. KOLOM KIRI: CHART TRADINGVIEW --- */
+/* ---------------------------------------------------- */
 .pair-selector {
     margin-bottom: 10px;
     padding: 5px 0;
     font-size: 0.9em;
+    flex-shrink: 0;
 }
 #asset-pair {
     background-color: #2a2a2a;
@@ -109,12 +124,17 @@ body {
 }
 .tradingview-widget-container {
     flex-grow: 1; 
-    /* Penting: Pastikan kontainer chart mengisi seluruh sisa ruang yang tersedia */
     height: 100%; 
     min-height: 250px; 
 }
 
-/* --- KOLOM TENGAH: News Feed --- */
+/* ---------------------------------------------------- */
+/* --- 5. KOLOM TENGAH: NEWS FEED --- */
+/* ---------------------------------------------------- */
+#news-feed-display {
+    flex-grow: 1;
+    overflow-y: auto;
+}
 .article {
     margin-bottom: 15px;
     padding-bottom: 10px;
@@ -135,7 +155,9 @@ body {
     margin-top: 20px;
 }
 
-/* --- KOLOM KANAN: Chatbot --- */
+/* ---------------------------------------------------- */
+/* --- 6. KOLOM KANAN: CHATBOT --- */
+/* ---------------------------------------------------- */
 .chat-panel {
     display: flex;
     flex-direction: column;
@@ -171,6 +193,7 @@ body {
     padding-top: 10px;
     border-top: 1px solid var(--border-color);
     align-items: center;
+    flex-shrink: 0;
 }
 #user-input {
     flex-grow: 1;
@@ -195,6 +218,7 @@ body {
     border-top: 1px dotted var(--border-color);
     background-color: #2a2a2a;
     margin-top: 5px;
+    flex-shrink: 0;
 }
 #image-preview {
     max-height: 40px;
