@@ -2,7 +2,7 @@
 // Untuk contoh sederhana, kita akan menggunakan panggilan API fetch (asumsi Anda memiliki backend untuk keamanan)
 
 // *** CATATAN PENTING: Untuk produksi, JANGAN SIMPAN API KEY DI FRONTEND ***
-const API_KEY = "GANTI_DENGAN_API_KEY_ANDA"; 
+const API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 const chatBox = document.getElementById('chat-box');
 const inputForm = document.getElementById('input-form');
