@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.1.0/dist/index.umd.js"></script> 
     <style>
         /* Modern scrollbar for dark theme */
         .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -53,18 +54,55 @@
 
 <script>
     // =========================================================================
-    // 🛑 KUNCI API ANDA HARUS DIMASUKKAN DI SINI SECARA AMAN.
-    // JANGAN PERNAH MEMASUKKAN KUNCI API SECARA LANGSUNG PADA CLIENT-SIDE (BROWSER) CODE!
-    // GUNAKAN PROXY BACKEND/SERVERLESS (seperti Firebase Functions, Cloud Run, atau Node.js)
-    // untuk melakukan panggilan API dengan kunci Anda.
-    const GEMINI_API_KEY = ""; // Kunci API dihapus untuk keamanan.
-    const SECURE_PROXY_URL = "/api/gemini-chat"; // Endpoint proxy yang aman untuk chat teks.
-    const MULTIMODAL_API_URL = "/api/gemini-vision"; // Endpoint proxy yang aman untuk chat gambar.
+    // 🛑 PERHATIAN PENTING: PENGGUNAAN KUNCI API DI CLIENT-SIDE (Browser)
+    // ⚠️ Metode ini TIDAK AMAN UNTUK APLIKASI PRODUKSI. Kunci API Anda akan 
+    // terekspos ke publik. Google dan saya menyarankan menggunakan server proxy 
+    // yang aman untuk aplikasi yang sebenarnya.
+    // GANTI DENGAN KUNCI API ANDA YANG ASLI:
+    const GEMINI_API_KEY = "PASTE_KUNCI_API_ANDA_DI_SINI"; 
     // =========================================================================
 
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
     let chartInstance = null; // Global variable for Chart.js instance
+
+    // 🚀 INISIALISASI KLIEN GEMINI
+    // Panggil GenAI dari namespace global
+    const { GoogleGenAI } = window.GoogleGenAI; 
+
+    // Cek apakah kunci API telah dimasukkan
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_KUNCI_API_ANDA_DI_SINI") {
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('chatNotes').textContent = "⚠️ KUNCI API BELUM DIMASUKKAN. Gemini AI tidak akan berfungsi.";
+             document.getElementById('chatNotes').classList.remove('hidden');
+        });
+        var ai = null;
+        console.error("KUNCI API BELUM DIMASUKKAN!");
+    } else {
+        var ai = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+    }
+
+    /**
+     * Mengubah objek File menjadi format GenerativePart yang dibutuhkan oleh Gemini API.
+     * @param {File} file Objek file yang diupload.
+     * @returns {Promise<object>} Objek GenerativePart.
+     */
+    async function fileToGenerativePart(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64Data = event.target.result.split(',')[1];
+                resolve({
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type,
+                    },
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
 </script>
 
 <header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
@@ -276,7 +314,7 @@
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3.412c-3.051 0-4.588 1.48-4.588 4.588v2.412z"/></svg>
                 </a>
                 <a href="https://instagram.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Instagram">
-                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.636-1.121-.703-.291-1.513-.468-2.693-.523-1.12-.052-1.474-.064-4.298-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
+                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.121-.196-.488-.196-1.213-.369-2.279-.418-1.057-.048-1.367-.064-4.12-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
                 </a>
                 <a href="mailto:your.email@example.com" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Email">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.287l-12-9.912v15.912h24v-15.912l-12 9.912z"/></svg>
@@ -378,7 +416,7 @@
             <div class="px-3 py-2 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-red-400 font-semibold">⚠️ Harap diperhatikan: Fungsi AI Chat memerlukan **proxy server** yang aman.</span>
+                <span class="text-red-400 font-semibold">⚠️ Mode ini menggunakan Kunci API di browser (tidak aman untuk produksi).</span>
             </div>
         </div>
     </div>
@@ -535,7 +573,7 @@
             bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
         }
         
-        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`; }
+        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD: ${content.fileName}] ${messageInput.value.trim() ? '('+messageInput.value.trim()+')' : ''}`; }
 
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);
@@ -550,76 +588,65 @@
         sendImageBtn.disabled = thinking || !imageInput.files.length;
     }
 
-    // Fungsi inti untuk mengirim pesan (Teks) ke Proxy Backend yang aman
+    // 🚀 REVISI: Fungsi inti untuk mengirim pesan (Teks) menggunakan SDK langsung
     async function sendGeminiMessage(message) {
+        if (!ai) return; // Hentikan jika AI tidak terinisialisasi
         setChatState(true);
         botMessageBubble = appendMsg('bot', 'AI sedang berpikir...');
 
         try {
-            const response = await fetch(SECURE_PROXY_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
+            const response = await ai.models.generateContent({
+                model: TEXT_MODEL,
+                contents: [{ role: "user", parts: [{ text: message }] }]
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Proxy Error: ${errorData.error || response.statusText}`);
-            }
-
-            const data = await response.json();
-            const botResponse = data.text || "Gagal mendapatkan respons dari AI. Cek log server proxy Anda.";
+            const botResponse = response.text || "Gagal mendapatkan respons dari AI.";
+            
+            // Perbarui bubble chat
             botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
             botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
             botMessageBubble.classList.add('bg-gray-800');
 
         } catch (error) {
             console.error('Gemini API Error:', error);
-            botMessageBubble.textContent = `❌ Error koneksi ke AI: ${error.message}. Pastikan proxy server berjalan dengan benar.`;
+            botMessageBubble.textContent = `❌ Error API: ${error.message}. Cek apakah Kunci API Anda valid dan memiliki kuota.`;
             botMessageBubble.classList.add('text-red-400');
         } finally {
             setChatState(false);
         }
     }
 
-    // Fungsi inti untuk mengirim pesan (Gambar) ke Proxy Backend yang aman
+    // 🚀 REVISI: Fungsi inti untuk mengirim pesan (Gambar) menggunakan SDK langsung
     async function sendGeminiImage(imageFile, prompt) {
+        if (!ai) return; // Hentikan jika AI tidak terinisialisasi
         setChatState(true);
         botMessageBubble = appendMsg('bot', 'AI sedang menganalisis gambar...');
 
         try {
-            // Konversi file gambar ke Base64
-            const base64Image = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(imageFile);
+            // 1. Konversi File Gambar ke GenerativePart
+            const imagePart = await fileToGenerativePart(imageFile);
+
+            // 2. Susun konten
+            const contents = [
+                { role: "user", parts: [imagePart, { text: prompt || "Analisis dan jelaskan chart/gambar ini." }] }
+            ];
+
+            // 3. Panggil API Multimodal
+            const response = await ai.models.generateContent({
+                model: MULTIMODAL_MODEL,
+                contents: contents
             });
+            
+            const botResponse = response.text || "Gagal mendapatkan respons dari AI setelah menganalisis gambar.";
 
-            const response = await fetch(MULTIMODAL_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    prompt: prompt || "Jelaskan dan analisis chart ini.",
-                    image: base64Image,
-                    mimeType: imageFile.type
-                })
-            });
-
-            if (!response.ok) {
-                 const errorData = await response.json();
-                throw new Error(`Proxy Error: ${errorData.error || response.statusText}`);
-            }
-
-            const data = await response.json();
-            const botResponse = data.text || "Gagal mendapatkan respons dari AI. Cek log server proxy Anda.";
+            // Perbarui bubble chat
             botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
             botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
             botMessageBubble.classList.add('bg-gray-800');
             
         } catch (error) {
             console.error('Gemini Image API Error:', error);
-            botMessageBubble.textContent = `❌ Error koneksi/pemrosesan gambar: ${error.message}.`;
+            botMessageBubble.textContent = `❌ Error API/Pemrosesan Gambar: ${error.message}.`;
             botMessageBubble.classList.add('text-red-400');
         } finally {
             setChatState(false);
@@ -627,7 +654,7 @@
     }
     
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (DIPERBAIKI)
+    // 🚀 Data Analysis (CSV) Logic (Sama seperti sebelumnya, sudah OK)
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
