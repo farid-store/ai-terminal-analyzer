@@ -1,16 +1,18 @@
 /* Bloomberg-Inspired Color Scheme */
 :root {
-    --bg-dark: #1f1f1f; /* Background Gelap */
-    --text-light: #f0f0f0; /* Teks Utama */
-    --accent-color: #008080; /* Warna Aksen Biru-Hijau Khas Terminal */
-    --border-color: #383838; /* Garis Pemisah Halus */
-    --positive: #00ff00; /* Hijau untuk Kenaikan */
-    --negative: #ff3333; /* Merah untuk Penurunan */
+    --bg-dark: #111111; /* Background Sangat Gelap */
+    --text-light: #f0f0f0; 
+    --accent-color: #008080; /* Biru-Hijau Khas */
+    --border-color: #383838; 
+    --positive: #00ff00; 
+    --negative: #ff3333; 
 }
 
+/* 🟥 HAPUS MARGIN & PADDING DEFAULT */
 body {
     font-family: 'Arial', sans-serif;
-    margin: 0;
+    margin: 0; 
+    padding: 0; 
     min-height: 100vh;
     background-color: var(--bg-dark);
     color: var(--text-light);
@@ -22,65 +24,86 @@ body {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-    /* Pastikan tinggi 100% viewport */
 }
 
 /* ---------------------------------------------------- */
-/* --- 1. TICKER TAPE WIDGET --- */
+/* --- 1. TICKER TAPE & NAVBAR --- */
 /* ---------------------------------------------------- */
 .ticker-tape-container {
     border-bottom: 1px solid var(--border-color);
-    width: 100%;
-    background-color: #111; 
+    background-color: #111;
+    margin: 0;
+    padding: 0;
+}
+.ticker-tape-container .tradingview-widget-container {
+    /* Menghapus margin bawaan widget */
+    margin: 0 !important; 
+    padding: 0;
+    line-height: 0; 
 }
 
-/* ---------------------------------------------------- */
-/* --- 2. NAVBAR --- */
-/* ---------------------------------------------------- */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 20px;
-    background-color: #111; 
+    background-color: #0f0f0f; 
     border-bottom: 1px solid var(--accent-color);
+    flex-shrink: 0; /* Pastikan navbar tidak menyusut */
 }
-.logo {
-    font-weight: bold;
-    color: var(--accent-color);
-    font-size: 1.2em;
-}
-.nav-links a {
-    color: var(--text-light);
-    text-decoration: none;
-    margin-left: 20px;
-    padding: 5px 10px;
-    transition: background-color 0.2s;
-}
-.nav-links a:hover, .nav-links a.active {
-    background-color: var(--accent-color);
-    color: var(--bg-dark);
-}
-.user-info {
-    font-size: 0.9em;
-    color: var(--positive);
-}
+.logo { color: var(--accent-color); font-weight: bold; font-size: 1.2em; }
+.nav-links a { color: var(--text-light); text-decoration: none; margin-left: 20px; padding: 5px 10px; }
+.nav-links a:hover, .nav-links a.active { background-color: var(--accent-color); color: var(--bg-dark); }
+.user-info { color: var(--positive); }
+
 
 /* ---------------------------------------------------- */
-/* --- 3. MAIN GRID (3 KOLOM) --- */
+/* --- 2. MAIN GRID LAYOUT (2 KOLOM UTAMA) --- */
 /* ---------------------------------------------------- */
 .main-grid {
     display: flex;
     flex-grow: 1;
-    overflow: hidden; /* Konten di dalam grid bisa di-scroll, tapi grid itu sendiri fixed */
+    overflow: hidden;
 }
 
 .grid-item {
-    padding: 15px;
+    padding: 0; /* Hapus padding grid-item untuk kontrol yang lebih baik */
     border-right: 1px solid var(--border-color);
-    overflow-y: auto;
+    overflow: hidden;
+    height: 100%;
+}
+
+.primary-chart-panel {
+    flex: 6; /* 60% untuk Chart Utama */
+    padding: 10px;
+    display: flex;
+    min-width: 600px;
+}
+.primary-chart-panel .tradingview-widget-container {
+    flex-grow: 1;
+    min-height: 0; /* Penting untuk flexbox */
+}
+
+/* ---------------------------------------------------- */
+/* --- 3. KOLOM KANAN (2 ROW & SUB-GRID) --- */
+/* ---------------------------------------------------- */
+.side-panels-container {
+    flex: 4; /* 40% untuk Kolom Kanan */
+    display: flex;
+    flex-direction: column; /* Susun panel secara vertikal */
+    border-right: none;
+}
+
+.side-panel {
+    padding: 10px;
+    overflow-y: hidden;
+    height: 50%; /* Bagi kolom menjadi 2 baris sama besar */
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+}
+.side-panel:last-child {
+    border-bottom: none;
 }
 
 .panel-title {
@@ -89,148 +112,84 @@ body {
     padding-bottom: 5px;
     border-bottom: 1px dashed var(--border-color);
     font-size: 1.1em;
-    flex-shrink: 0; /* Pastikan judul tidak menyusut */
-}
-
-/* Ukuran Kolom (Menggunakan flex: proporsi) */
-.left-panel {
-    flex: 4; /* Chart: Paling Besar */
-    min-width: 400px;
-}
-.center-panel {
-    flex: 3; /* News/Analisis: Menengah */
-}
-.right-panel {
-    flex: 3; /* Chatbot: Menengah */
-    min-width: 300px;
-    border-right: none; 
-}
-
-/* ---------------------------------------------------- */
-/* --- 4. KOLOM KIRI: CHART TRADINGVIEW --- */
-/* ---------------------------------------------------- */
-.pair-selector {
-    margin-bottom: 10px;
-    padding: 5px 0;
-    font-size: 0.9em;
     flex-shrink: 0;
 }
-#asset-pair {
-    background-color: #2a2a2a;
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-    padding: 5px;
-    width: 100%;
-}
-.tradingview-widget-container {
-    flex-grow: 1; 
-    height: 100%; 
-    min-height: 250px; 
-}
 
-/* ---------------------------------------------------- */
-/* --- 5. KOLOM TENGAH: NEWS FEED --- */
-/* ---------------------------------------------------- */
-#news-feed-display {
-    flex-grow: 1;
-    overflow-y: auto;
-}
-.article {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px dotted var(--border-color);
-}
-.article h4 {
-    color: var(--text-light);
-    margin: 0 0 5px 0;
-    font-size: 1em;
-}
-.article p {
-    color: #ccc;
-    font-size: 0.9em;
-}
-.placeholder-text {
-    font-size: 0.8em;
-    color: #aaa;
-    margin-top: 20px;
-}
-
-/* ---------------------------------------------------- */
-/* --- 6. KOLOM KANAN: CHATBOT --- */
-/* ---------------------------------------------------- */
+/* --- CHAT BOT PANEL --- */
 .chat-panel {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    overflow: hidden;
-    padding: 0;
+    min-height: 300px; /* Minimal tinggi */
 }
 .chat-box {
     flex-grow: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    padding-right: 5px;
 }
-.message {
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    max-width: 90%;
+.message { padding: 8px 12px; margin-bottom: 8px; border-radius: 4px; max-width: 90%; }
+.user-message { background-color: #004a7a; color: var(--text-light); margin-left: auto; }
+.gemini-message { background-color: #2a2a2a; color: var(--text-light); margin-right: auto; border-left: 2px solid var(--accent-color); white-space: pre-wrap; }
+.input-form { display: flex; padding-top: 10px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+#user-input { flex-grow: 1; padding: 8px; border: 1px solid var(--border-color); background-color: #2a2a2a; color: var(--text-light); margin-right: 5px; }
+.input-form button { background-color: var(--accent-color); color: var(--bg-dark); border: none; padding: 8px 10px; cursor: pointer; font-weight: bold; }
+#image-preview-container { display: flex; align-items: center; padding: 5px 0; border-top: 1px dotted var(--border-color); background-color: #2a2a2a; margin-top: 5px; flex-shrink: 0; }
+#image-preview { max-height: 40px; width: auto; margin-right: 10px; border: 1px solid var(--accent-color); }
+#remove-image-btn { background-color: var(--negative); color: var(--text-light); padding: 3px 8px; border: none; cursor: pointer; font-size: 0.8em; }
+
+
+/* --- DATA SUB-GRID (Untuk Heatmaps, Rates, Calendar) --- */
+.data-panel {
+    min-height: 300px;
 }
-.user-message {
-    background-color: #004a7a;
-    color: var(--text-light);
-    margin-left: auto;
-}
-.gemini-message {
-    background-color: #2a2a2a;
-    color: var(--text-light);
-    margin-right: auto;
-    border-left: 2px solid var(--accent-color);
-    white-space: pre-wrap;
-}
-.input-form {
-    display: flex;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color);
-    align-items: center;
-    flex-shrink: 0;
-}
-#user-input {
+
+.data-sub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 kolom */
+    grid-template-rows: 1fr 1fr; /* 2 baris */
+    gap: 10px; /* Jarak antar widget */
     flex-grow: 1;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    background-color: #2a2a2a;
-    color: var(--text-light);
-    margin-right: 5px;
+    min-height: 0;
 }
-.input-form button {
-    background-color: var(--accent-color);
-    color: var(--bg-dark);
-    border: none;
-    padding: 10px 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-#image-preview-container {
+
+.sub-grid-item {
+    overflow: hidden;
+    /* Pastikan TradingView Container di dalamnya mengisi penuh */
     display: flex;
-    align-items: center;
-    padding: 5px 0;
-    border-top: 1px dotted var(--border-color);
-    background-color: #2a2a2a;
-    margin-top: 5px;
-    flex-shrink: 0;
+    flex-direction: column;
 }
-#image-preview {
-    max-height: 40px;
-    width: auto;
-    margin-right: 10px;
-    border: 1px solid var(--accent-color);
+
+.sub-grid-item .tradingview-widget-container {
+    flex-grow: 1;
+    height: 100%; /* Penting */
+    min-height: 0;
+    margin: 0 !important;
 }
-#remove-image-btn {
-    background-color: var(--negative);
-    color: var(--text-light);
-    padding: 3px 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.8em;
+
+/* ---------------------------------------------------- */
+/* --- RESPONSIVENESS (Opsional) --- */
+/* ---------------------------------------------------- */
+@media (max-width: 1200px) {
+    .main-grid {
+        flex-direction: column;
+    }
+    .primary-chart-panel {
+        flex-shrink: 0;
+        height: 50vh; /* Chart ambil setengah layar di mobile */
+        min-width: initial;
+    }
+    .side-panels-container {
+        flex-direction: row; /* Tampilkan Chat dan Data Pendukung secara horizontal */
+        height: 50vh;
+        border-top: 1px solid var(--border-color);
+    }
+    .side-panel {
+        width: 50%;
+        height: 100%;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+    }
+    .side-panel:last-child {
+        border-right: none;
+    }
+    .data-sub-grid {
+        gap: 5px;
+    }
 }
