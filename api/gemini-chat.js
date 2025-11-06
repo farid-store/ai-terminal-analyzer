@@ -1,51 +1,86 @@
-// Contoh Sederhana di Server Proxy (misal: Node.js/Express)
-// JANGAN taruh kode ini di file HTML!
+// File: api/gemini-chat.js
 
-const express = require('express');
-const axios = require('axios');
-const app = express();
-const bodyParser = require('body-parser');
+import { GoogleGenAI } from '@google/genai';
 
-// 🛑 AMBIL KEY DARI ENVIRONMENT, BUKAN DI-HARDCODE!
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
+// Inisialisasi Klien Gemini.
+// Klien ini secara otomatis akan membaca GEMINI_API_KEY
+// dari Environment Variable di Vercel.
+const ai = new GoogleGenAI({}); 
 
-app.use(bodyParser.json({ limit: '5mb' }));
+// Konfigurasi untuk Vercel: Mengizinkan ukuran body request yang lebih besar
+// agar dapat menangani upload gambar (base64) dengan aman.
+export const config = {
+    maxDuration: 10,
+    api: {
+        bodyParser: {
+            sizeLimit: '5mb', // Batas 5MB untuk request body
+        },
+    },
+};
 
-app.post('/api/gemini-chat', async (req, res) => {
-    const { model, type, prompt, imageData } = req.body;
-    
-    // Konfigurasi request ke Gemini
-    let contents = [];
-    if (type === 'text') {
-        contents = [{ role: "user", parts: [{ text: prompt }] }];
-    } else if (type === 'image' && imageData) {
-        contents = [{ 
-            role: "user", 
-            parts: [
-                { text: prompt }, 
-                { inlineData: { mimeType: imageData.mimeType, data: imageData.data } }
-            ]
-        }];
+
+export default async function handler(req, res) {
+    // 1. Validasi Metode
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed. Only POST requests are accepted.' });
+    }
+
+    // 2. Validasi Content Type
+    if (req.headers['content-type'] !== 'application/json') {
+         return res.status(400).json({ error: 'Invalid Content-Type. Expected application/json.' });
     }
 
     try {
-        const geminiResponse = await axios.post(
-            `https://generative.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-            { contents: contents, config: { temperature: 0.2 } }
-        );
+        const { model, type, prompt, imageData } = req.body;
 
-        const reply = geminiResponse.data.candidates?.[0]?.content?.parts?.[0]?.text;
+        // 3. Validasi Data Dasar
+        if (!model || !prompt) {
+            return res.status(400).json({ error: 'Missing model or prompt in request body.' });
+        }
+
+        let contents = [];
         
-        // Kirim balik ke frontend
-        res.json({ text: reply });
+        // 4. Siapkan Contents (Teks atau Multimodal)
+        if (type === 'text') {
+            // Kasus Teks
+            contents = [{ role: "user", parts: [{ text: prompt }] }];
+        } 
+        else if (type === 'image' && imageData && imageData.data && imageData.mimeType) {
+            // Kasus Gambar (Multimodal)
+            contents = [{ 
+                role: "user", 
+                parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType: imageData.mimeType, data: imageData.data } }
+                ]
+            }];
+        } else {
+             return res.status(400).json({ error: 'Invalid request type or missing image data for image type.' });
+        }
+        
+        // 5. Panggil Gemini API
+        const response = await ai.models.generateContent({
+            model: model,
+            contents: contents,
+            config: {
+                // Temperatur rendah untuk analisis pasar yang lebih faktual
+                temperature: 0.2, 
+                maxOutputTokens: 1024
+            }
+        });
+
+        const reply = response.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (!reply) {
+             return res.status(500).json({ error: 'Gemini API returned no valid text reply.', details: response });
+        }
+        
+        // 6. Kirim Balasan Sukses ke Frontend
+        res.status(200).json({ text: reply });
 
     } catch (error) {
-        console.error("Gemini API Error:", error.response?.data || error.message);
-        res.status(500).json({ error: "Failed to communicate with Gemini API via proxy." });
+        console.error('API Error:', error);
+        // 7. Tangani Error
+        res.status(500).json({ error: 'Internal Server Error (Gemini API Call Failed).', details: error.message });
     }
-});
-
-// Tambahkan konfigurasi CORS di server Anda jika diperlukan
-// Contoh: app.use(cors({ origin: 'http://localhost:3000' }));
-
-// app.listen(3000, () => console.log('Proxy running on port 3000'));
+}
