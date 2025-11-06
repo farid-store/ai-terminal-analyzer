@@ -1,66 +1,172 @@
-/* Contoh dasar CSS */
+/* Warna Dasar Terminal */
+:root {
+    --bg-color: #1e1e1e;
+    --text-color: #00ff41; /* Hijau neon */
+    --input-bg: #333;
+    --border-color: #444;
+}
+
 body {
-    font-family: sans-serif;
+    font-family: 'Consolas', 'Courier New', monospace; /* Font Terminal */
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
-.chatbot-container {
-    width: 400px;
-    max-width: 90%;
-    background: white;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
+.terminal-container {
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    background: var(--bg-color);
+    border: 1px solid var(--text-color);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5); /* Efek neon */
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-header {
+    background-color: var(--input-bg);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    color: white;
+}
+
+.main-content {
+    display: flex;
+    flex-grow: 1;
     overflow: hidden;
 }
 
-.chat-box {
-    height: 400px;
-    overflow-y: auto;
+.panel {
     padding: 15px;
-    border-bottom: 1px solid #eee;
+    overflow-y: auto;
+    border-right: 1px solid var(--border-color);
 }
 
-/* Style untuk pesan pengguna dan AI */
+.chat-panel {
+    flex: 3; /* Ambil 60% lebar */
+    display: flex;
+    flex-direction: column;
+}
+
+.market-panel {
+    flex: 2; /* Ambil 40% lebar */
+    background-color: #2a2a2a;
+}
+.market-panel h2 {
+    color: #ffd700; /* Emas/kuning untuk judul data */
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 5px;
+}
+.placeholder-text {
+    font-size: 0.8em;
+    color: #aaa;
+    margin-top: 50px;
+}
+
+/* --- CHAT STYLING --- */
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
 .message {
     padding: 8px 12px;
     margin-bottom: 10px;
-    border-radius: 15px;
-    max-width: 80%;
+    border-radius: 4px;
+    max-width: 85%;
+    font-size: 0.9em;
 }
+
 .user-message {
     background-color: #007bff;
     color: white;
-    margin-left: auto; /* Agar rata kanan */
+    margin-left: auto;
     text-align: right;
-}
-.gemini-message {
-    background-color: #e2e8f0;
-    color: #333;
-    margin-right: auto; /* Agar rata kiri */
+    border-left: 3px solid #0056b3;
 }
 
-/* Style untuk form input */
+.gemini-message {
+    background-color: #2a2a2a;
+    color: var(--text-color);
+    margin-right: auto;
+    border-left: 3px solid var(--text-color);
+    white-space: pre-wrap; /* Penting untuk format teks/kode dari Gemini */
+}
+
 .input-form {
     display: flex;
-    padding: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
 }
+
 #user-input {
     flex-grow: 1;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    margin-right: 10px;
-}
-.input-form button {
-    background-color: #34c759;
+    border: 1px solid var(--text-color);
+    background-color: var(--input-bg);
     color: white;
+    border-radius: 0; /* Terminal look */
+    margin-right: 5px;
+}
+
+.input-form button {
+    background-color: var(--text-color);
+    color: var(--bg-color);
     border: none;
     padding: 10px 15px;
-    border-radius: 20px;
     cursor: pointer;
+    font-weight: bold;
+}
+#upload-btn {
+    margin-right: 5px;
+}
+
+/* Gambar Preview */
+#image-preview-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+}
+#image-preview {
+    max-height: 50px;
+    width: auto;
+    margin-right: 10px;
+    border: 1px solid var(--text-color);
+}
+#remove-image-btn {
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Responsif */
+@media (max-width: 800px) {
+    .main-content {
+        flex-direction: column;
+    }
+    .panel {
+        border-right: none;
+        height: 50vh;
+    }
+    .chat-panel {
+        height: 60vh;
+    }
+    .market-panel {
+        height: 30vh;
+        border-top: 1px solid var(--border-color);
+    }
+    .terminal-container {
+        width: 100%;
+        height: 100vh;
+    }
 }
