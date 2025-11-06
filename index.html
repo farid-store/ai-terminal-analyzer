@@ -58,146 +58,6 @@
     const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
 
-    // Data Analisis XAU/USD Bulanan (2015-2025)
-    const rawData = [
-        // --- Periode 2015 (Pasca The Fed Tapering) ---
-        { monthYear: "Jan 2015", trend: "Ranging", desc: "Konsolidasi di tengah penguatan Dolar AS.", factor: "Kekuatan Dolar AS pasca berakhirnya Quantitative Easing (QE) The Fed." },
-        { monthYear: "Feb 2015", trend: "Downtrend", desc: "Penurunan tajam, momentum bearish kuat.", factor: "Ekspektasi kenaikan suku bunga AS (Rate Hike)." },
-        { monthYear: "Mar 2015", trend: "Ranging", desc: "Sideways/konsolidasi di area support.", factor: "Pasar mencerna data ekonomi AS yang beragam." },
-        { monthYear: "Apr 2015", trend: "Uptrend", desc: "Rebound teknikal yang kuat.", factor: "Kelemahan sementara pada DXY (Indeks Dolar AS)." },
-        { monthYear: "Mei 2015", trend: "Downtrend", desc: "Tren bearish dominan, gagal menembus resistance.", factor: "Pemulihan ekonomi AS & inflasi yang tetap rendah." },
-        { monthYear: "Jun 2015", trend: "Downtrend", desc: "Penurunan berkelanjutan menuju level terendah.", factor: "Krisis utang Yunani kembali memicu ketidakpastian Eurozone." },
-        { monthYear: "Jul 2015", trend: "Downtrend tajam", desc: "Penurunan drastis, terendah multi-tahun.", factor: "Kepastian kenaikan suku bunga Fed mendekat." },
-        { monthYear: "Agu 2015", trend: "Ranging", desc: "Rebound & konsolidasi dari level rendah.", factor: "Devaluasi Yuan Tiongkok yang memicu volatilitas pasar." },
-        { monthYear: "Sep 2015", trend: "Downtrend", desc: "Tekanan jual kembali dominan.", factor: "The Fed menunda kenaikan suku bunga pertamanya." },
-        { monthYear: "Okt 2015", trend: "Uptrend", desc: "Kenaikan moderat dari bottom.", factor: "Data non-farm payroll (NFP) AS yang lemah." },
-        { monthYear: "Nov 2015", trend: "Downtrend", desc: "Turun tajam, tembus support krusial.", factor: "Dolar AS menguat tajam, Fed bersiap naikkan suku bunga." },
-        { monthYear: "Des 2015", trend: "Ranging", desc: "Sideways di area bawah, menunggu Rate Hike.", factor: "**The Fed menaikkan suku bunga untuk pertama kali (Des 2015).**" },
-        // --- Periode 2016 (Pasca Rate Hike Pertama) ---
-        { monthYear: "Jan 2016", trend: "Uptrend kuat", desc: "Rebound masif dari level terendah.", factor: "Kekacauan pasar saham global (khususnya Tiongkok) & harga minyak jatuh." },
-        { monthYear: "Feb 2016", trend: "Uptrend", desc: "Momentum bullish berlanjut.", factor: "Peningkatan permintaan safe haven." },
-        { monthYear: "Mar 2016", trend: "Ranging", desc: "Konsolidasi di area tinggi.", factor: "The Fed bersikap dovish (perlambatan kenaikan suku bunga)." },
-        { monthYear: "Apr 2016", trend: "Downtrend", desc: "Koreksi setelah kenaikan panjang.", factor: "Kekuatan Dolar AS sementara." },
-        { monthYear: "Mei 2016", trend: "Downtrend", desc: "Penurunan harga yang stabil.", factor: "Ekspektasi kenaikan suku bunga Fed (Rate Hike kedua)." },
-        { monthYear: "Jun 2016", trend: "Uptrend tajam", desc: "Lonjakan harga yang sangat kuat.", factor: "**Keputusan Brexit (Inggris keluar dari Uni Eropa).**" },
-        { monthYear: "Jul 2016", trend: "Ranging", desc: "Konsolidasi pasca Brexit, volatilitas tinggi.", factor: "Intervensi bank sentral pasca Brexit." },
-        { monthYear: "Agu 2016", trend: "Downtrend", desc: "Koreksi wajar setelah lonjakan Juni.", factor: "Data ekonomi AS yang membaik." },
-        { monthYear: "Sep 2016", trend: "Ranging", desc: "Pergerakan mendatar, tidak ada arah jelas.", factor: "The Fed tetap menahan suku bunga." },
-        { monthYear: "Okt 2016", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Penguatan Dolar AS menjelang pemilu AS." },
-        { monthYear: "Nov 2016", trend: "Downtrend tajam", desc: "Penjualan besar-besaran pasca pemilu AS.", factor: "**Kemenangan Donald Trump (Janji stimulus fiskal besar).**" },
-        { monthYear: "Des 2016", trend: "Downtrend", desc: "Tekanan jual berlanjut hingga akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedua).**" },
-        // --- Periode 2017 (Normalisasi Fed) ---
-        { monthYear: "Jan 2017", trend: "Uptrend", desc: "Rebound awal tahun dari level rendah.", factor: "Melemahnya USD pasca kenaikan suku bunga." },
-        { monthYear: "Feb 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketidakpastian kebijakan Trump." },
-        { monthYear: "Mar 2017", trend: "Uptrend", desc: "Mencapai puncak kuartalan.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketiga).**" },
-        { monthYear: "Apr 2017", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Ketegangan geopolitik AS-Korea Utara." },
-        { monthYear: "Mei 2017", trend: "Downtrend", desc: "Koreksi wajar.", factor: "Penguatan Dolar AS." },
-        { monthYear: "Jun 2017", trend: "Ranging", desc: "Sideways di area support.", factor: "**The Fed menaikkan suku bunga (Rate Hike keempat).**" },
-        { monthYear: "Jul 2017", trend: "Uptrend", desc: "Rebound yang kuat.", factor: "Melemahnya USD secara umum." },
-        { monthYear: "Agu 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketegangan geopolitik (Korea Utara & Venezuela)." },
-        { monthYear: "Sep 2017", trend: "Downtrend", desc: "Koreksi yang signifikan.", factor: "The Fed mengumumkan pengurangan neraca." },
-        { monthYear: "Okt 2017", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Menunggu kebijakan The Fed berikutnya." },
-        { monthYear: "Nov 2017", trend: "Downtrend", desc: "Penurunan stabil.", factor: "Penguatan Dolar AS." },
-        { monthYear: "Des 2017", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kelima).**" },
-        // --- Periode 2018 (Perang Dagang & Kenaikan Suku Bunga) ---
-        { monthYear: "Jan 2018", trend: "Uptrend", desc: "Bullish awal tahun, momentum kuat.", factor: "Kelemahan DXY & awal ketegangan perdagangan." },
-        { monthYear: "Feb 2018", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS kembali." },
-        { monthYear: "Mar 2018", trend: "Ranging", desc: "Sideways/konsolidasi.", factor: "**The Fed menaikkan suku bunga (Rate Hike keenam).**" },
-        { monthYear: "Apr 2018", trend: "Downtrend", desc: "Tekanan jual dominan.", factor: "Imbal hasil obligasi AS naik." },
-        { monthYear: "Mei 2018", trend: "Downtrend", desc: "Bearish berkelanjutan.", factor: "Penguatan Dolar AS karena Perang Dagang AS-Tiongkok." },
-        { monthYear: "Jun 2018", trend: "Downtrend", desc: "Turun ke level terendah.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketujuh).**" },
-        { monthYear: "Jul 2018", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Dolar AS sebagai safe haven." },
-        { monthYear: "Agu 2018", trend: "Ranging", desc: "Mulai membentuk base di area bawah.", factor: "Investor mencerna kebijakan perdagangan AS." },
-        { monthYear: "Sep 2018", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Okt 2018", trend: "Uptrend", desc: "Rebound besar dari support.", factor: "Koreksi pasar saham global." },
-        { monthYear: "Nov 2018", trend: "Ranging", desc: "Sideways di level tengah.", factor: "Menunggu pertemuan The Fed berikutnya." },
-        { monthYear: "Des 2018", trend: "Uptrend kuat", desc: "Rally masif akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedelapan) dan pasar saham AS anjlok.**" },
-        // --- Periode 2019 (Fed Pivot Dovish) ---
-        { monthYear: "Jan 2019", trend: "Ranging", desc: "Konsolidasi pasca rally besar.", factor: "The Fed bersikap dovish & mengisyaratkan pause rate hike." },
-        { monthYear: "Feb 2019", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS sementara." },
-        { monthYear: "Mar 2019", trend: "Ranging", desc: "Sideways, mencari arah.", factor: "Tidak ada data besar." },
-        { monthYear: "Apr 2019", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Ketidakpastian negosiasi Brexit." },
-        { monthYear: "Mei 2019", trend: "Ranging", desc: "Konsolidasi di area support.", factor: "Peningkatan ketegangan perdagangan AS-Tiongkok." },
-        { monthYear: "Jun 2019", trend: "Uptrend tajam", desc: "Breakout kuat, momentum bullish.", factor: "The Fed mengisyaratkan pemotongan suku bunga (Rate Cut)." },
-        { monthYear: "Jul 2019", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "**The Fed memangkas suku bunga (Rate Cut pertama).**" },
-        { monthYear: "Agu 2019", trend: "Uptrend kuat", desc: "Lonjakan besar menuju area 1550.", factor: "Ketegangan perdagangan AS-Tiongkok meningkat tajam." },
-        { monthYear: "Sep 2019", trend: "Downtrend", desc: "Koreksi wajar pasca puncak.", factor: "**The Fed memangkas suku bunga (Rate Cut kedua).**" },
-        { monthYear: "Okt 2019", trend: "Ranging", desc: "Sideways di level tinggi.", factor: "Mulai ada harapan damai dagang AS-Tiongkok." },
-        { monthYear: "Nov 2019", trend: "Downtrend", desc: "Penurunan dari level tinggi.", factor: "**The Fed memangkas suku bunga (Rate Cut ketiga).**" },
-        { monthYear: "Des 2019", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "Ekspektasi inflasi, perjanjian damai dagang fase 1." },
-        // --- Periode 2020 (Pandemi) hingga Okt 2025 (Menggunakan data Anda) ---
-        { monthYear: "Jan 2020", trend: "Uptrend moderat", desc: "Emas menguat stabil sejak awal tahun.", factor: "Ketegangan AS–Iran & penyebasan awal COVID-19 di Tiongkok." },
-        { monthYear: "Feb 2020", trend: "Uptrend kuat", desc: "Harga melonjak tajam ke area 1.680–1.700.", factor: "COVID-19 mulai menyebar global, minat safe haven naik." },
-        { monthYear: "Mar 2020", trend: "Volatil (Crash → Rebound)", desc: "Awalnya turun drastis karena panic selling, lalu pulih.", factor: "Crash likuiditas global (Maret 2020), lalu intervensi The Fed." },
-        { monthYear: "Apr 2020", trend: "Uptrend tajam", desc: "Rebound kuat menuju area 1.700–1750.", factor: "Stimulus besar-besaran & suku bunga mendekati 0%." },
-        { monthYear: "Mei 2020", trend: "Uptrend stabil", desc: "Harga bertahan tinggi, permintaan investasi naik.", factor: "The Fed lanjutkan QE, inflasi jangka panjang diantisipasi." },
-        { monthYear: "Jun 2020", trend: "Uptrend kuat", desc: "Breakout menuju area 1.780–1.800.", factor: "DXY melemah, ekspektasi stimulus tambahan." },
-        { monthYear: "Jul 2020", trend: "Uptrend kuat", desc: "Lonjakan besar akibat stimulus pandemi global.", factor: "Stimulus masif dari The Fed & paket bantuan COVID-19." },
-        { monthYear: "Agu 2020", trend: "Uptrend → Koreksi", desc: "Mencapai puncak historis, lalu koreksi tajam.", factor: "Euforia safe haven puncak, lalu profit taking." },
-        { monthYear: "Sep 2020", trend: "Downtrend", desc: "Tekanan jual pasca puncak Agustus.", factor: "Penguatan USD & ekspektasi pemulihan ekonomi." },
-        { monthYear: "Okt 2020", trend: "Ranging", desc: "Konsolidasi di area 1880–1920.", factor: "Menunggu hasil pemilu AS 2020." },
-        { monthYear: "Nov 2020", trend: "Downtrend", desc: "Penurunan akibat optimisme vaksin COVID-19.", factor: "Pengumuman vaksin Pfizer-BioNTech." },
-        { monthYear: "Des 2020", trend: "Ranging → Uptrend", desc: "Mulai pulih menjelang akhir tahun.", factor: "Paket stimulus tambahan AS disetujui." },
-        { monthYear: "Jan 2021", trend: "Uptrend → Downtrend", desc: "Lonjakan awal tahun, lalu terkoreksi.", factor: "Harapan stimulus Biden, lalu yield US naik." },
-        { monthYear: "Feb 2021", trend: "Downtrend", desc: "Yield US naik, tekanan jual tinggi.", factor: "Lonjakan yield Treasury 10 tahun." },
-        { monthYear: "Mar 2021", trend: "Ranging → Downtrend", desc: "Volatilitas tinggi, gagal rebound.", factor: "Dolar menguat akibat ekspektasi tapering." },
-        { monthYear: "Apr 2021", trend: "Ranging", desc: "Pasar mulai stabil di area bawah.", factor: "Tidak ada data besar; konsolidasi." },
-        { monthYear: "Mei 2021", trend: "Uptrend kuat", desc: "Rebound besar dari area support.", factor: "Inflasi AS naik tajam → dorong permintaan emas." },
-        { monthYear: "Jun 2021", trend: "Downtrend tajam", desc: "Penurunan cepat pasca FOMC hawkish.", factor: "FOMC sinyalkan kenaikan suku bunga lebih cepat." },
-        { monthYear: "Jul 2021", trend: "Ranging", desc: "Pergerakan datar, volatilitas rendah.", factor: "Pasar menunggu sinyal Fed berikutnya." },
-        { monthYear: "Agu 2021", trend: "Ranging", desc: "Tidak ada arah jelas, harga berosilasi.", factor: "Data ekonomi campuran AS." },
-        { monthYear: "Sep 2021", trend: "Downtrend", desc: "Tekanan jual dominan, lower low terbentuk.", factor: "Dolar menguat, ekspektasi tapering tinggi." },
-        { monthYear: "Okt 2021", trend: "Uptrend", desc: "Reversal naik dari support bawah.", factor: "Inflasi tinggi picu minat safe haven." },
-        { monthYear: "Nov 2021", trend: "Ranging", desc: "Konsolidasi di area tengah.", factor: "Menanti kepastian kebijakan tapering Fed." },
-        { monthYear: "Des 2021", trend: "Ranging", desc: "Fluktuasi kecil menjelang akhir tahun.", factor: "Volume pasar rendah, libur akhir tahun." },
-        { monthYear: "Jan 2022", trend: "Ranging → Uptrend", desc: "Mulai muncul tekanan beli signifikan.", factor: "Ketegangan geopolitik Rusia–Ukraina meningkat." },
-        { monthYear: "Feb 2022", trend: "Uptrend kuat", desc: "Lonjakan akibat geopolitik (Russia–Ukraine).", factor: "Invasi Rusia ke Ukraina (Feb 24)." },
-        { monthYear: "Mar 2022", trend: "Downtrend tajam", desc: "Koreksi kuat pasca lonjakan ekstrem.", factor: "Ekspektasi kenaikan suku bunga Fed." },
-        { monthYear: "Apr 2022", trend: "Ranging → Downtrend", desc: "Harga gagal menembus resistance, berbalik turun.", factor: "The Fed mulai agresif (kebijakan hawkish)." },
-        { monthYear: "Mei 2022", trend: "Downtrend", desc: "Bearish stabil dengan lower low.", factor: "Inflasi tinggi, Fed tingkatkan suku bunga." },
-        { monthYear: "Jun 2022", trend: "Downtrend", desc: "Tekanan jual masih kuat.", factor: "USD terus menguat, DXY tembus 105." },
-        { monthYear: "Jul 2022", trend: "Ranging", desc: "Konsolidasi membentuk base.", factor: "Ekspektasi inflasi mulai turun." },
-        { monthYear: "Agu 2022", trend: "Uptrend singkat", desc: "Rebound teknikal dari support.", factor: "DXY melemah sementara." },
-        { monthYear: "Sep 2022", trend: "Downtrend", desc: "Turun kembali setelah rally pendek.", factor: "Fed naikkan suku bunga 75 bps lagi." },
-        { monthYear: "Okt 2022", trend: "Ranging", desc: "Area bottom mulai terbentuk.", factor: "Investor mulai akumulasi emas kembali." },
-        { monthYear: "Nov 2022", trend: "Uptrend", desc: "Breakout resistance besar, momentum naik.", factor: "CPI AS turun → ekspektasi Fed melunak." },
-        { monthYear: "Des 2022", trend: "Uptrend", desc: "Tren naik stabil hingga akhir tahun.", factor: "Optimisme soft landing." },
-        { monthYear: "Jan 2023", trend: "Uptrend", desc: "Higher high konsisten, tren bullish kuat.", factor: "DXY melemah, ekspektasi Fed akan pivot." },
-        { monthYear: "Feb 2023", trend: "Downtrend", desc: "Koreksi dari puncak.", factor: "Data inflasi AS kembali tinggi." },
-        { monthYear: "Mar 2023", trend: "Uptrend", desc: "Rebound kuat pasca koreksi.", factor: "Krisis perbankan AS (Silicon Valley Bank)." },
-        { monthYear: "Apr 2023", trend: "Uptrend → Ranging", desc: "Kenaikan melambat di resistance.", factor: "Fed jaga suku bunga tetap tinggi." },
-        { monthYear: "Mei 2023", trend: "Downtrend", desc: "Tekanan jual mulai meningkat.", factor: "Debt ceiling AS & profit taking." },
-        { monthYear: "Jun 2023", trend: "Ranging", desc: "Harga mendatar.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Jul 2023", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Libur musim panas, volume tipis." },
-        { monthYear: "Agu 2023", trend: "Ranging → Uptrend awal", desc: "Mulai muncul higher low.", factor: "Data inflasi melunak." },
-        { monthYear: "Sep 2023", trend: "Uptrend", desc: "Tren bullish stabil.", factor: "Fed sinyalkan akhir siklus kenaikan suku bunga." },
-        { monthYear: "Okt 2023", trend: "Uptrend kuat", desc: "Breakout area resistance utama.", factor: "Konflik Hamas–Israel (Okt 7)." },
-        { monthYear: "Nov 2023", trend: "Uptrend", desc: "Momentum bullish masih dominan.", factor: "Ketegangan Timur Tengah berlanjut." },
-        { monthYear: "Des 2023", trend: "Ranging", desc: "Konsolidasi di area puncak.", factor: "Pasar tenang jelang akhir tahun." },
-        { monthYear: "Jan 2024", trend: "Ranging → Downtrend", desc: "Awal tahun terjadi koreksi besar.", factor: "DXY rebound & data tenaga kerja kuat." },
-        { monthYear: "Feb 2024", trend: "Downtrend", desc: "Penurunan konsisten, candle bearish besar.", factor: "CPI tinggi → Fed hawkish kembali." },
-        { monthYear: "Mar 2024", trend: "Ranging", desc: "Pasar tenang setelah koreksi.", factor: "Tidak ada data besar." },
-        { monthYear: "Apr 2024", trend: "Uptrend kuat", desc: "Breakout dari konsolidasi, kenaikan signifikan.", factor: "Dolar melemah, data inflasi turun." },
-        { monthYear: "Mei 2024", trend: "Uptrend", desc: "Tren naik masih terjaga.", factor: "Spekulasi pemotongan suku bunga Fed." },
-        { monthYear: "Jun 2024", trend: "Ranging", desc: "Pergerakan mendatar di level tinggi.", factor: "Investor tunggu keputusan FOMC." },
-        { monthYear: "Jul 2024", trend: "Downtrend", desc: "Koreksi dari area atas.", factor: "DXY menguat kembali." },
-        { monthYear: "Aug 2024", trend: "Downtrend", desc: "Lanjutan tekanan jual.", factor: "PMI dan CPI positif di AS." },
-        { monthYear: "Sep 2024", trend: "Ranging → Uptrend", desc: "Reversal mulai terbentuk.", factor: "Ekspektasi dovish Fed." },
-        { monthYear: "Okt 2024", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Inflasi global menurun." },
-        { monthYear: "Nov 2024", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Menunggu hasil pemilu AS." },
-        { monthYear: "Dec 2024", trend: "Uptrend", desc: "Bullish continuation menjelang akhir tahun.", factor: "Euforia pasca pemilu AS." },
-        { monthYear: "Jan 2025", trend: "Uptrend", desc: "Harga menembus resistance lama.", factor: "Fed mulai potong suku bunga." },
-        { monthYear: "Feb 2025", trend: "Ranging", desc: "Sideways di puncak.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Mar 2025", trend: "Downtrend", desc: "Koreksi wajar setelah rally panjang.", factor: "USD rebound teknikal." },
-        { monthYear: "Apr 2025", trend: "Downtrend", desc: "Tekanan jual meningkat.", factor: "Data inflasi naik kembali." },
-        { monthYear: "Mei 2025", trend: "Ranging", desc: "Konsolidasi setelah drop.", factor: "Pasar menunggu arah kebijakan baru Fed." },
-        { monthYear: "Jun 2025", trend: "Ranging → Uptrend", desc: "Tanda reversal bullish awal.", factor: "Data CPI menurun lagi." },
-        { monthYear: "Jul 2025", trend: "Uptrend", desc: "Momentum naik mulai kuat lagi.", factor: "Spekulasi pemotongan lanjutan suku bunga." },
-        { monthYear: "Aug 2025", trend: "Uptrend", desc: "Bullish stabil dengan higher low.", factor: "USD melemah, risk-off meningkat." },
-        { monthYear: "Sep 2025", trend: "Ranging", desc: "Mulai datar menjelang Q4.", factor: "Tidak ada event besar." },
-        { monthYear: "Okt 2025", trend: "Ranging → Uptrend", desc: "Ada potensi kenaikan lanjutan ke akhir tahun.", factor: "Ketegangan geopolitik baru di Timur Tengah." }
-    ];
-
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
     let chartInstance = null; // Global variable for Chart.js instance
@@ -412,218 +272,139 @@
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3.412c-3.051 0-4.588 1.48-4.588 4.588v2.412z"/></svg>
                 </a>
                 <a href="https://instagram.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Instagram">
-                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 ...</path></svg>
+                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.636-1.121-.703-.291-1.513-.468-2.693-.523-1.12-.052-1.474-.064-4.298-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
+                </a>
+                <a href="mailto:your.email@example.com" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Email">
+                    <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.287l-12-9.912v15.912h24v-15.912l-12 9.912z"/></svg>
                 </a>
             </div>
         </div>
     </aside>
 
-    <div class="col-span-full mt-6"> 
-        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
-            <h3 class="text-lg font-bold text-slate-200 mb-4">Analisis Historis XAU/USD (2015 - 2025)</h3>
-            <p class="text-sm text-gray-400 mb-4">Data bulanan yang mencakup tren, deskripsi pergerakan, dan faktor pendorong utama (termasuk kebijakan The Fed dan peristiwa geopolitik).</p>
-            
-            <div class="custom-scroll overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-gray-800 sticky top-0">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Bulan/Tahun</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Tren</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Deskripsi Pergerakan</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Faktor Pendorong Utama</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historicalDataTableBody" class="divide-y divide-gray-800">
-                        </tbody>
-                </table>
-            </div>
-        </section>
-    </div>
-
 </main>
 
-<button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]"> AI </button> 
-<div id="chatModal" class="fixed right-6 bottom-6 w-[320px] max-w-[calc(100%-32px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300"> 
-    <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50"> 
-        <div class="w-8 h-8 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-sm">G</div> 
-        <div class="font-semibold text-slate-200">Gemini Market AI</div> 
-        <button id="closeChat" class="ml-auto text-gray-400 hover:text-white" aria-label="Close chat"> 
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg> 
-        </button> 
-    </div> 
-    <div id="chatBody" class="p-4 flex-1 overflow-y-auto custom-scroll space-y-4 min-h-[250px] max-h-[400px]"> 
-        <div class="flex justify-start"> 
-            <div class="p-3 rounded-xl text-sm break-words bg-gray-800 text-slate-200 shadow-md"> Halo! Saya Gemini Market AI. Saya dapat menganalisis data pasar atau menjawab pertanyaan tentang chart yang sedang Anda lihat. </div> 
-        </div> 
-    </div> 
-    <div class="p-4 border-t border-gray-800 bg-gray-900"> 
-        <textarea id="messageInput" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-emerald-500 resize-none" rows="2" placeholder="Tanyakan tentang XAU/USD, IHSG, atau Bitcoin..."></textarea> 
-        <div class="flex items-center justify-between mt-2"> 
-            <button id="sendBtn" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 text-sm w-full" disabled> Kirim </button> 
-            <div class="flex gap-2 ml-2"> 
-                <label for="imageInput" class="px-2 py-1 rounded-lg border border-gray-600 hover:bg-gray-700 text-xs transition duration-200 text-slate-300 cursor-pointer"> Gbr </label> 
-                <input type="file" id="imageInput" accept="image/*" class="hidden"> 
-            </div> 
-        </div> 
-        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-bold hidden"></div> 
+<section class="max-w-[1400px] mx-auto px-4 pb-6 mt-6">
+    <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">Global Market Context</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
+            <h4 class="text-lg font-bold text-slate-200 mb-3">Top Stories / Timeline</h4>
+            <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                    {
+                        "displayMode":"regular", "feedMode":"all_symbols", "colorTheme":"dark", "isTransparent":false, "locale":"en", "width":"100%", "height":"100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
+            <h4 class="text-lg font-bold text-slate-200 mb-3">Economic Calendar</h4>
+            <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                    {
+                        "colorTheme":"dark", "isTransparent":false, "locale":"en", "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", "importanceFilter":"-1,0,1", "width":"100%", "height":"100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6 csv-analysis-section">
+    <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">CSV Data Analysis & Visualization</h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+        
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-full flex flex-col justify-start space-y-4">
+            
+            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+                <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">1. Upload CSV File</label>
+                <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
+            </div>
+
+            <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
+                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Mode Analisis:</label>
+                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>
+                    <option value="all_daily">Semua Tahun (Rata-rata Harian)</option>
+                </select>
+                
+                <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
+                    3. Tampilkan Chart
+                </button>
+            </div>
+            
+            <div id="dataStatus" class="text-xs text-red-400 p-2 text-center bg-gray-800 rounded-lg hidden"></div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[400px]">
+            <h4 id="chartTitle" class="text-lg font-bold text-slate-200 mb-3">Chart Data (Hasil Analisis CSV)</h4>
+            <div class="h-[400px] md:h-[500px] flex items-center justify-center">
+                <canvas id="csvChartCanvas"></canvas>
+                <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV dan klik 'Tampilkan Chart'.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]">
+    AI
+</button>
+
+<div id="chatModal" class="fixed right-6 bottom-6 w-[320px] max-w-[calc(100%-32px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
+    <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-sm">G</div>
+        <div class="text-sm font-semibold text-slate-100">Gemini AI Chat</div>
+        <button id="closeChat" class="ml-auto text-slate-400 hover:text-white transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <div id="chatBody" class="p-3 custom-scroll flex flex-col gap-3 h-[350px] overflow-y-auto bg-gray-950/70">
+        <div class="self-start max-w-[85%]">
+            <div class="px-3 py-2 rounded-lg bg-gray-800 text-slate-200 text-sm">
+                Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
+                <br><br>
+                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-3 border-t border-gray-800 bg-gray-800/50">
+        <div id="chatInputArea" class="flex flex-col gap-2">
+            <div class="flex gap-2">
+                <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan..." />
+                <button id="sendBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 text-sm">
+                    Kirim
+                </button>
+            </div>
+
+            <div id="imageInputContainer" class="flex items-center gap-2">
+                <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 flex-1 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
+                <button id="sendImageBtn" class="px-2 py-1 rounded-lg border border-gray-600 hover:bg-gray-700 text-xs transition duration-200 text-slate-300" disabled>
+                    Kirim Gbr
+                </button>
+            </div>
+        </div>
+
+        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-bold hidden"></div>
     </div>
 </div>
 
 <script>
     // =========================================================================
-    // 🛑 KUNCI API ANDA DIMASUKKAN DI SINI. INI SANGAT TIDAK AMAN!
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
-    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
+    // UI/UX Logic (Tabs, Chart TradingView, Chat)
     // =========================================================================
-
-    // Data Analisis XAU/USD Bulanan (2015-2025)
-    const rawData = [
-        // --- Periode 2015 (Pasca The Fed Tapering) ---
-        { monthYear: "Jan 2015", trend: "Ranging", desc: "Konsolidasi di tengah penguatan Dolar AS.", factor: "Kekuatan Dolar AS pasca berakhirnya Quantitative Easing (QE) The Fed." },
-        { monthYear: "Feb 2015", trend: "Downtrend", desc: "Penurunan tajam, momentum bearish kuat.", factor: "Ekspektasi kenaikan suku bunga AS (Rate Hike)." },
-        { monthYear: "Mar 2015", trend: "Ranging", desc: "Sideways/konsolidasi di area support.", factor: "Pasar mencerna data ekonomi AS yang beragam." },
-        { monthYear: "Apr 2015", trend: "Uptrend", desc: "Rebound teknikal yang kuat.", factor: "Kelemahan sementara pada DXY (Indeks Dolar AS)." },
-        { monthYear: "Mei 2015", trend: "Downtrend", desc: "Tren bearish dominan, gagal menembus resistance.", factor: "Pemulihan ekonomi AS & inflasi yang tetap rendah." },
-        { monthYear: "Jun 2015", trend: "Downtrend", desc: "Penurunan berkelanjutan menuju level terendah.", factor: "Krisis utang Yunani kembali memicu ketidakpastian Eurozone." },
-        { monthYear: "Jul 2015", trend: "Downtrend tajam", desc: "Penurunan drastis, terendah multi-tahun.", factor: "Kepastian kenaikan suku bunga Fed mendekat." },
-        { monthYear: "Agu 2015", trend: "Ranging", desc: "Rebound & konsolidasi dari level rendah.", factor: "Devaluasi Yuan Tiongkok yang memicu volatilitas pasar." },
-        { monthYear: "Sep 2015", trend: "Downtrend", desc: "Tekanan jual kembali dominan.", factor: "The Fed menunda kenaikan suku bunga pertamanya." },
-        { monthYear: "Okt 2015", trend: "Uptrend", desc: "Kenaikan moderat dari bottom.", factor: "Data non-farm payroll (NFP) AS yang lemah." },
-        { monthYear: "Nov 2015", trend: "Downtrend", desc: "Turun tajam, tembus support krusial.", factor: "Dolar AS menguat tajam, Fed bersiap naikkan suku bunga." },
-        { monthYear: "Des 2015", trend: "Ranging", desc: "Sideways di area bawah, menunggu Rate Hike.", factor: "**The Fed menaikkan suku bunga untuk pertama kali (Des 2015).**" },
-        // --- Periode 2016 (Pasca Rate Hike Pertama) ---
-        { monthYear: "Jan 2016", trend: "Uptrend kuat", desc: "Rebound masif dari level terendah.", factor: "Kekacauan pasar saham global (khususnya Tiongkok) & harga minyak jatuh." },
-        { monthYear: "Feb 2016", trend: "Uptrend", desc: "Momentum bullish berlanjut.", factor: "Peningkatan permintaan safe haven." },
-        { monthYear: "Mar 2016", trend: "Ranging", desc: "Konsolidasi di area tinggi.", factor: "The Fed bersikap dovish (perlambatan kenaikan suku bunga)." },
-        { monthYear: "Apr 2016", trend: "Downtrend", desc: "Koreksi setelah kenaikan panjang.", factor: "Kekuatan Dolar AS sementara." },
-        { monthYear: "Mei 2016", trend: "Downtrend", desc: "Penurunan harga yang stabil.", factor: "Ekspektasi kenaikan suku bunga Fed (Rate Hike kedua)." },
-        { monthYear: "Jun 2016", trend: "Uptrend tajam", desc: "Lonjakan harga yang sangat kuat.", factor: "**Keputusan Brexit (Inggris keluar dari Uni Eropa).**" },
-        { monthYear: "Jul 2016", trend: "Ranging", desc: "Konsolidasi pasca Brexit, volatilitas tinggi.", factor: "Intervensi bank sentral pasca Brexit." },
-        { monthYear: "Agu 2016", trend: "Downtrend", desc: "Koreksi wajar setelah lonjakan Juni.", factor: "Data ekonomi AS yang membaik." },
-        { monthYear: "Sep 2016", trend: "Ranging", desc: "Pergerakan mendatar, tidak ada arah jelas.", factor: "The Fed tetap menahan suku bunga." },
-        { monthYear: "Okt 2016", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Penguatan Dolar AS menjelang pemilu AS." },
-        { monthYear: "Nov 2016", trend: "Downtrend tajam", desc: "Penjualan besar-besaran pasca pemilu AS.", factor: "**Kemenangan Donald Trump (Janji stimulus fiskal besar).**" },
-        { monthYear: "Des 2016", trend: "Downtrend", desc: "Tekanan jual berlanjut hingga akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedua).**" },
-        // --- Periode 2017 (Normalisasi Fed) ---
-        { monthYear: "Jan 2017", trend: "Uptrend", desc: "Rebound awal tahun dari level rendah.", factor: "Melemahnya USD pasca kenaikan suku bunga." },
-        { monthYear: "Feb 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketidakpastian kebijakan Trump." },
-        { monthYear: "Mar 2017", trend: "Uptrend", desc: "Mencapai puncak kuartalan.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketiga).**" },
-        { monthYear: "Apr 2017", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Ketegangan geopolitik AS-Korea Utara." },
-        { monthYear: "Mei 2017", trend: "Downtrend", desc: "Koreksi wajar.", factor: "Penguatan Dolar AS." },
-        { monthYear: "Jun 2017", trend: "Ranging", desc: "Sideways di area support.", factor: "**The Fed menaikkan suku bunga (Rate Hike keempat).**" },
-        { monthYear: "Jul 2017", trend: "Uptrend", desc: "Rebound yang kuat.", factor: "Melemahnya USD secara umum." },
-        { monthYear: "Agu 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketegangan geopolitik (Korea Utara & Venezuela)." },
-        { monthYear: "Sep 2017", trend: "Downtrend", desc: "Koreksi yang signifikan.", factor: "The Fed mengumumkan pengurangan neraca." },
-        { monthYear: "Okt 2017", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Menunggu kebijakan The Fed berikutnya." },
-        { monthYear: "Nov 2017", trend: "Downtrend", desc: "Penurunan stabil.", factor: "Penguatan Dolar AS." },
-        { monthYear: "Des 2017", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kelima).**" },
-        // --- Periode 2018 (Perang Dagang & Kenaikan Suku Bunga) ---
-        { monthYear: "Jan 2018", trend: "Uptrend", desc: "Bullish awal tahun, momentum kuat.", factor: "Kelemahan DXY & awal ketegangan perdagangan." },
-        { monthYear: "Feb 2018", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS kembali." },
-        { monthYear: "Mar 2018", trend: "Ranging", desc: "Sideways/konsolidasi.", factor: "**The Fed menaikkan suku bunga (Rate Hike keenam).**" },
-        { monthYear: "Apr 2018", trend: "Downtrend", desc: "Tekanan jual dominan.", factor: "Imbal hasil obligasi AS naik." },
-        { monthYear: "Mei 2018", trend: "Downtrend", desc: "Bearish berkelanjutan.", factor: "Penguatan Dolar AS karena Perang Dagang AS-Tiongkok." },
-        { monthYear: "Jun 2018", trend: "Downtrend", desc: "Turun ke level terendah.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketujuh).**" },
-        { monthYear: "Jul 2018", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Dolar AS sebagai safe haven." },
-        { monthYear: "Agu 2018", trend: "Ranging", desc: "Mulai membentuk base di area bawah.", factor: "Investor mencerna kebijakan perdagangan AS." },
-        { monthYear: "Sep 2018", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Okt 2018", trend: "Uptrend", desc: "Rebound besar dari support.", factor: "Koreksi pasar saham global." },
-        { monthYear: "Nov 2018", trend: "Ranging", desc: "Sideways di level tengah.", factor: "Menunggu pertemuan The Fed berikutnya." },
-        { monthYear: "Des 2018", trend: "Uptrend kuat", desc: "Rally masif akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedelapan) dan pasar saham AS anjlok.**" },
-        // --- Periode 2019 (Fed Pivot Dovish) ---
-        { monthYear: "Jan 2019", trend: "Ranging", desc: "Konsolidasi pasca rally besar.", factor: "The Fed bersikap dovish & mengisyaratkan pause rate hike." },
-        { monthYear: "Feb 2019", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS sementara." },
-        { monthYear: "Mar 2019", trend: "Ranging", desc: "Sideways, mencari arah.", factor: "Tidak ada data besar." },
-        { monthYear: "Apr 2019", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Ketidakpastian negosiasi Brexit." },
-        { monthYear: "Mei 2019", trend: "Ranging", desc: "Konsolidasi di area support.", factor: "Peningkatan ketegangan perdagangan AS-Tiongkok." },
-        { monthYear: "Jun 2019", trend: "Uptrend tajam", desc: "Breakout kuat, momentum bullish.", factor: "The Fed mengisyaratkan pemotongan suku bunga (Rate Cut)." },
-        { monthYear: "Jul 2019", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "**The Fed memangkas suku bunga (Rate Cut pertama).**" },
-        { monthYear: "Agu 2019", trend: "Uptrend kuat", desc: "Lonjakan besar menuju area 1550.", factor: "Ketegangan perdagangan AS-Tiongkok meningkat tajam." },
-        { monthYear: "Sep 2019", trend: "Downtrend", desc: "Koreksi wajar pasca puncak.", factor: "**The Fed memangkas suku bunga (Rate Cut kedua).**" },
-        { monthYear: "Okt 2019", trend: "Ranging", desc: "Sideways di level tinggi.", factor: "Mulai ada harapan damai dagang AS-Tiongkok." },
-        { monthYear: "Nov 2019", trend: "Downtrend", desc: "Penurunan dari level tinggi.", factor: "**The Fed memangkas suku bunga (Rate Cut ketiga).**" },
-        { monthYear: "Des 2019", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "Ekspektasi inflasi, perjanjian damai dagang fase 1." },
-        // --- Periode 2020 (Pandemi) hingga Okt 2025 (Menggunakan data Anda) ---
-        { monthYear: "Jan 2020", trend: "Uptrend moderat", desc: "Emas menguat stabil sejak awal tahun.", factor: "Ketegangan AS–Iran & penyebasan awal COVID-19 di Tiongkok." },
-        { monthYear: "Feb 2020", trend: "Uptrend kuat", desc: "Harga melonjak tajam ke area 1.680–1.700.", factor: "COVID-19 mulai menyebar global, minat safe haven naik." },
-        { monthYear: "Mar 2020", trend: "Volatil (Crash → Rebound)", desc: "Awalnya turun drastis karena panic selling, lalu pulih.", factor: "Crash likuiditas global (Maret 2020), lalu intervensi The Fed." },
-        { monthYear: "Apr 2020", trend: "Uptrend tajam", desc: "Rebound kuat menuju area 1.700–1750.", factor: "Stimulus besar-besaran & suku bunga mendekati 0%." },
-        { monthYear: "Mei 2020", trend: "Uptrend stabil", desc: "Harga bertahan tinggi, permintaan investasi naik.", factor: "The Fed lanjutkan QE, inflasi jangka panjang diantisipasi." },
-        { monthYear: "Jun 2020", trend: "Uptrend kuat", desc: "Breakout menuju area 1.780–1.800.", factor: "DXY melemah, ekspektasi stimulus tambahan." },
-        { monthYear: "Jul 2020", trend: "Uptrend kuat", desc: "Lonjakan besar akibat stimulus pandemi global.", factor: "Stimulus masif dari The Fed & paket bantuan COVID-19." },
-        { monthYear: "Agu 2020", trend: "Uptrend → Koreksi", desc: "Mencapai puncak historis, lalu koreksi tajam.", factor: "Euforia safe haven puncak, lalu profit taking." },
-        { monthYear: "Sep 2020", trend: "Downtrend", desc: "Tekanan jual pasca puncak Agustus.", factor: "Penguatan USD & ekspektasi pemulihan ekonomi." },
-        { monthYear: "Okt 2020", trend: "Ranging", desc: "Konsolidasi di area 1880–1920.", factor: "Menunggu hasil pemilu AS 2020." },
-        { monthYear: "Nov 2020", trend: "Downtrend", desc: "Penurunan akibat optimisme vaksin COVID-19.", factor: "Pengumuman vaksin Pfizer-BioNTech." },
-        { monthYear: "Des 2020", trend: "Ranging → Uptrend", desc: "Mulai pulih menjelang akhir tahun.", factor: "Paket stimulus tambahan AS disetujui." },
-        { monthYear: "Jan 2021", trend: "Uptrend → Downtrend", desc: "Lonjakan awal tahun, lalu terkoreksi.", factor: "Harapan stimulus Biden, lalu yield US naik." },
-        { monthYear: "Feb 2021", trend: "Downtrend", desc: "Yield US naik, tekanan jual tinggi.", factor: "Lonjakan yield Treasury 10 tahun." },
-        { monthYear: "Mar 2021", trend: "Ranging → Downtrend", desc: "Volatilitas tinggi, gagal rebound.", factor: "Dolar menguat akibat ekspektasi tapering." },
-        { monthYear: "Apr 2021", trend: "Ranging", desc: "Pasar mulai stabil di area bawah.", factor: "Tidak ada data besar; konsolidasi." },
-        { monthYear: "Mei 2021", trend: "Uptrend kuat", desc: "Rebound besar dari area support.", factor: "Inflasi AS naik tajam → dorong permintaan emas." },
-        { monthYear: "Jun 2021", trend: "Downtrend tajam", desc: "Penurunan cepat pasca FOMC hawkish.", factor: "FOMC sinyalkan kenaikan suku bunga lebih cepat." },
-        { monthYear: "Jul 2021", trend: "Ranging", desc: "Pergerakan datar, volatilitas rendah.", factor: "Pasar menunggu sinyal Fed berikutnya." },
-        { monthYear: "Agu 2021", trend: "Ranging", desc: "Tidak ada arah jelas, harga berosilasi.", factor: "Data ekonomi campuran AS." },
-        { monthYear: "Sep 2021", trend: "Downtrend", desc: "Tekanan jual dominan, lower low terbentuk.", factor: "Dolar menguat, ekspektasi tapering tinggi." },
-        { monthYear: "Okt 2021", trend: "Uptrend", desc: "Reversal naik dari support bawah.", factor: "Inflasi tinggi picu minat safe haven." },
-        { monthYear: "Nov 2021", trend: "Ranging", desc: "Konsolidasi di area tengah.", factor: "Menanti kepastian kebijakan tapering Fed." },
-        { monthYear: "Des 2021", trend: "Ranging", desc: "Fluktuasi kecil menjelang akhir tahun.", factor: "Volume pasar rendah, libur akhir tahun." },
-        { monthYear: "Jan 2022", trend: "Ranging → Uptrend", desc: "Mulai muncul tekanan beli signifikan.", factor: "Ketegangan geopolitik Rusia–Ukraina meningkat." },
-        { monthYear: "Feb 2022", trend: "Uptrend kuat", desc: "Lonjakan akibat geopolitik (Russia–Ukraine).", factor: "Invasi Rusia ke Ukraina (Feb 24)." },
-        { monthYear: "Mar 2022", trend: "Downtrend tajam", desc: "Koreksi kuat pasca lonjakan ekstrem.", factor: "Ekspektasi kenaikan suku bunga Fed." },
-        { monthYear: "Apr 2022", trend: "Ranging → Downtrend", desc: "Harga gagal menembus resistance, berbalik turun.", factor: "The Fed mulai agresif (kebijakan hawkish)." },
-        { monthYear: "Mei 2022", trend: "Downtrend", desc: "Bearish stabil dengan lower low.", factor: "Inflasi tinggi, Fed tingkatkan suku bunga." },
-        { monthYear: "Jun 2022", trend: "Downtrend", desc: "Tekanan jual masih kuat.", factor: "USD terus menguat, DXY tembus 105." },
-        { monthYear: "Jul 2022", trend: "Ranging", desc: "Konsolidasi membentuk base.", factor: "Ekspektasi inflasi mulai turun." },
-        { monthYear: "Agu 2022", trend: "Uptrend singkat", desc: "Rebound teknikal dari support.", factor: "DXY melemah sementara." },
-        { monthYear: "Sep 2022", trend: "Downtrend", desc: "Turun kembali setelah rally pendek.", factor: "Fed naikkan suku bunga 75 bps lagi." },
-        { monthYear: "Okt 2022", trend: "Ranging", desc: "Area bottom mulai terbentuk.", factor: "Investor mulai akumulasi emas kembali." },
-        { monthYear: "Nov 2022", trend: "Uptrend", desc: "Breakout resistance besar, momentum naik.", factor: "CPI AS turun → ekspektasi Fed melunak." },
-        { monthYear: "Des 2022", trend: "Uptrend", desc: "Tren naik stabil hingga akhir tahun.", factor: "Optimisme soft landing." },
-        { monthYear: "Jan 2023", trend: "Uptrend", desc: "Higher high konsisten, tren bullish kuat.", factor: "DXY melemah, ekspektasi Fed akan pivot." },
-        { monthYear: "Feb 2023", trend: "Downtrend", desc: "Koreksi dari puncak.", factor: "Data inflasi AS kembali tinggi." },
-        { monthYear: "Mar 2023", trend: "Uptrend", desc: "Rebound kuat pasca koreksi.", factor: "Krisis perbankan AS (Silicon Valley Bank)." },
-        { monthYear: "Apr 2023", trend: "Uptrend → Ranging", desc: "Kenaikan melambat di resistance.", factor: "Fed jaga suku bunga tetap tinggi." },
-        { monthYear: "Mei 2023", trend: "Downtrend", desc: "Tekanan jual mulai meningkat.", factor: "Debt ceiling AS & profit taking." },
-        { monthYear: "Jun 2023", trend: "Ranging", desc: "Harga mendatar.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Jul 2023", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Libur musim panas, volume tipis." },
-        { monthYear: "Agu 2023", trend: "Ranging → Uptrend awal", desc: "Mulai muncul higher low.", factor: "Data inflasi melunak." },
-        { monthYear: "Sep 2023", trend: "Uptrend", desc: "Tren bullish stabil.", factor: "Fed sinyalkan akhir siklus kenaikan suku bunga." },
-        { monthYear: "Okt 2023", trend: "Uptrend kuat", desc: "Breakout area resistance utama.", factor: "Konflik Hamas–Israel (Okt 7)." },
-        { monthYear: "Nov 2023", trend: "Uptrend", desc: "Momentum bullish masih dominan.", factor: "Ketegangan Timur Tengah berlanjut." },
-        { monthYear: "Des 2023", trend: "Ranging", desc: "Konsolidasi di area puncak.", factor: "Pasar tenang jelang akhir tahun." },
-        { monthYear: "Jan 2024", trend: "Ranging → Downtrend", desc: "Awal tahun terjadi koreksi besar.", factor: "DXY rebound & data tenaga kerja kuat." },
-        { monthYear: "Feb 2024", trend: "Downtrend", desc: "Penurunan konsisten, candle bearish besar.", factor: "CPI tinggi → Fed hawkish kembali." },
-        { monthYear: "Mar 2024", trend: "Ranging", desc: "Pasar tenang setelah koreksi.", factor: "Tidak ada data besar." },
-        { monthYear: "Apr 2024", trend: "Uptrend kuat", desc: "Breakout dari konsolidasi, kenaikan signifikan.", factor: "Dolar melemah, data inflasi turun." },
-        { monthYear: "Mei 2024", trend: "Uptrend", desc: "Tren naik masih terjaga.", factor: "Spekulasi pemotongan suku bunga Fed." },
-        { monthYear: "Jun 2024", trend: "Ranging", desc: "Pergerakan mendatar di level tinggi.", factor: "Investor tunggu keputusan FOMC." },
-        { monthYear: "Jul 2024", trend: "Downtrend", desc: "Koreksi dari area atas.", factor: "DXY menguat kembali." },
-        { monthYear: "Aug 2024", trend: "Downtrend", desc: "Lanjutan tekanan jual.", factor: "PMI dan CPI positif di AS." },
-        { monthYear: "Sep 2024", trend: "Ranging → Uptrend", desc: "Reversal mulai terbentuk.", factor: "Ekspektasi dovish Fed." },
-        { monthYear: "Okt 2024", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Inflasi global menurun." },
-        { monthYear: "Nov 2024", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Menunggu hasil pemilu AS." },
-        { monthYear: "Dec 2024", trend: "Uptrend", desc: "Bullish continuation menjelang akhir tahun.", factor: "Euforia pasca pemilu AS." },
-        { monthYear: "Jan 2025", trend: "Uptrend", desc: "Harga menembus resistance lama.", factor: "Fed mulai potong suku bunga." },
-        { monthYear: "Feb 2025", trend: "Ranging", desc: "Sideways di puncak.", factor: "Tidak ada katalis besar." },
-        { monthYear: "Mar 2025", trend: "Downtrend", desc: "Koreksi wajar setelah rally panjang.", factor: "USD rebound teknikal." },
-        { monthYear: "Apr 2025", trend: "Downtrend", desc: "Tekanan jual meningkat.", factor: "Data inflasi naik kembali." },
-        { monthYear: "Mei 2025", trend: "Ranging", desc: "Konsolidasi setelah drop.", factor: "Pasar menunggu arah kebijakan baru Fed." },
-        { monthYear: "Jun 2025", trend: "Ranging → Uptrend", desc: "Tanda reversal bullish awal.", factor: "Data CPI menurun lagi." },
-        { monthYear: "Jul 2025", trend: "Uptrend", desc: "Momentum naik mulai kuat lagi.", factor: "Spekulasi pemotongan lanjutan suku bunga." },
-        { monthYear: "Aug 2025", trend: "Uptrend", desc: "Bullish stabil dengan higher low.", factor: "USD melemah, risk-off meningkat." },
-        { monthYear: "Sep 2025", trend: "Ranging", desc: "Mulai datar menjelang Q4.", factor: "Tidak ada event besar." },
-        { monthYear: "Okt 2025", trend: "Ranging → Uptrend", desc: "Ada potensi kenaikan lanjutan ke akhir tahun.", factor: "Ketegangan geopolitik baru di Timur Tengah." }
-    ];
-
-    const TEXT_MODEL = "gemini-2.5-flash"; 
-    const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
-    let chartInstance = null; // Global variable for Chart.js instance
-</script>
-<script>
-    // =========================================================================
-    // UI/UX Logic (Tabs, Chart TradingView, Chat, dan Data Historis Baru) 
-    // =========================================================================
+    
     // --- Tabs Logic ---
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabStoriesBtn = document.getElementById('tabStoriesBtn');
@@ -644,12 +425,10 @@
         setActiveTab(tabNews, tabStories);
         setActiveBtn(tabNewsBtn, tabStoriesBtn);
     });
-
     tabStoriesBtn.addEventListener('click', () => {
         setActiveTab(tabStories, tabNews);
         setActiveBtn(tabStoriesBtn, tabNewsBtn);
     });
-
     setActiveBtn(tabNewsBtn, tabStoriesBtn);
 
     // --- TradingView Symbol Logic (disederhanakan) ---
@@ -661,7 +440,7 @@
             let oldScript = document.getElementById('tv-advanced-script');
             if (oldScript) oldScript.remove();
             Array.from(container.children).forEach(child => child.remove());
-
+            
             const widgetPlaceholder = document.createElement('div');
             widgetPlaceholder.className = 'tradingview-widget-container__widget';
             widgetPlaceholder.style.cssText = 'height:100%;width:100%';
@@ -673,15 +452,10 @@
             script.id = 'tv-advanced-script';
             script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
             
-            const config = { 
-                "symbol": sym, 
-                "theme": "dark", 
-                "autosize": true, 
-                "interval": "D", 
-                "backgroundColor": "#0D1113", 
-                "gridColor": "rgba(242, 242, 242, 0.08)"
+            const config = {
+                "symbol": sym, "theme": "dark", "autosize": true, "interval": "D", "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)"
             };
-            script.textContent = JSON.stringify(config, null, 2);
+            script.textContent = JSON.stringify(config, null, 2); 
             container.appendChild(script);
         });
     }
@@ -694,139 +468,319 @@
     const openChatBtnAside = document.getElementById('openChatBtnAside');
     const closeChat = document.getElementById('closeChat');
     const sendBtn = document.getElementById('sendBtn');
+    const sendImageBtn = document.getElementById('sendImageBtn');
     const messageInput = document.getElementById('messageInput');
     const chatBody = document.getElementById('chatBody');
     const imageInput = document.getElementById('imageInput');
 
-    function showChat(){
-        chatModal.classList.remove('hidden');
-        chatFab.classList.add('hidden');
-        setTimeout(() => {
-            chatModal.style.transform = 'translateY(0) scale(1)';
-        }, 10); 
+    function showChat(){ 
+        chatModal.classList.remove('hidden'); 
+        chatFab.classList.add('hidden'); 
+        setTimeout(() => { chatModal.style.transform = 'translateY(0) scale(1)'; messageInput.focus(); }, 10);
     }
-
-    function hideChat(){
-        chatModal.style.transform = 'translateY(100%) scale(0.8)';
-        setTimeout(() => {
-            chatModal.classList.add('hidden');
-            chatFab.classList.remove('hidden');
-        }, 300); 
+    function hideChat(){ 
+        chatModal.classList.add('hidden'); 
+        chatFab.classList.remove('hidden'); 
+        chatModal.style.transform = ''; 
     }
+    chatModal.style.transform = 'translateY(50px) scale(0.95)';
 
-    [openChatBtnHeader, openChatBtnMobile, openChatBtnAside, chatFab].forEach(btn => {
-        if (btn) btn.addEventListener('click', showChat);
+    chatFab.addEventListener('click', showChat);
+    openChatBtnHeader.addEventListener('click', showChat);
+    openChatBtnAside.addEventListener('click', showChat);
+    openChatBtnMobile.addEventListener('click', showChat); 
+    closeChat.addEventListener('click', hideChat);
+    imageInput.addEventListener('change', () => {
+        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
     });
-    if (closeChat) closeChat.addEventListener('click', hideChat);
+    // Placeholder for actual Gemini logic 
+    sendBtn.addEventListener('click', () => { 
+        appendMsg('user', messageInput.value.trim()); 
+        messageInput.value = '';
+        appendMsg('bot', '(AI is thinking...)');
+    });
+    sendImageBtn.addEventListener('click', () => { 
+        if (imageInput.files[0]) {
+            appendMsg('user', { fileName: imageInput.files[0].name }, true);
+            appendMsg('bot', '(AI analyzing image...)');
+            imageInput.value = '';
+            sendImageBtn.disabled = true;
+        }
+    });
     
-    // Initial state for chat modal on load
-    if (chatModal) {
-        chatModal.style.transform = 'translateY(100%) scale(0.8)';
-        chatModal.style.transition = 'transform 0.3s ease-in-out';
-    }
-
-
-    function appendMessage(content, who, isImage = false) {
+    function appendMsg(who, content, isImage = false){
         const wrap = document.createElement('div');
-        wrap.className = who === 'user' ? 'flex justify-end' : 'flex justify-start';
-        
+        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
         const bubble = document.createElement('div');
-        bubble.className = 'max-w-[85%] p-3 rounded-xl text-sm break-words';
+        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
         
         if(who === 'user'){
             bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
             bubble.textContent = content;
         } else {
             if(content.includes('thinking') || content.includes('analyzing')) {
-                bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
-                bubble.textContent = content;
+                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
+                 bubble.textContent = content;
             } else {
-                bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-                bubble.style.whiteSpace = 'pre-wrap';
-                // Basic markdown processing for bold and newlines
-                bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+                 bubble.style.whiteSpace = 'pre-wrap';
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
             }
         }
-
-        if (isImage) {
-            bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`;
-        }
         
+        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`; }
+
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);
         chatBody.scrollTop = chatBody.scrollHeight;
-        return bubble;
+        return bubble; 
     }
 
-    // Simplified send logic placeholder
-    if (messageInput) {
-        messageInput.addEventListener('input', () => {
-            sendBtn.disabled = messageInput.value.trim() === '';
+    // =========================================================================
+    // 🚀 Data Analysis (CSV) Logic (Dipindahkan & Ditingkatkan)
+    // =========================================================================
+    const csvFileInput = document.getElementById('csvFileInput');
+    const csvControls = document.getElementById('csvControls');
+    const yearSelector = document.getElementById('yearSelector');
+    const processCsvBtn = document.getElementById('processCsvBtn');
+    const dataStatus = document.getElementById('dataStatus');
+    const chartPlaceholder = document.getElementById('chartPlaceholder');
+    const csvChartCanvas = document.getElementById('csvChartCanvas');
+    const chartTitleElement = document.getElementById('chartTitle');
+    
+    let parsedCsvData = null;
+    let availableYears = new Set();
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+    // 1. Parsing CSV
+    csvFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            csvControls.classList.add('hidden');
+            dataStatus.classList.add('hidden');
+            return;
+        }
+        dataStatus.classList.remove('hidden');
+        dataStatus.textContent = 'Memproses file...';
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            delimiter: '\t', // Menggunakan tab sebagai delimiter
+            complete: (results) => {
+                parsedCsvData = results.data;
+                
+                yearSelector.innerHTML = '<option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>';
+                yearSelector.innerHTML += '<option value="all_daily">Semua Tahun (Rata-rata Harian)</option>';
+
+                availableYears.clear();
+                parsedCsvData.forEach(row => {
+                    if (row['<DATE>']) {
+                        const year = row['<DATE>'].substring(0, 4);
+                        availableYears.add(year);
+                    }
+                });
+                
+                Array.from(availableYears).sort().reverse().forEach(year => {
+                    yearSelector.innerHTML += `<option value="${year}_daily">${year} (Harian)</option>`;
+                    yearSelector.innerHTML += `<option value="${year}_monthly">${year} (Bulanan)</option>`;
+                });
+
+                if (parsedCsvData.length > 0) {
+                    csvControls.classList.remove('hidden');
+                    processCsvBtn.disabled = false;
+                    dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
+                    dataStatus.classList.remove('text-red-400');
+                    dataStatus.classList.add('text-emerald-400');
+                    // Tampilkan chart default
+                    processCsvBtn.click();
+                } else {
+                    dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
+                    dataStatus.classList.add('text-red-400');
+                    csvControls.classList.add('hidden');
+                }
+            },
+            error: (error) => {
+                dataStatus.textContent = `❌ Error parsing file: ${error.message}`;
+                dataStatus.classList.add('text-red-400');
+                csvControls.classList.add('hidden');
+            }
         });
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (messageInput.value.trim() !== '') {
-                    // simulateSend(messageInput.value); 
-                    messageInput.value = '';
-                    sendBtn.disabled = true;
+    });
+
+    // 2. Data Processing & Visualization
+    processCsvBtn.addEventListener('click', () => {
+        if (!parsedCsvData) return;
+        dataStatus.textContent = 'Membuat Chart...';
+
+        const [selectedYear, mode] = yearSelector.value.split('_');
+        let chartData = {};
+        let title = '';
+        let xAxisLabel = '';
+
+        try {
+            if (mode === 'monthly') {
+                chartData = processMonthlyAverages(selectedYear);
+                title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Rata-rata Harga Tutup Bulanan Tahun ${selectedYear}`;
+                xAxisLabel = 'Bulan';
+            } else if (mode === 'daily') {
+                 chartData = processDailyData(selectedYear);
+                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Rata-rata Bulanan/Harian)' : `Harga Tutup Harian Tahun ${selectedYear}`;
+                 xAxisLabel = selectedYear === 'all' ? 'Bulan/Tanggal' : 'Tanggal';
+            }
+
+            renderChart(chartData.labels, chartData.data, title, xAxisLabel);
+            dataStatus.textContent = `✅ Chart berhasil diperbarui: ${title}`;
+            dataStatus.classList.remove('text-red-400');
+            dataStatus.classList.add('text-emerald-400');
+
+        } catch (error) {
+            dataStatus.textContent = `❌ Error saat membuat chart: ${error.message}`;
+            dataStatus.classList.add('text-red-400');
+            dataStatus.classList.remove('text-emerald-400');
+        }
+    });
+
+    // Helper: Process Monthly Averages
+    function processMonthlyAverages(targetYear) {
+        const monthlyAverages = {};
+        const monthlyCounts = {};
+
+        parsedCsvData.forEach(row => {
+            if (!row['<DATE>'] || !row['<CLOSE>']) return;
+            
+            const dateParts = row['<DATE>'].split('.'); // YYYY.MM.DD
+            if (dateParts.length < 3) return;
+            const year = dateParts[0];
+            const month = parseInt(dateParts[1], 10) - 1; 
+            const closePrice = parseFloat(row['<CLOSE>']);
+
+            if (isNaN(closePrice)) return;
+            
+            if (targetYear !== 'all' && year !== targetYear) return;
+
+            const key = targetYear === 'all' ? MONTHS[month] : `${MONTHS[month]} ${year}`;
+
+            monthlyAverages[key] = (monthlyAverages[key] || 0) + closePrice;
+            monthlyCounts[key] = (monthlyCounts[key] || 0) + 1;
+        });
+
+        // Sorting labels: If all, sort by month index. If specific year, month order is preserved.
+        let labels;
+        if (targetYear === 'all') {
+            labels = MONTHS.filter((_, index) => monthlyAverages.hasOwnProperty(index)).map(m => m);
+        } else {
+            labels = Object.keys(monthlyAverages).sort((a,b) => MONTHS.indexOf(a.split(' ')[0]) - MONTHS.indexOf(b.split(' ')[0]));
+        }
+
+        const data = labels.map(label => {
+            let key = targetYear === 'all' ? MONTHS.indexOf(label) : label;
+            const avg = monthlyAverages[key] / monthlyCounts[key];
+            return parseFloat(avg.toFixed(2));
+        });
+
+        return { labels: targetYear === 'all' ? MONTHS : labels, data: data };
+    }
+
+
+    // Helper: Process Daily Data for a Year or All Years (Average)
+    function processDailyData(targetYear) {
+        const dailyPrices = {};
+        const dailyCounts = {};
+
+        parsedCsvData.forEach(row => {
+            if (!row['<DATE>'] || !row['<CLOSE>']) return;
+            
+            const date = row['<DATE>'];
+            const closePrice = parseFloat(row['<CLOSE>']);
+            if (isNaN(closePrice)) return;
+
+            const year = date.substring(0, 4);
+
+            if (targetYear !== 'all') {
+                if (year !== targetYear) return;
+                
+                // For a specific year, use full date (YYYY.MM.DD) as key
+                if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
+                    dailyPrices[date] = closePrice;
+                    dailyCounts[date] = 1;
+                }
+            } else {
+                // For all years, use MM.DD as key and calculate average price
+                 if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
+                    const monthDay = date.substring(5); // MM.DD
+                    dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
+                    dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
+                }
+            }
+        });
+        
+        let labels = Object.keys(dailyPrices).sort();
+        let data = labels.map(label => {
+            const avg = dailyPrices[label] / dailyCounts[label];
+            return parseFloat(avg.toFixed(2));
+        });
+
+        if (targetYear === 'all') {
+             labels = labels.map(label => label.replace('.', '/'));
+        }
+
+        return { labels: labels, data: data };
+    }
+
+    // 3. Render Chart.js
+    function renderChart(labels, data, title, xAxisLabel) {
+        chartPlaceholder.classList.add('hidden');
+        csvChartCanvas.style.display = 'block';
+        chartTitleElement.textContent = title;
+        
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(csvChartCanvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Harga Tutup (USD)',
+                    data: data,
+                    borderColor: '#10B981', 
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: labels.length > 50 ? 0 : 3 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        color: '#E2E8F0',
+                        font: { size: 14 }
+                    },
+                    legend: { display: false },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: xAxisLabel, color: '#94A3B8' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#CBD5E1', maxRotation: 45, minRotation: 0 }
+                    },
+                    y: {
+                        title: { display: true, text: 'Harga (USD)', color: '#94A3B8' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#CBD5E1' }
+                    }
                 }
             }
         });
     }
 
-    if (sendBtn) {
-        sendBtn.addEventListener('click', () => {
-            if (messageInput.value.trim() !== '') {
-                // simulateSend(messageInput.value); 
-                messageInput.value = '';
-                sendBtn.disabled = true;
-            }
-        });
-    }
-
-    // =========================================================================
-    // 🚀 Data Historis Baru Logic
-    // =========================================================================
-    const historicalDataTableBody = document.getElementById('historicalDataTableBody');
-
-    // Helper: Mengklasifikasikan warna berdasarkan Trend
-    function getTrendClass(trend) {
-        if (trend.toLowerCase().includes('uptrend')) return 'text-emerald-400 font-semibold';
-        if (trend.toLowerCase().includes('downtrend')) return 'text-red-400 font-semibold';
-        if (trend.toLowerCase().includes('ranging') || trend.toLowerCase().includes('volatil')) return 'text-yellow-400';
-        return 'text-gray-400';
-    }
-
-    // Fungsi untuk mengisi tabel
-    function populateHistoricalTable() {
-        if (!historicalDataTableBody) return;
-
-        // Kosongkan tabel sebelumnya
-        historicalDataTableBody.innerHTML = '';
-
-        // Iterasi melalui data, mulai dari yang terbaru
-        // rawData.slice().reverse().forEach(item => { // Uncomment this line and comment the next if you want to reverse the order
-        rawData.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-800 transition duration-150';
-
-            const trendClass = getTrendClass(item.trend);
-
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${item.monthYear}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm ${trendClass}">${item.trend}</td>
-                <td class="px-6 py-4 text-sm text-gray-400">${item.desc}</td>
-                <td class="px-6 py-4 text-sm text-gray-400">${item.factor.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</td>
-            `;
-            historicalDataTableBody.appendChild(row);
-        });
-    }
-
-    // Panggil fungsi saat dokumen dimuat
-    document.addEventListener('DOMContentLoaded', populateHistoricalTable);
-
 </script>
-
 </body>
 </html>
