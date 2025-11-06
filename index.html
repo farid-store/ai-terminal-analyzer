@@ -336,51 +336,53 @@
     </div>
 </section>
 
-<button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]">
+<button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-12 h-12 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-md font-bold transition duration-300 transform hover:scale-105 z-[900]">
     AI
 </button>
 
-<div id="chatModal" class="fixed right-6 bottom-6 w-[320px] max-w-[calc(100%-32px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
-    <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50">
-        <div class="w-10 h-10 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-lg">G</div>
+<div id="chatModal" class="fixed right-6 bottom-6 w-[300px] max-w-[calc(100%-32px)] bg-gray-900 border border-emerald-600/50 rounded-xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
+    <div class="flex items-center gap-3 p-3 border-b border-gray-800 bg-gray-800/50">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-sm">G</div>
         <div>
-            <div class="text-base font-semibold text-slate-100">Gemini AI Chat</div>
-            <div class="text-xs text-emerald-400">Analisis Teks & Gambar</div>
+            <div class="text-sm font-semibold text-slate-100">Gemini AI Chat</div>
+            <div class="text-xs text-emerald-400">Teks & Gambar Analisis</div>
         </div>
         <button id="closeChat" class="ml-auto text-slate-400 hover:text-white transition duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
 
-    <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[350px] overflow-y-auto bg-gray-950/70">
+    <div id="chatBody" class="p-3 custom-scroll flex flex-col gap-2 h-[300px] overflow-y-auto bg-gray-950/70">
         <div class="self-start max-w-[85%]">
-            <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
+            <div class="px-3 py-2 rounded-lg bg-gray-800 text-slate-200 text-xs">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
-                <br><br>
-                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span>
+                <br>
+                <span class="text-emerald-400 font-semibold">✅ Chat siap!</span>
             </div>
         </div>
     </div>
 
-    <div class="p-4 border-t border-gray-800 bg-gray-800/50">
-        <div class="flex gap-3">
-            <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan: mis. analisa candle 1D XAU" />
-            <button id="sendBtn" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200">Kirim</button>
-        </div>
+    <div class="p-3 border-t border-gray-800 bg-gray-800/50">
+        <div class="flex items-end gap-2">
+            <label for="imageInput" class="cursor-pointer text-slate-400 hover:text-emerald-400 p-2 rounded-lg transition duration-200" title="Upload Chart Image">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 16m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </label>
+            <input id="imageInput" type="file" accept="image/*" class="hidden" />
 
-        <div class="mt-3 flex flex-col gap-2">
-            <label class="text-xs text-slate-400">Multi-modal:</label>
-            <div class="flex items-center gap-2">
-                <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
-                <button id="sendImageBtn" class="px-3 py-1.5 rounded-lg border border-gray-600 hover:bg-gray-700 text-sm transition duration-200 text-slate-300 min-w-[100px]" disabled>
-                    Kirim Gambar
-                </button>
-            </div>
+            <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan atau Analisis Chart" />
+            
+            <button id="sendBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 text-sm">
+                Kirim
+            </button>
         </div>
-
-        <div id="chatNotes" class="mt-3 text-xs text-red-500 font-bold">⚠️ PERINGATAN: Kunci API terekspos langsung di browser! Gunakan dengan hati-hati.</div>
+        
+        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-medium text-center">
+            ⚠️ PERINGATAN: Kunci API terekspos langsung di browser!
+        </div>
     </div>
 </div>
 
@@ -454,10 +456,9 @@
     const openChatBtnAside = document.getElementById('openChatBtnAside');
     const closeChat = document.getElementById('closeChat');
     const sendBtn = document.getElementById('sendBtn');
-    const sendImageBtn = document.getElementById('sendImageBtn');
     const messageInput = document.getElementById('messageInput');
     const chatBody = document.getElementById('chatBody');
-    const imageInput = document.getElementById('imageInput');
+    const imageInput = document.getElementById('imageInput'); // Input file
 
     function showChat(){ 
         chatModal.classList.remove('hidden'); 
@@ -487,7 +488,7 @@
         wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
         
         const bubble = document.createElement('div');
-        bubble.className = 'px-4 py-3 rounded-xl text-sm break-words';
+        bubble.className = 'px-3 py-2 rounded-xl text-xs break-words'; /* Font size dan padding lebih kecil */
         
         if(who === 'user'){
             bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
@@ -522,8 +523,7 @@
     function disableInputs(disable = true) {
         messageInput.disabled = disable;
         sendBtn.disabled = disable;
-        sendImageBtn.disabled = disable;
-        imageInput.disabled = disable;
+        imageInput.disabled = disable; // Disable input file
     }
 
     /* ======== Gemini Direct API Request (CORE LOGIC) ======== */
@@ -612,7 +612,8 @@
         callGemini(bodyParts, 'text');
     }
 
-    async function handleSendImage() {
+    // PERUBAHAN: Otomatis memicu pengiriman gambar saat file dipilih.
+    async function handleImageFileChange() {
         const file = imageInput.files[0];
         const message = messageInput.value.trim();
         
@@ -625,8 +626,7 @@
              var imagePart = await fileToGenerativePart(file);
         } catch (error) {
              appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Error saat membaca file: ${error.message}</span>`);
-             imageInput.value = '';
-             sendImageBtn.disabled = true;
+             imageInput.value = ''; // Reset input file
              return;
         }
 
@@ -634,18 +634,18 @@
         if (message) {
             bodyParts.push({ text: message });
         } else {
-            bodyParts.push({ text: "Analisis gambar chart trading ini dan berikan prediksi atau sentimen pasar." });
+            // Pesan default yang lebih pendek/simpel
+            bodyParts.push({ text: "Analisis gambar chart ini." });
         }
 
         messageInput.value = '';
-        imageInput.value = '';
-        sendImageBtn.disabled = true;
+        imageInput.value = ''; // Reset input file
 
         callGemini(bodyParts, 'multimodal');
     }
 
 
-    /* ======== Event Listeners ======== */
+    /* ======== Event Listeners yang Diperbarui ======== */
 
     // Tombol Kirim untuk pesan teks
     sendBtn.addEventListener('click', handleSend);
@@ -653,16 +653,9 @@
         if (e.key === 'Enter' && !messageInput.disabled) handleSend();
     });
 
-    // Tombol Kirim Gambar
-    sendImageBtn.addEventListener('click', handleSendImage);
+    // Listener untuk input file yang langsung memicu pengiriman.
+    imageInput.addEventListener('change', handleImageFileChange);
 
-    // Aktifkan tombol Kirim Gambar saat file dipilih
-    imageInput.addEventListener('change', () => {
-        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
-    });
-
-    // Pastikan tombol kirim gambar mati saat modal dimuat
-    sendImageBtn.disabled = true; 
 </script>
 </body>
 </html>
