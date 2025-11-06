@@ -30,16 +30,14 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 20px;
-    background-color: #111; /* Lebih gelap dari background */
+    background-color: #111;
     border-bottom: 1px solid var(--accent-color);
 }
-
 .logo {
     font-weight: bold;
     color: var(--accent-color);
     font-size: 1.2em;
 }
-
 .nav-links a {
     color: var(--text-light);
     text-decoration: none;
@@ -47,12 +45,10 @@ body {
     padding: 5px 10px;
     transition: background-color 0.2s;
 }
-
 .nav-links a:hover, .nav-links a.active {
     background-color: var(--accent-color);
     color: var(--bg-dark);
 }
-
 .user-info {
     font-size: 0.9em;
     color: var(--positive);
@@ -60,7 +56,7 @@ body {
 
 /* --- MAIN GRID (3 Kolom) --- */
 .main-grid {
-    display: flex; /* Menggunakan Flexbox untuk 3 kolom */
+    display: flex;
     flex-grow: 1;
     overflow: hidden;
 }
@@ -68,23 +64,25 @@ body {
 .grid-item {
     padding: 15px;
     border-right: 1px solid var(--border-color);
-    overflow-y: auto; /* Memungkinkan konten panel di-scroll */
+    overflow-y: auto;
 }
 
-/* Ukuran Kolom */
+/* Ukuran Kolom: Kiri=Chart (40%), Tengah=News (30%), Kanan=Chat (30%) */
 .left-panel {
-    flex: 1; /* Kolom Kiri: Kecil (mis. 20%) */
-    max-width: 250px;
+    flex: 4; /* Chart: Paling Besar */
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
 }
 .center-panel {
-    flex: 3; /* Kolom Tengah: Paling Besar (mis. 50%) */
-    border-right: 1px solid var(--border-color);
+    flex: 3; /* News/Analisis: Menengah */
 }
 .right-panel {
-    flex: 2; /* Kolom Kanan (Chatbot): Menengah (mis. 30%) */
+    flex: 3; /* Chatbot: Menengah */
     min-width: 300px;
     display: flex;
     flex-direction: column;
+    border-right: none; /* Hilangkan garis di paling kanan */
 }
 
 /* Judul Panel */
@@ -96,21 +94,24 @@ body {
     font-size: 1.1em;
 }
 
-/* --- KOLOM KIRI: Market Data --- */
-.data-row {
-    margin: 8px 0;
-    display: flex;
-    justify-content: space-between;
-    font-size: 1em;
+/* --- KOLOM KIRI: Chart TradingView --- */
+.pair-selector {
+    margin-bottom: 10px;
+    padding: 5px 0;
+    font-size: 0.9em;
 }
-.change {
-    font-weight: bold;
+#asset-pair {
+    background-color: #2a2a2a;
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+    padding: 5px;
+    width: 100%;
 }
-.positive {
-    color: var(--positive);
-}
-.negative {
-    color: var(--negative);
+.tradingview-widget-container {
+    flex-grow: 1; 
+    /* Penting: Pastikan kontainer chart mengisi seluruh sisa ruang yang tersedia */
+    height: 100%; 
+    min-height: 250px; 
 }
 
 /* --- KOLOM TENGAH: News Feed --- */
@@ -128,8 +129,13 @@ body {
     color: #ccc;
     font-size: 0.9em;
 }
+.placeholder-text {
+    font-size: 0.8em;
+    color: #aaa;
+    margin-top: 20px;
+}
 
-/* --- KOLOM KANAN: Chatbot (Ambil dari kode sebelumnya, sedikit penyesuaian) --- */
+/* --- KOLOM KANAN: Chatbot --- */
 .chat-panel {
     display: flex;
     flex-direction: column;
@@ -137,13 +143,11 @@ body {
     overflow: hidden;
     padding: 0;
 }
-
 .chat-box {
     flex-grow: 1;
     overflow-y: auto;
-    padding-right: 10px; /* Jarak dari scrollbar */
+    padding-right: 10px;
 }
-
 .message {
     padding: 8px 12px;
     margin-bottom: 8px;
@@ -162,7 +166,6 @@ body {
     border-left: 2px solid var(--accent-color);
     white-space: pre-wrap;
 }
-
 .input-form {
     display: flex;
     padding-top: 10px;
@@ -185,8 +188,6 @@ body {
     cursor: pointer;
     font-weight: bold;
 }
-
-/* Gambar Preview (Gaya minimalis terminal) */
 #image-preview-container {
     display: flex;
     align-items: center;
