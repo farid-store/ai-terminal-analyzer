@@ -50,8 +50,15 @@
 
 <script>
     // 🛑 KUNCI API DIHAPUS. Endpoint ini akan merujuk ke Vercel Function: api/gemini-chat.js
-    const PROXY_ENDPOINT = "/api/gemini-chat"; 
+    // MENGUBAH LOGIKA: AKSES LANGSUNG DARI JAVASCRIPT
     
+    // =========================================================================
+    // ⚠️ KRITIS: GANTI 'YOUR_GEMINI_API_KEY' DENGAN KUNCI API ANDA YANG SEBENARNYA!
+    // KUNCI INI AKAN TERLIHAT PUBLIK DI BROWSER PENGGUNA!
+    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
+    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; // Base URL
+    // =========================================================================
+
     // Model IDs
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
@@ -350,7 +357,7 @@
             <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span> Permintaan diarahkan ke Vercel Function <code class="bg-gray-900 px-1 rounded text-xs">${PROXY_ENDPOINT}</code> untuk mengatasi CORS.
+                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span> Anda sekarang mengakses API Gemini **secara langsung dari browser** (berisiko).
             </div>
         </div>
     </div>
@@ -364,12 +371,12 @@
         <div class="mt-3 flex items-center gap-3">
             <label class="text-xs text-slate-400">Upload Image:</label>
             <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
-            <button id="sendImageBtn" class="ml-auto px-3 py-1.5 rounded-lg border border-gray-600 hover:bg-gray-700 text-sm transition duration-200 text-slate-300">
+            <button id="sendImageBtn" class="ml-auto px-3 py-1.5 rounded-lg border border-gray-600 hover:bg-gray-700 text-sm transition duration-200 text-slate-300" disabled>
                 Kirim Gambar
             </button>
         </div>
 
-        <div id="chatNotes" class="mt-3 text-xs text-gray-500">Anda harus menyiapkan <span class="text-emerald-400">Vercel Serverless Function</span> di folder <span class="text-emerald-400">api/gemini-chat.js</span>.</div>
+        <div id="chatNotes" class="mt-3 text-xs text-red-500 font-bold">⚠️ PERINGATAN: Kunci API Gemini Anda sekarang terekspos langsung di browser! Gunakan dengan hati-hati.</div>
     </div>
 </div>
 
@@ -484,7 +491,7 @@
             } else {
                  bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
                  bubble.style.whiteSpace = 'pre-wrap';
-                 bubble.textContent = content;
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'); // Handle basic markdown for bold/newlines
             }
         }
         
@@ -504,6 +511,13 @@
         return bubble; 
     }
 
+    function disableInputs(disable = true) {
+        messageInput.disabled = disable;
+        sendBtn.disabled = disable;
+        sendImageBtn.disabled = disable;
+        imageInput.disabled = disable;
+    }
+
     function removeLastBotBubble() {
         const botBubbles = chatBody.querySelectorAll('.self-start .bg-gray-700.animate-pulse');
         if (botBubbles && botBubbles.length) {
@@ -511,120 +525,151 @@
         }
     }
 
+    /* ======== Gemini Direct API Request (CORE LOGIC) ======== */
+    async function callGemini(bodyParts, type) {
+        disableInputs(true); // Disable inputs while processing
 
-    /* ======== Gemini Proxy Request (CORE LOGIC) ======== */
-    async function callGemini(body, type){
-        let thinkingBubble = appendMsg('bot', type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)');
+        const model = type === 'text' ? TEXT_MODEL : MULTIMODAL_MODEL;
+        const loadingMessage = type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)';
+        let thinkingBubble = appendMsg('bot', loadingMessage);
+
+        // Kunci API harus ada
+        if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU') {
+            thinkingBubble.textContent = "❌ ERROR: GEMINI_API_KEY tidak dikonfigurasi. Harap periksa kode Anda!";
+            thinkingBubble.classList.remove('animate-pulse', 'bg-gray-700', 'text-slate-400');
+            thinkingBubble.classList.add('bg-red-900', 'text-red-300');
+            disableInputs(false);
+            return;
+        }
+
         try {
-            const url = PROXY_ENDPOINT; 
-            
+            // Construct the full URL with the API Key
+            const url = `${GEMINI_API_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
+
+            // Ubah struktur body agar sesuai dengan format Gemini API langsung
+            const apiBody = {
+                contents: [{ role: "user", parts: bodyParts }]
+            };
+
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(apiBody)
             });
 
-            if(!res.ok){
+            // Hapus bubble loading
+            thinkingBubble.remove();
+            
+            if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(`Proxy/Vercel Function Error ${res.status}: ${errorData.error || 'Unknown Vercel Error'}`);
+                const errorMessage = `API Error ${res.status}: ${errorData.error.message || 'Unknown API Error'}`;
+                appendMsg('bot', `<span class="text-red-400 font-semibold">${errorMessage}</span>`);
+                return;
             }
 
-            const j = await res.json();
-            let reply = j.text || 'No valid response content from AI.';
+            const data = await res.json();
             
-            // Update the thinking bubble
-            thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
-            thinkingBubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-            thinkingBubble.style.whiteSpace = 'pre-wrap';
-            thinkingBubble.textContent = reply;
+            // Ekstrak respons teks dari struktur API
+            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-            chatBody.scrollTop = chatBody.scrollHeight;
-            return reply;
-
-        } catch (err){
-            removeLastBotBubble();
-            appendMsg('bot', `Error: ${err.message}\n\nPastikan Vercel Function di ${PROXY_ENDPOINT} sudah ter-deploy dan variabel lingkungan (API Key) sudah disetel!`);
-            console.error(err);
-            throw err;
+            if (responseText) {
+                appendMsg('bot', responseText);
+            } else {
+                // Tangani kasus di mana respons tidak memiliki teks
+                appendMsg('bot', "Maaf, AI tidak memberikan respons teks. Mungkin ada masalah filter keamanan.");
+            }
+            
+        } catch (e) {
+            // Hapus bubble loading dan tampilkan error
+            thinkingBubble.remove();
+            appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Jaringan/Sistem Error: ${e.message}</span>`);
+        } finally {
+            disableInputs(false); // Enable inputs
         }
     }
 
-    // send text
-    sendBtn.addEventListener('click', async ()=>{
-        const q = messageInput.value.trim();
-        if(!q) return;
-        appendMsg('user', q);
-        messageInput.value = '';
-        const body = { model: TEXT_MODEL, type: 'text', prompt: q };
-        try {
-            await callGemini(body, 'text');
-        } catch(e){}
-    });
 
-    // send on Enter
-    messageInput.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
-    });
+    /* ======== Base64 Converter & Message Senders ======== */
 
-    // base64 helper
-    function toBase64(file){
+    // Fungsi untuk mengkonversi File menjadi Base64
+    function fileToGenerativePart(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-                const res = reader.result;
-                const comma = res.indexOf(',');
-                const base64 = comma >= 0 ? res.slice(comma + 1) : res;
-                resolve(base64);
+                const base64Data = reader.result.split(',')[1];
+                resolve({
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type
+                    }
+                });
             };
-            reader.onerror = err => reject(err);
+            reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
 
-    // send image
-    sendImageBtn.addEventListener('click', async ()=>{
-        const f = imageInput.files && imageInput.files[0];
-        if(!f){ alert('Pilih gambar terlebih dahulu'); return; }
+    function handleSend() {
+        const message = messageInput.value.trim();
+        if (message === '') return;
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const imagePreview = e.target.result;
-            const base64 = await toBase64(f);
+        appendMsg('user', message);
+        messageInput.value = '';
 
-            appendMsg('user', { imagePreview, fileName: f.name }, true); 
-            
-            const userNote = messageInput.value.trim();
-            messageInput.value = '';
+        // Siapkan body API: hanya teks
+        const bodyParts = [{ text: message }];
 
-            const body = {
-                model: MULTIMODAL_MODEL,
-                type: 'image',
-                prompt: userNote || 'Analyze this chart for patterns, trend, S/R levels, and give a concise market outlook.',
-                imageData: {
-                    mimeType: f.type,
-                    data: base64
-                }
-            };
+        callGemini(bodyParts, 'text');
+    }
 
-            try {
-                await callGemini(body, 'image');
-                imageInput.value = '';
-            } catch(e){}
-        };
-        reader.readAsDataURL(f);
+    async function handleSendImage() {
+        const file = imageInput.files[0];
+        const message = messageInput.value.trim();
+        
+        if (!file) return;
+
+        // Tampilkan pratinjau dan pesan pengguna
+        const imagePreview = URL.createObjectURL(file);
+        appendMsg('user', { imagePreview, fileName: file.name }, true);
+        
+        // Buat generative part dari file
+        const imagePart = await fileToGenerativePart(file);
+
+        // Siapkan body API: gambar + teks (jika ada)
+        const bodyParts = [imagePart];
+        if (message) {
+            bodyParts.push({ text: message });
+        } else {
+            bodyParts.push({ text: "Analisis gambar chart trading ini dan berikan prediksi atau sentimen pasar." });
+        }
+
+        // Bersihkan input
+        messageInput.value = '';
+        imageInput.value = '';
+        sendImageBtn.disabled = true;
+
+        callGemini(bodyParts, 'multimodal');
+    }
+
+
+    /* ======== Event Listeners ======== */
+
+    // Tombol Kirim untuk pesan teks
+    sendBtn.addEventListener('click', handleSend);
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleSend();
     });
 
-    // small accessibility: close chat with ESC
-    document.addEventListener('keydown', (e)=> {
-        if(e.key === 'Escape' && !chatModal.classList.contains('hidden')) hideChat();
+    // Tombol Kirim Gambar
+    sendImageBtn.addEventListener('click', handleSendImage);
+
+    // Aktifkan tombol Kirim Gambar saat file dipilih
+    imageInput.addEventListener('change', () => {
+        sendImageBtn.disabled = !imageInput.files.length;
     });
 
-    // Scroll chat to bottom on initial load
-    window.addEventListener('load', () => {
-        chatBody.scrollTop = chatBody.scrollHeight;
-    });
-
+    // Pastikan tombol kirim gambar mati saat modal dimuat
+    sendImageBtn.disabled = true; 
 </script>
-
 </body>
 </html>
