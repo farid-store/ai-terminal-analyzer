@@ -51,7 +51,6 @@
 <script>
     // =========================================================================
     // 🛑 KUNCI API ANDA DIMASUKKAN DI SINI. INI SANGAT TIDAK AMAN!
-    // HANYA UNTUK DEMO/PRIVATE TESTING.
     const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
     const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
@@ -122,10 +121,7 @@
 
             <div id="advancedChart" class="h-[600px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">XAUUSD chart</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
+                    <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                     <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
                     {
                         "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": "OANDA:XAUUSD", "theme": "dark", "timezone": "Etc/UTC",
@@ -144,9 +140,6 @@
             <div class="h-[230px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex market</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
                     {
                         "colorTheme": "dark", "isTransparent": false, "locale": "en", "currencies": ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR"], "backgroundColor": "#0D1113", "width": "100%", "height": "100%"
@@ -164,9 +157,6 @@
             <div class="h-[320px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/markets/currencies/cross-rates-overview-heat-map/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
                     {
                         "colorTheme": "dark", "isTransparent": false, "locale": "en", 
@@ -190,9 +180,6 @@
             <div class="h-[calc(100%-48px)] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Stock Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
                     {
                         "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
@@ -210,9 +197,6 @@
             <div class="h-[calc(100%-48px)] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Crypto Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
                     {
                         "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
@@ -288,6 +272,24 @@
                 <a href="https://www.tradingview.com/" target="_blank" class="py-2 rounded-lg text-center border border-gray-700 hover:bg-gray-800 text-sm transition duration-200">Open TradingView</a>
             </div>
         </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-800">
+            <h4 class="text-sm font-semibold mb-3 text-slate-300">About Developer</h4>
+            <div class="flex gap-4 justify-start">
+                <a href="https://twitter.com/yourusername" target="_blank" class="text-gray-400 hover:text-white transition duration-200" aria-label="Twitter">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18.901 1.05h3.643l-8.674 10.057 9.873 11.458h-7.832l-5.918-6.904-7.868 6.904h-3.643l9.053-10.456-9.87-11.459h7.947l5.353 6.208 7.027-6.208zm-2.277 18.064h1.76l-7.234-8.412-7.51 8.412h-1.76l8.895-10.057-9.453-11.008h2.052l6.982 8.169 7.426-8.169h-2.052l-6.982 8.169-7.426-8.169z"/></svg>
+                </a>
+                <a href="https://facebook.com/yourusername" target="_blank" class="text-gray-400 hover:text-white transition duration-200" aria-label="Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3.412c-3.051 0-4.588 1.48-4.588 4.588v2.412z"/></svg>
+                </a>
+                <a href="https://instagram.com/yourusername" target="_blank" class="text-gray-400 hover:text-white transition duration-200" aria-label="Instagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.666-.779-.862-1.25-.196-.488-.369-1.213-.418-2.279-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.636-1.121-.703-.291-1.513-.468-2.693-.523-1.12-.052-1.474-.064-4.298-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
+                </a>
+                <a href="mailto:your.email@example.com" class="text-gray-400 hover:text-white transition duration-200" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.287l-12-9.912v15.912h24v-15.912l-12 9.912z"/></svg>
+                </a>
+                </div>
+        </div>
     </aside>
 
 </main>
@@ -300,9 +302,6 @@
             <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/news/top-providers/tradingview/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Top stories</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
                     {
                         "displayMode":"regular", "feedMode":"all_symbols", "colorTheme":"dark", "isTransparent":false, "locale":"en", "width":"100%", "height":"100%"
@@ -317,9 +316,6 @@
             <div class="h-[300px] rounded-xl overflow-hidden border border-gray-700">
                 <div class="tradingview-widget-container" style="height:100%">
                     <div class="tradingview-widget-container__widget"></div>
-                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
-                        <a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Economic Calendar</span></a><span class="text-slate-500"> by TradingView</span>
-                    </div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
                     {
                         "colorTheme":"dark", "isTransparent":false, "locale":"en", "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", "importanceFilter":"-1,0,1", "width":"100%", "height":"100%"
@@ -413,17 +409,16 @@
         let oldScript = document.getElementById('tv-advanced-script');
         if (oldScript) oldScript.remove();
         
-        // Hapus elemen widget lama kecuali copyright
+        // Hapus elemen widget lama
         Array.from(container.children).forEach(child => {
-            if (!child.classList.contains('tradingview-widget-copyright')) {
-                child.remove();
-            }
+            child.remove();
         });
 
+        // Pastikan placeholder widget ada
         const widgetPlaceholder = document.createElement('div');
         widgetPlaceholder.className = 'tradingview-widget-container__widget';
-        widgetPlaceholder.style.cssText = 'height:calc(100% - 32px);width:100%';
-        container.insertBefore(widgetPlaceholder, container.querySelector('.tradingview-widget-copyright'));
+        widgetPlaceholder.style.cssText = 'height:100%;width:100%';
+        container.appendChild(widgetPlaceholder);
 
         const script = document.createElement('script');
         script.type = 'text/javascript';
@@ -524,7 +519,6 @@
         const loadingMessage = type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)';
         let thinkingBubble = appendMsg('bot', loadingMessage);
 
-        // Kunci API harus ada
         if (!GEMINI_API_KEY) {
             thinkingBubble.textContent = "❌ ERROR: GEMINI_API_KEY tidak dikonfigurasi.";
             thinkingBubble.classList.remove('animate-pulse', 'bg-gray-700', 'text-slate-400');
@@ -534,10 +528,7 @@
         }
 
         try {
-            // Construct the full URL with the API Key
             const url = `${GEMINI_API_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
-
-            // Ubah struktur body agar sesuai dengan format Gemini API langsung
             const apiBody = {
                 contents: [{ role: "user", parts: bodyParts }]
             };
@@ -548,7 +539,6 @@
                 body: JSON.stringify(apiBody)
             });
 
-            // Hapus bubble loading
             thinkingBubble.remove();
             
             if (!res.ok) {
@@ -559,19 +549,15 @@
             }
 
             const data = await res.json();
-            
-            // Ekstrak respons teks dari struktur API
             const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
             if (responseText) {
                 appendMsg('bot', responseText);
             } else {
-                // Tangani kasus di mana respons tidak memiliki teks
                 appendMsg('bot', "Maaf, AI tidak memberikan respons teks. Mungkin ada masalah filter keamanan atau API tidak merespons.");
             }
             
         } catch (e) {
-            // Hapus bubble loading dan tampilkan error
             thinkingBubble.remove();
             appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Jaringan/Sistem Error: ${e.message}</span>`);
         } finally {
@@ -582,12 +568,10 @@
 
     /* ======== Base64 Converter & Message Senders ======== */
 
-    // Fungsi untuk mengkonversi File menjadi Base64
     function fileToGenerativePart(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-                // Ambil hanya string Base64 (setelah koma)
                 const base64Data = reader.result.split(',')[1];
                 resolve({
                     inlineData: {
@@ -608,7 +592,6 @@
         appendMsg('user', message);
         messageInput.value = '';
 
-        // Siapkan body API: hanya teks
         const bodyParts = [{ text: message }];
 
         callGemini(bodyParts, 'text');
@@ -620,11 +603,9 @@
         
         if (!file) return;
 
-        // Tampilkan pratinjau dan pesan pengguna
         const imagePreview = URL.createObjectURL(file);
         appendMsg('user', { imagePreview, fileName: file.name }, true);
         
-        // Buat generative part dari file
         try {
              var imagePart = await fileToGenerativePart(file);
         } catch (error) {
@@ -634,7 +615,6 @@
              return;
         }
 
-        // Siapkan body API: gambar + teks (jika ada)
         const bodyParts = [imagePart];
         if (message) {
             bodyParts.push({ text: message });
@@ -642,7 +622,6 @@
             bodyParts.push({ text: "Analisis gambar chart trading ini dan berikan prediksi atau sentimen pasar." });
         }
 
-        // Bersihkan input
         messageInput.value = '';
         imageInput.value = '';
         sendImageBtn.disabled = true;
@@ -664,7 +643,6 @@
 
     // Aktifkan tombol Kirim Gambar saat file dipilih
     imageInput.addEventListener('change', () => {
-        // Matikan tombol jika tidak ada file atau disabled karena proses lain
         sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
     });
 
