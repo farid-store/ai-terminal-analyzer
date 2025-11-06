@@ -323,11 +323,17 @@
         
         <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-full flex flex-col justify-start space-y-4">
             
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">1. Upload CSV File</label>
-                <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
+            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700 space-y-3">
+                <label class="block text-sm font-medium text-slate-300 mb-1">1. Pilih Sumber Data</label>
+                <button type="button" id="loadLocalDataBtn" class="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition duration-200 shadow-md text-sm">
+                    Tampilkan Data Lokal (XAU/USD Monthly)
+                </button>
+                <div class="text-xs text-center text-slate-400 py-1 border-t border-gray-700/50">ATAU</div>
+                <div>
+                    <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">Upload CSV File</label>
+                    <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
+                </div>
             </div>
-
             <div id="csvControls" class="flex flex-col gap-4 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
                 
                 <div>
@@ -356,7 +362,7 @@
             <h4 id="chartTitle" class="text-lg font-bold text-slate-200 mb-3">Chart Data (Hasil Analisis CSV)</h4>
             <div class="h-[400px] md:h-[500px] flex items-center justify-center">
                 <canvas id="csvChartCanvas"></canvas>
-                <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV dan klik 'Tampilkan Chart'.</div>
+                <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV, atau klik 'Tampilkan Data Lokal'.</div>
             </div>
         </div>
     </div>
@@ -544,14 +550,156 @@
     }
 
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (REVISI)
+    // 🚀 Data Analysis (CSV/Local) Logic (REVISI)
     // =========================================================================
+
+    // NEW LOCAL DATA
+    const priceData = [
+        // --- Periode 2015 ---
+        { month: 'Jan', year: 2015, high: 1307.387, low: 1201.766 },
+        { month: 'Feb', year: 2015, high: 1295.277, low: 1195.424 },
+        { month: 'Mar', year: 2015, high: 1224.239, low: 1142.345 },
+        { month: 'Apr', year: 2015, high: 1224.591, low: 1178.614 },
+        { month: 'Mei', year: 2015, high: 1232.067, low: 1170.925 },
+        { month: 'Jun', year: 2015, high: 1204.31, low: 1172.935 },
+        { month: 'Jul', year: 2015, high: 1165.738, low: 1076.62 },
+        { month: 'Agu', year: 2015, high: 1131.742, low: 1079.176 },
+        { month: 'Sep', year: 2015, high: 1156.401, low: 1104.997 },
+        { month: 'Okt', year: 2015, high: 1184.225, low: 1100.868 },
+        { month: 'Nov', year: 2015, high: 1150.311, low: 1064.954 },
+        { month: 'Des', year: 2015, high: 1087.97, low: 1046.208 },
+        // --- Periode 2016 ---
+        { month: 'Jan', year: 2016, high: 1127.915, low: 1070.781 },
+        { month: 'Feb', year: 2016, high: 1263.951, low: 1092.793 },
+        { month: 'Mar', year: 2016, high: 1284.156, low: 1206.197 },
+        { month: 'Apr', year: 2016, high: 1297.042, low: 1210.027 },
+        { month: 'Mei', year: 2016, high: 1300.732, low: 1209.615 },
+        { month: 'Jun', year: 2016, high: 1358.97, low: 1201.037 },
+        { month: 'Jul', year: 2016, high: 1375.02, low: 1308.205 },
+        { month: 'Agu', year: 2016, high: 1367.62, low: 1310.875 },
+        { month: 'Sep', year: 2016, high: 1343.344, low: 1302.26 },
+        { month: 'Okt', year: 2016, high: 1337.894, low: 1241.055 },
+        { month: 'Nov', year: 2016, high: 1304.538, low: 1170.999 },
+        { month: 'Des', year: 2016, high: 1180.767, low: 1121.282 },
+        // --- Periode 2017 ---
+        { month: 'Jan', year: 2017, high: 1221.782, low: 1139.75 },
+        { month: 'Feb', year: 2017, high: 1263.268, low: 1209.083 },
+        { month: 'Mar', year: 2017, high: 1269.467, low: 1205.578 },
+        { month: 'Apr', year: 2017, high: 1295.631, low: 1239.544 },
+        { month: 'Mei', year: 2017, high: 1272.76, low: 1214.39 },
+        { month: 'Jun', year: 2017, high: 1295.731, low: 1230.134 },
+        { month: 'Jul', year: 2017, high: 1264.44, low: 1204.654 },
+        { month: 'Agu', year: 2017, high: 1317.02, low: 1251.107 },
+        { month: 'Sep', year: 2017, high: 1357.755, low: 1260.675 },
+        { month: 'Okt', year: 2017, high: 1306.075, low: 1260.368 },
+        { month: 'Nov', year: 2017, high: 1296.38, low: 1263.743 },
+        { month: 'Des', year: 2017, high: 1299.165, low: 1236.787 },
+        // --- Periode 2018 ---
+        { month: 'Jan', year: 2018, high: 1366.195, low: 1308.267 },
+        { month: 'Feb', year: 2018, high: 1361.642, low: 1307.747 },
+        { month: 'Mar', year: 2018, high: 1357.877, low: 1305.105 },
+        { month: 'Apr', year: 2018, high: 1365.17, low: 1304.57 },
+        { month: 'Mei', year: 2018, high: 1324.966, low: 1284.116 },
+        { month: 'Jun', year: 2018, high: 1309.847, low: 1243.618 },
+        { month: 'Jul', year: 2018, high: 1265.918, low: 1211.961 },
+        { month: 'Agu', year: 2018, high: 1220.738, low: 1160.038 },
+        { month: 'Sep', year: 2018, high: 1215.111, low: 1184.148 },
+        { month: 'Okt', year: 2018, high: 1243.518, low: 1183.05 },
+        { month: 'Nov', year: 2018, high: 1249.773, low: 1200.738 },
+        { month: 'Des', year: 2018, high: 1285.498, low: 1219.866 },
+        // --- Periode 2019 ---
+        { month: 'Jan', year: 2019, high: 1317.844, low: 1276.104 },
+        { month: 'Feb', year: 2019, high: 1346.746, low: 1280.975 },
+        { month: 'Mar', year: 2019, high: 1324.464, low: 1281.332 },
+        { month: 'Apr', year: 2019, high: 1310.279, low: 1266.386 },
+        { month: 'Mei', year: 2019, high: 1303.407, low: 1266.696 },
+        { month: 'Jun', year: 2019, high: 1441.761, low: 1270.751 },
+        { month: 'Jul', year: 2019, high: 1453.076, low: 1381.821 },
+        { month: 'Agu', year: 2019, high: 1555.708, low: 1451.916 },
+        { month: 'Sep', year: 2019, high: 1557.067, low: 1459.186 },
+        { month: 'Okt', year: 2019, high: 1519.814, low: 1457.551 },
+        { month: 'Nov', year: 2019, high: 1514.88, low: 1445.672 },
+        { month: 'Des', year: 2019, high: 1525.185, low: 1458.556 },
+        // --- Periode 2020 - Okt 2025 (Verifikasi data Anda) ---
+        { month: 'Jan', year: 2020, high: 1611.365, low: 1517.172 },
+        { month: 'Feb', year: 2020, high: 1689.213, low: 1547.479 },
+        { month: 'Mar', year: 2020, high: 1703.179, low: 1451.281 },
+        { month: 'Apr', year: 2020, high: 1746.579, low: 1571.348 },
+        { month: 'Mei', year: 2020, high: 1764.715, low: 1670.131 },
+        { month: 'Jun', year: 2020, high: 1785.729, low: 1670.51 },
+        { month: 'Jul', year: 2020, high: 1982.318, low: 1757.464 },
+        { month: 'Agu', year: 2020, high: 2073.682, low: 1863.593 },
+        { month: 'Sep', year: 2020, high: 1992.297, low: 1848.076 },
+        { month: 'Okt', year: 2020, high: 1933.178, low: 1859.815 },
+        { month: 'Nov', year: 2020, high: 1965.419, low: 1764.16 },
+        { month: 'Des', year: 2020, high: 1906.667, low: 1776.74 },
+        { month: 'Jan', year: 2021, high: 1959.29, low: 1802.438 },
+        { month: 'Feb', year: 2021, high: 1871.716, low: 1717.03 },
+        { month: 'Mar', year: 2021, high: 1759.715, low: 1676.627 },
+        { month: 'Apr', year: 2021, high: 1797.756, low: 1705.761 },
+        { month: 'Mei', year: 2021, high: 1912.616, low: 1766.046 },
+        { month: 'Jun', year: 2021, high: 1916.446, low: 1750.621 },
+        { month: 'Jul', year: 2021, high: 1834.039, low: 1765.633 },
+        { month: 'Agu', year: 2021, high: 1831.657, low: 1686.784 },
+        { month: 'Sep', year: 2021, high: 1833.859, low: 1721.571 },
+        { month: 'Okt', year: 2021, high: 1813.56, low: 1745.822 },
+        { month: 'Nov', year: 2021, high: 1877.067, low: 1758.534 },
+        { month: 'Des', year: 2021, high: 1828.722, low: 1753.053 },
+        { month: 'Jan', year: 2022, high: 1853.785, low: 1779.895 },
+        { month: 'Feb', year: 2022, high: 1974.331, low: 1788.521 },
+        { month: 'Mar', year: 2022, high: 2070.292, low: 1889.783 },
+        { month: 'Apr', year: 2022, high: 1998.024, low: 1871.981 },
+        { month: 'Mei', year: 2022, high: 1909.551, low: 1786.381 },
+        { month: 'Jun', year: 2022, high: 1878.832, low: 1802.627 },
+        { month: 'Jul', year: 2022, high: 1814.091, low: 1680.811 },
+        { month: 'Agu', year: 2022, high: 1807.831, low: 1705.48 },
+        { month: 'Sep', year: 2022, high: 1735.081, low: 1614.427 },
+        { month: 'Okt', year: 2022, high: 1729.469, low: 1616.886 },
+        { month: 'Nov', year: 2022, high: 1786.472, low: 1616.624 },
+        { month: 'Des', year: 2022, high: 1832.979, low: 1765.756 },
+        { month: 'Jan', year: 2023, high: 1949.116, low: 1823.998 },
+        { month: 'Feb', year: 2023, high: 1959.639, low: 1804.362 },
+        { month: 'Mar', year: 2023, high: 2009.668, low: 1809.372 },
+        { month: 'Apr', year: 2023, high: 2048.597, low: 1949.542 },
+        { month: 'Mei', year: 2023, high: 2079.817, low: 1932.042 },
+        { month: 'Jun', year: 2023, high: 1983.332, low: 1892.839 },
+        { month: 'Jul', year: 2023, high: 1987.421, low: 1902.568 },
+        { month: 'Agu', year: 2023, high: 1964.628, low: 1884.547 },
+        { month: 'Sep', year: 2023, high: 1952.331, low: 1846.282 },
+        { month: 'Okt', year: 2023, high: 2009.327, low: 1810.402 },
+        { month: 'Nov', year: 2023, high: 2052.03, low: 1921.394 },
+        { month: 'Des', year: 2023, high: 2144.46, low: 1973.033 },
+        { month: 'Jan', year: 2024, high: 2078.877, low: 2001.742 },
+        { month: 'Feb', year: 2024, high: 2065.458, low: 1984.121 },
+        { month: 'Mar', year: 2024, high: 2247.34, low: 2039.039 },
+        { month: 'Apr', year: 2024, high: 2431.527, low: 2228.472 },
+        { month: 'Mei', year: 2024, high: 2450.026, low: 2277.089 },
+        { month: 'Jun', year: 2024, high: 2387.702, low: 2286.723 },
+        { month: 'Jul', year: 2024, high: 2483.739, low: 2318.438 },
+        { month: 'Agu', year: 2024, high: 2531.668, low: 2364.267 },
+        { month: 'Sep', year: 2024, high: 2685.611, low: 2471.826 },
+        { month: 'Okt', year: 2024, high: 2790.075, low: 2602.178 },
+        { month: 'Nov', year: 2024, high: 2762.254, low: 2536.755 },
+        { month: 'Des', year: 2024, high: 2726.206, low: 2583.389 },
+        { month: 'Jan', year: 2025, high: 2817.244, low: 2614.419 },
+        { month: 'Feb', year: 2025, high: 2956.229, low: 2772.151 },
+        { month: 'Mar', year: 2025, high: 3128.165, low: 2858.83 },
+        { month: 'Apr', year: 2025, high: 3500.033, low: 2956.374 },
+        { month: 'Mei', year: 2025, high: 3435.016, low: 3120.65 },
+        { month: 'Jun', year: 2025, high: 3451.251, low: 3247.921 },
+        { month: 'Jul', year: 2025, high: 3438.98, low: 3268.034 },
+        { month: 'Agu', year: 2025, high: 3453.924, low: 3281.566 },
+        { month: 'Sep', year: 2025, high: 3871.7, low: 3437.028 },
+        { month: 'Okt', year: 2025, high: 4380.074, low: 3819.335 }
+    ];
+
     const csvFileInput = document.getElementById('csvFileInput');
+    const loadLocalDataBtn = document.getElementById('loadLocalDataBtn'); 
     const csvControls = document.getElementById('csvControls');
-    const yearSelectorContainer = document.getElementById('yearSelectorContainer'); // Kontainer baru untuk radio button
+    const yearSelectorContainer = document.getElementById('yearSelectorContainer'); 
     const monthlyBtn = document.getElementById('monthlyBtn');
     const dailyBtn = document.getElementById('dailyBtn');
-    const aggregationMode = document.getElementById('aggregationMode'); // Input tersembunyi
+    const aggregationMode = document.getElementById('aggregationMode'); 
     const processCsvBtn = document.getElementById('processCsvBtn');
     const dataStatus = document.getElementById('dataStatus');
     const chartPlaceholder = document.getElementById('chartPlaceholder');
@@ -560,21 +708,23 @@
     
     let parsedCsvData = null;
     let availableYears = new Set();
+    let isLocalDataSource = false; // Flag untuk melacak sumber data
     const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
     // Helper: Isi opsi tahun secara dinamis menggunakan Radio Buttons
-    function prepareAnalysisOptions() {
+    function populateYearSelector(data, type) {
         yearSelectorContainer.innerHTML = '';
         availableYears.clear();
 
-        // Cari tahun yang tersedia dari data
-        parsedCsvData.forEach(row => {
-            // Asumsi kolom tanggal adalah <DATE> dan formatnya YYYY.MM.DD atau YYYY/MM/DD
-            if (row['<DATE>'] && row['<DATE>'].length >= 4) {
-                const year = row['<DATE>'].substring(0, 4);
-                if (!isNaN(parseInt(year))) { // Hanya tambahkan jika itu adalah tahun yang valid
-                    availableYears.add(year);
-                }
+        data.forEach(row => {
+            let year;
+            if (type === 'csv' && row['<DATE>'] && row['<DATE>'].length >= 4) {
+                year = row['<DATE>'].substring(0, 4);
+            } else if (type === 'local' && row.year) {
+                year = String(row.year);
+            }
+            if (year && !isNaN(parseInt(year))) {
+                availableYears.add(year);
             }
         });
         
@@ -596,10 +746,10 @@
             `;
         });
         
-        // Tambahkan event listener untuk radio button baru (agar langsung diproses saat memilih tahun)
+        // Tambahkan event listener untuk radio button baru
         yearSelectorContainer.querySelectorAll('input[name="yearSelector"]').forEach(radio => {
             radio.addEventListener('change', () => {
-                if(processCsvBtn.disabled === false) { // Pastikan tombol aktif sebelum klik
+                if(processCsvBtn.disabled === false) { 
                      processCsvBtn.click();
                 }
             });
@@ -609,6 +759,8 @@
     // Helper: Fungsi untuk mengatur tampilan tombol agregasi dan menyimpan nilai
     function setAggregationMode(mode) {
         aggregationMode.value = mode;
+        
+        // Logika styling tombol
         if (mode === 'monthly') {
             monthlyBtn.classList.add('bg-emerald-600', 'text-black');
             monthlyBtn.classList.remove('text-slate-300', 'bg-transparent');
@@ -620,7 +772,24 @@
             monthlyBtn.classList.remove('bg-emerald-600', 'text-black');
             monthlyBtn.classList.add('text-slate-300', 'bg-transparent');
         }
-        if(processCsvBtn.disabled === false) { // Langsung proses saat mode diubah, hanya jika data sudah di-load
+
+        // Logika disable/enable berdasarkan sumber data
+        if (isLocalDataSource) {
+             // Data Lokal adalah bulanan, nonaktifkan opsi harian
+            dailyBtn.disabled = true;
+            dailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            if (mode === 'daily') {
+                // Paksa kembali ke mode bulanan jika daily dipilih saat data lokal aktif
+                setAggregationMode('monthly'); 
+                return;
+            }
+        } else {
+            // Data CSV, aktifkan keduanya
+            dailyBtn.disabled = false;
+            dailyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        if(processCsvBtn.disabled === false) { 
             processCsvBtn.click();
         }
     }
@@ -629,8 +798,45 @@
     monthlyBtn.addEventListener('click', () => setAggregationMode('monthly'));
     dailyBtn.addEventListener('click', () => setAggregationMode('daily'));
 
+    // NEW: Process Local Monthly Data (Menghitung rata-rata High dan Low)
+    function processLocalMonthlyData(targetYear) {
+        let filteredData = targetYear === 'all'
+            ? priceData
+            : priceData.filter(item => String(item.year) === targetYear);
 
-    // 1. Parsing CSV
+        // Urutkan data berdasarkan tahun dan bulan
+        filteredData.sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year;
+            return MONTHS.indexOf(a.month) - MONTHS.indexOf(b.month);
+        });
+        
+        const labels = filteredData.map(item => `${item.month} ${item.year}`);
+        // Hitung rata-rata High dan Low
+        const data = filteredData.map(item => parseFloat(((item.high + item.low) / 2).toFixed(2)));
+        
+        return { labels, data };
+    }
+
+    // 0. Event Listener for Local Data Button (NEW)
+    loadLocalDataBtn.addEventListener('click', () => {
+        parsedCsvData = priceData;
+        isLocalDataSource = true; 
+        
+        populateYearSelector(priceData, 'local'); 
+        
+        csvControls.classList.remove('hidden');
+        processCsvBtn.disabled = false;
+        
+        dataStatus.textContent = `✅ Data lokal di-load: ${priceData.length} entri bulanan (XAU/USD).`;
+        dataStatus.classList.remove('text-red-400');
+        dataStatus.classList.add('text-emerald-400');
+        
+        // Paksa mode Bulanan dan proses
+        setAggregationMode('monthly'); 
+    });
+
+
+    // 1. Parsing CSV (Diperbarui untuk reset flag)
     csvFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) {
@@ -647,8 +853,9 @@
             delimiter: '\t', 
             complete: (results) => {
                 parsedCsvData = results.data;
+                isLocalDataSource = false; // Reset flag saat load CSV
                 
-                prepareAnalysisOptions(); 
+                populateYearSelector(parsedCsvData, 'csv'); 
                 setAggregationMode('monthly'); // Set default mode (Ini akan memanggil processCsvBtn.click)
 
                 if (parsedCsvData.length > 0) {
@@ -657,7 +864,6 @@
                     dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
                     dataStatus.classList.remove('text-red-400');
                     dataStatus.classList.add('text-emerald-400');
-                    // Chart sudah dipanggil di setAggregationMode
                 } else {
                     dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
                     dataStatus.classList.add('text-red-400');
@@ -674,16 +880,13 @@
         });
     });
 
-    // 2. Data Processing & Visualization (Memanggil dari tombol atau dari change event)
+    // 2. Data Processing & Visualization (Diperbarui untuk handle 2 data source)
     processCsvBtn.addEventListener('click', () => {
         if (!parsedCsvData) return;
         dataStatus.textContent = 'Membuat Chart...';
 
-        // Ambil nilai dari input radio yang checked
         const selectedYearElement = document.querySelector('input[name="yearSelector"]:checked');
         const selectedYear = selectedYearElement ? selectedYearElement.value : 'all';
-        
-        // Ambil nilai dari input tersembunyi (diatur oleh tombol toggle)
         const mode = aggregationMode.value;
 
         let chartData = {};
@@ -691,11 +894,20 @@
         let xAxisLabel = '';
 
         try {
-            if (mode === 'monthly') {
+            if (isLocalDataSource) {
+                // Gunakan fungsi untuk Data Lokal (Bulanan High/Low Average)
+                chartData = processLocalMonthlyData(selectedYear);
+                title = selectedYear === 'all' 
+                    ? 'Rata-rata Harga High/Low Bulanan (2015-2025)' 
+                    : `Rata-rata Harga High/Low Bulanan Tahun ${selectedYear}`;
+                xAxisLabel = 'Bulan & Tahun';
+            } else if (mode === 'monthly') {
+                // Handle CSV Monthly Data
                 chartData = processMonthlyAverages(selectedYear);
                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Harga Tutup Bulanan Tahun ${selectedYear}`;
                 xAxisLabel = 'Bulan';
             } else if (mode === 'daily') {
+                 // Handle CSV Daily Data
                  chartData = processDailyData(selectedYear);
                  title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Semua Tahun)' : `Harga Tutup Harian Tahun ${selectedYear}`;
                  xAxisLabel = selectedYear === 'all' ? 'Tanggal (MM/DD)' : 'Tanggal (YYYY.MM.DD)';
@@ -713,7 +925,7 @@
         }
     });
 
-    // Helper: Process Monthly Averages
+    // Helper: Process Monthly Averages (Hanya untuk data CSV)
     function processMonthlyAverages(targetYear) {
         const monthlyAverages = {};
         const monthlyCounts = {};
@@ -721,7 +933,7 @@
         parsedCsvData.forEach(row => {
             if (!row['<DATE>'] || !row['<CLOSE>']) return;
             
-            const dateParts = row['<DATE>'].split('.'); // Asumsi format default YYYY.MM.DD
+            const dateParts = row['<DATE>'].split('.'); 
             if (dateParts.length < 3) return;
             const year = dateParts[0];
             const month = parseInt(dateParts[1], 10) - 1; 
@@ -731,7 +943,6 @@
             
             if (targetYear !== 'all' && year !== targetYear) return;
 
-            // Key: Month index for 'all', or 'YYYY.MM' for specific year
             const key = targetYear === 'all' ? month : `${year}.${String(month + 1).padStart(2, '0')}`;
 
             monthlyAverages[key] = (monthlyAverages[key] || 0) + closePrice;
@@ -742,14 +953,12 @@
         let data;
 
         if (targetYear === 'all') {
-            // For 'all', sort by month index (0-11)
             labels = MONTHS;
             data = MONTHS.map((_, index) => {
                 const avg = monthlyAverages[index] ? monthlyAverages[index] / monthlyCounts[index] : null;
                 return avg ? parseFloat(avg.toFixed(2)) : null;
             });
         } else {
-            // For specific year, sort by 'YYYY.MM' key and use 'MMM YYYY' as label
             const sortedKeys = Object.keys(monthlyAverages).sort();
             labels = sortedKeys.map(key => {
                 const [y, m] = key.split('.');
@@ -765,7 +974,7 @@
     }
 
 
-    // Helper: Process Daily Data for a Year or All Years (Average)
+    // Helper: Process Daily Data (Hanya untuk data CSV)
     function processDailyData(targetYear) {
         const dailyPrices = {};
         const dailyCounts = {};
@@ -777,10 +986,9 @@
             const closePrice = parseFloat(row['<CLOSE>']);
             if (isNaN(closePrice)) return;
 
-            const dateKeyRaw = date.substring(0, 10); // YYYY.MM.DD (Asumsi)
+            const dateKeyRaw = date.substring(0, 10); 
             const year = dateKeyRaw.substring(0, 4);
             
-            // Filter untuk hanya menggunakan entri harian (asumsi: tidak ada waktu atau waktu 00:00:00)
             const isDailyEntry = date.length <= 10 || date.endsWith('00:00:00');
             if (!isDailyEntry) return;
 
@@ -788,12 +996,10 @@
             if (targetYear !== 'all') {
                 if (year !== targetYear) return;
                 
-                // For a specific year, use full date (YYYY.MM.DD) as key
                 dailyPrices[dateKeyRaw] = closePrice;
                 dailyCounts[dateKeyRaw] = 1; 
             } else {
-                // For all years, use MM.DD as key and calculate average price
-                const monthDay = dateKeyRaw.substring(5); // MM.DD
+                const monthDay = dateKeyRaw.substring(5); 
                 dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
                 dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
             }
@@ -806,7 +1012,7 @@
         });
 
         if (targetYear === 'all') {
-             labels = labels.map(label => label.replace('.', '/')); // Format MM/DD
+             labels = labels.map(label => label.replace('.', '/')); 
         }
 
         return { labels: labels, data: data };
