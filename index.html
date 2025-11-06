@@ -6,6 +6,8 @@
     <title>Market Dashboard — Heatmaps, News, Stories, Gemini AI Chat</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    
     <style>
         /* Modern scrollbar for dark theme */
         .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -91,12 +93,7 @@
                         {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
                         {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
                         {"proName":"OANDA:XAUUSD","title":"Gold"},
-                        {"proName":"IDX:COMPOSITE","title":"IHSG"},
-                        {"proName": "OANDA:USDJPY","title": "USD to JPY"},
-                        {"proName": "OANDA:GBPUSD","title": "GBP to USD"},
-                        {"proName": "OANDA:GBPJPY","title": "GBP to JPY"},
-                        {"proName": "CRYPTO:SOLUSD","title": "Solana"},
-                        {"proName": "CRYPTO:BNBUSD","title": "BNB"}
+                        {"proName":"IDX:COMPOSITE","title":"IHSG"}
                     ],
                     "colorTheme":"dark",
                     "isTransparent":true,
@@ -104,8 +101,6 @@
                     "showSymbolLogo":true,
                     "displayMode":"adaptive"
                 }
-
-                        
                 </script>
             </div>
         </div>
@@ -287,16 +282,16 @@
         <div class="mt-6 pt-4 border-t border-gray-800">
             <h4 class="text-sm font-semibold mb-3 text-slate-300">About Developer</h4>
             <div class="flex gap-3 justify-start">
-                <a href="https://twitter.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Twitter">
+                <a href="https://twitter.com/farid04siddiq" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Twitter">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.901 1.05h3.643l-8.674 10.057 9.873 11.458h-7.832l-5.918-6.904-7.868 6.904h-3.643l9.053-10.456-9.87-11.459h7.947l5.353 6.208 7.027-6.208zm-2.277 18.064h1.76l-7.234-8.412-7.51 8.412h-1.76l8.895-10.057-9.453-11.008h2.052l6.982 8.169 7.426-8.169h-2.052l-6.982 8.169-7.426-8.169z"/></svg>
                 </a>
-                <a href="https://facebook.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Facebook">
+                <a href="https://facebook.com/farid.siddiq.11" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Facebook">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.588-1.333h2.412v-3h-3.412c-3.051 0-4.588 1.48-4.588 4.588v2.412z"/></svg>
                 </a>
-                <a href="https://instagram.com/yourusername" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Instagram">
+                <a href="https://instagram.com/scv.farid1717_" target="_blank" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Instagram">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.753 0 3.063.016 4.12.064 1.066.049 1.79.222 2.279.418.471.196.862.474 1.25.862.388.388.666.779.862 1.25.196.488.369 1.213.418 2.279.048 1.057.064 1.367.064 4.12s-.016 3.063-.064 4.12c-.049 1.066-.222 1.79-.418 2.279-.196.471-.474.862-.862 1.25-.388.388-.779.666-1.25.862-.488.196-1.213.369-2.279.418-1.057.048-1.367.064-4.12.064s-3.063-.016-4.12-.064c-1.066-.049-1.79-.222-2.279-.418-.471-.196-.862-.474-1.25-.862-.388-.388-.779-.666-1.25-.862-.488-.196-1.213-.369-2.279-.418-.048-1.057-.064-1.367-.064-4.12s.016-3.063.064-4.12c.049-1.066.222-1.79.418-2.279.196-.471.474-.862.862-1.25.388-.388.779-.666 1.25-.862.488-.196 1.213-.369 2.279-.418 1.057-.048 1.367-.064 4.12-.064zm0-2c-2.825 0-3.178.012-4.298.064-1.18.055-1.99.232-2.693.523-.653.287-1.18.665-1.636 1.121-.456.456-.834.983-1.121 1.636-.291.703-.468 1.513-.523 2.693-.052 1.12-.064 1.474-.064 4.298s.012 3.178.064 4.298c.055 1.18.232 1.99.523 2.693.287.653.665 1.18 1.121 1.636.456.456.983.834 1.636 1.121.703.291 1.513.468 2.693.523 1.12.052 1.474.064 4.298.064s3.178-.012 4.298-.064c1.18-.055 1.99-.232 2.693-.523.653-.287 1.18-.665 1.636-1.121.456-.456.834-.983 1.121-1.636.291-.703.468-1.513.523-2.693.052-1.12.064-1.474.064-4.298s-.012-3.178-.064-4.298c-.055-1.18-.232-1.99-.523-2.693-.287-.653-.665-1.18-1.121-1.636-.456-.456-.983-.834-1.636-1.121-.703-.291-1.513-.468-2.693-.523-1.12-.052-1.474-.064-4.298-.064zm0 6c-3.308 0-6 2.692-6 6s2.692 6 6 6 6-2.692 6-6-2.692-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm6.5-12.25c-.528 0-.95-.422-.95-.95s.422-.95.95-.95.95.422.95.95-.422.95-.95.95z"/></svg>
                 </a>
-                <a href="mailto:your.email@example.com" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Email">
+                <a href="mailto:farid04siddiq@gmail.com" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition duration-200" aria-label="Email">
                     <svg class="w-4 h-4 text-gray-400 hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.287l-12-9.912v15.912h24v-15.912l-12 9.912z"/></svg>
                 </a>
             </div>
@@ -332,6 +327,54 @@
                         "colorTheme":"dark", "isTransparent":false, "locale":"en", "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu", "importanceFilter":"-1,0,1", "width":"100%", "height":"100%"
                     }
                     </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="max-w-[1400px] mx-auto px-4 pb-6 mt-6">
+    <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
+        <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2 flex items-center">
+            <span class="mr-3 text-amber-500">📈</span> Analisis Data Historis Pasar (2015-2025)
+        </h2>
+        <div id="local-data-container" class="space-y-6">
+            
+            <div id="chart-area" class="bg-gray-950 p-4 rounded-xl border border-gray-800">
+                <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+                    <h3 class="text-lg font-semibold text-gray-200">Pergerakan Harga Bulanan (High/Low)</h3>
+                    <div class="flex items-center space-x-2">
+                        <label for="year-select-chart" class="text-sm text-gray-400 hidden sm:inline">Pilih Tahun:</label>
+                        <select id="year-select-chart" class="bg-gray-700 text-white text-sm p-1 rounded-md border border-gray-600 focus:ring-emerald-500 focus:border-emerald-500">
+                            <option value="all-time" selected>All Time (2015-2025)</option>
+                            </select>
+                    </div>
+                </div>
+                <div class="h-[300px]"> 
+                    <canvas id="priceLineChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <div id="table-area" class="bg-gray-950 p-4 rounded-xl border border-gray-800">
+                <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
+                    <h3 class="text-lg font-semibold text-gray-200">Riwayat Tren Bulanan dan Faktor Utama</h3>
+                    <div class="flex items-center space-x-2">
+                        <label for="year-select-table" class="text-sm text-gray-400 hidden sm:inline">Pilih Tahun:</label>
+                        <select id="year-select-table" class="bg-gray-700 text-white text-sm p-1 rounded-md border border-gray-600 focus:ring-emerald-500 focus:border-emerald-500"></select>
+                    </div>
+                </div>
+                <div class="custom-scroll overflow-x-auto overflow-y-auto max-h-96">
+                    <table id="trend-data-table" class="min-w-full divide-y divide-gray-800 text-sm">
+                        <thead class="sticky top-0 bg-gray-800/90 backdrop-blur-sm">
+                            <tr>
+                                <th scope="col" class="px-3 py-2 text-left font-medium text-gray-200 uppercase tracking-wider">Bulan & Tahun</th>
+                                <th scope="col" class="px-3 py-2 text-left font-medium text-gray-200 uppercase tracking-wider">Tren</th>
+                                <th scope="col" class="px-3 py-2 text-left font-medium text-gray-200 uppercase tracking-wider">Deskripsi</th>
+                                <th scope="col" class="px-3 py-2 text-left font-medium text-gray-200 uppercase tracking-wider">Faktor Utama</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -385,7 +428,7 @@
             </div>
         
         <div id="chatNotes" class="mt-2 text-xs text-red-500 font-medium text-center">
-            ⚠️ PERINGATAN: Kunci API terekspos langsung di browser!
+            ⚠️ PERINGATAN: AI Hanya Alat Bantu Analisa, Tidak 100% Akurat!
         </div>
     </div>
 </div>
@@ -661,6 +704,562 @@
     });
 
     imageInput.addEventListener('change', handleImageFileChange);
+
+/* ========================================================================================= */
+/* ======== 📈 LOCAL HISTORICAL DATA ANALYSIS FEATURE (UPDATED WITH REAL DATA 2015-2025) ======== */
+/* ========================================================================================= */
+
+// Data Tren Historis (rawData) - Detail dari Jan 2015 hingga Okt 2025
+const rawData = [
+    // ... (DATA ANDA DI SINI)
+    // --- Periode 2015 (Pasca The Fed Tapering) ---
+    { monthYear: "Jan 2015", trend: "Ranging", desc: "Konsolidasi di tengah penguatan Dolar AS.", factor: "Kekuatan Dolar AS pasca berakhirnya Quantitative Easing (QE) The Fed." },
+    { monthYear: "Feb 2015", trend: "Downtrend", desc: "Penurunan tajam, momentum bearish kuat.", factor: "Ekspektasi kenaikan suku bunga AS (Rate Hike)." },
+    { monthYear: "Mar 2015", trend: "Ranging", desc: "Sideways/konsolidasi di area support.", factor: "Pasar mencerna data ekonomi AS yang beragam." },
+    { monthYear: "Apr 2015", trend: "Uptrend", desc: "Rebound teknikal yang kuat.", factor: "Kelemahan sementara pada DXY (Indeks Dolar AS)." },
+    { monthYear: "Mei 2015", trend: "Downtrend", desc: "Tren bearish dominan, gagal menembus resistance.", factor: "Pemulihan ekonomi AS & inflasi yang tetap rendah." },
+    { monthYear: "Jun 2015", trend: "Downtrend", desc: "Penurunan berkelanjutan menuju level terendah.", factor: "Krisis utang Yunani kembali memicu ketidakpastian Eurozone." },
+    { monthYear: "Jul 2015", trend: "Downtrend tajam", desc: "Penurunan drastis, terendah multi-tahun.", factor: "Kepastian kenaikan suku bunga Fed mendekat." },
+    { monthYear: "Agu 2015", trend: "Ranging", desc: "Rebound & konsolidasi dari level rendah.", factor: "Devaluasi Yuan Tiongkok yang memicu volatilitas pasar." },
+    { monthYear: "Sep 2015", trend: "Downtrend", desc: "Tekanan jual kembali dominan.", factor: "The Fed menunda kenaikan suku bunga pertamanya." },
+    { monthYear: "Okt 2015", trend: "Uptrend", desc: "Kenaikan moderat dari bottom.", factor: "Data non-farm payroll (NFP) AS yang lemah." },
+    { monthYear: "Nov 2015", trend: "Downtrend", desc: "Turun tajam, tembus support krusial.", factor: "Dolar AS menguat tajam, Fed bersiap naikkan suku bunga." },
+    { monthYear: "Des 2015", trend: "Ranging", desc: "Sideways di area bawah, menunggu Rate Hike.", factor: "**The Fed menaikkan suku bunga untuk pertama kali (Des 2015).**" },
+    // --- Periode 2016 (Pasca Rate Hike Pertama) ---
+    { monthYear: "Jan 2016", trend: "Uptrend kuat", desc: "Rebound masif dari level terendah.", factor: "Kekacauan pasar saham global (khususnya Tiongkok) & harga minyak jatuh." },
+    { monthYear: "Feb 2016", trend: "Uptrend", desc: "Momentum bullish berlanjut.", factor: "Peningkatan permintaan safe haven." },
+    { monthYear: "Mar 2016", trend: "Ranging", desc: "Konsolidasi di area tinggi.", factor: "The Fed bersikap dovish (perlambatan kenaikan suku bunga)." },
+    { monthYear: "Apr 2016", trend: "Downtrend", desc: "Koreksi setelah kenaikan panjang.", factor: "Kekuatan Dolar AS sementara." },
+    { monthYear: "Mei 2016", trend: "Downtrend", desc: "Penurunan harga yang stabil.", factor: "Ekspektasi kenaikan suku bunga Fed (Rate Hike kedua)." },
+    { monthYear: "Jun 2016", trend: "Uptrend tajam", desc: "Lonjakan harga yang sangat kuat.", factor: "**Keputusan Brexit (Inggris keluar dari Uni Eropa).**" },
+    { monthYear: "Jul 2016", trend: "Ranging", desc: "Konsolidasi pasca Brexit, volatilitas tinggi.", factor: "Intervensi bank sentral pasca Brexit." },
+    { monthYear: "Agu 2016", trend: "Downtrend", desc: "Koreksi wajar setelah lonjakan Juni.", factor: "Data ekonomi AS yang membaik." },
+    { monthYear: "Sep 2016", trend: "Ranging", desc: "Pergerakan mendatar, tidak ada arah jelas.", factor: "The Fed tetap menahan suku bunga." },
+    { monthYear: "Okt 2016", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Penguatan Dolar AS menjelang pemilu AS." },
+    { monthYear: "Nov 2016", trend: "Downtrend tajam", desc: "Penjualan besar-besaran pasca pemilu AS.", factor: "**Kemenangan Donald Trump (Janji stimulus fiskal besar).**" },
+    { monthYear: "Des 2016", trend: "Downtrend", desc: "Tekanan jual berlanjut hingga akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedua).**" },
+    // --- Periode 2017 (Normalisasi Fed) ---
+    { monthYear: "Jan 2017", trend: "Uptrend", desc: "Rebound awal tahun dari level rendah.", factor: "Melemahnya USD pasca kenaikan suku bunga." },
+    { monthYear: "Feb 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketidakpastian kebijakan Trump." },
+    { monthYear: "Mar 2017", trend: "Uptrend", desc: "Mencapai puncak kuartalan.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketiga).**" },
+    { monthYear: "Apr 2017", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Ketegangan geopolitik AS-Korea Utara." },
+    { monthYear: "Mei 2017", trend: "Downtrend", desc: "Koreksi wajar.", factor: "Penguatan Dolar AS." },
+    { monthYear: "Jun 2017", trend: "Ranging", desc: "Sideways di area support.", factor: "**The Fed menaikkan suku bunga (Rate Hike keempat).**" },
+    { monthYear: "Jul 2017", trend: "Uptrend", desc: "Rebound yang kuat.", factor: "Melemahnya USD secara umum." },
+    { monthYear: "Agu 2017", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Ketegangan geopolitik (Korea Utara & Venezuela)." },
+    { monthYear: "Sep 2017", trend: "Downtrend", desc: "Koreksi yang signifikan.", factor: "The Fed mengumumkan pengurangan neraca." },
+    { monthYear: "Okt 2017", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Menunggu kebijakan The Fed berikutnya." },
+    { monthYear: "Nov 2017", trend: "Downtrend", desc: "Penurunan stabil.", factor: "Penguatan Dolar AS." },
+    { monthYear: "Des 2017", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kelima).**" },
+    // --- Periode 2018 (Perang Dagang & Kenaikan Suku Bunga) ---
+    { monthYear: "Jan 2018", trend: "Uptrend", desc: "Bullish awal tahun, momentum kuat.", factor: "Kelemahan DXY & awal ketegangan perdagangan." },
+    { monthYear: "Feb 2018", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS kembali." },
+    { monthYear: "Mar 2018", trend: "Ranging", desc: "Sideways/konsolidasi.", factor: "**The Fed menaikkan suku bunga (Rate Hike keenam).**" },
+    { monthYear: "Apr 2018", trend: "Downtrend", desc: "Tekanan jual dominan.", factor: "Imbal hasil obligasi AS naik." },
+    { monthYear: "Mei 2018", trend: "Downtrend", desc: "Bearish berkelanjutan.", factor: "Penguatan Dolar AS karena Perang Dagang AS-Tiongkok." },
+    { monthYear: "Jun 2018", trend: "Downtrend", desc: "Turun ke level terendah.", factor: "**The Fed menaikkan suku bunga (Rate Hike ketujuh).**" },
+    { monthYear: "Jul 2018", trend: "Downtrend", desc: "Penurunan yang stabil.", factor: "Dolar AS sebagai safe haven." },
+    { monthYear: "Agu 2018", trend: "Ranging", desc: "Mulai membentuk base di area bawah.", factor: "Investor mencerna kebijakan perdagangan AS." },
+    { monthYear: "Sep 2018", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Tidak ada katalis besar." },
+    { monthYear: "Okt 2018", trend: "Uptrend", desc: "Rebound besar dari support.", factor: "Koreksi pasar saham global." },
+    { monthYear: "Nov 2018", trend: "Ranging", desc: "Sideways di level tengah.", factor: "Menunggu pertemuan The Fed berikutnya." },
+    { monthYear: "Des 2018", trend: "Uptrend kuat", desc: "Rally masif akhir tahun.", factor: "**The Fed menaikkan suku bunga (Rate Hike kedelapan) dan pasar saham AS anjlok.**" },
+    // --- Periode 2019 (Fed Pivot Dovish) ---
+    { monthYear: "Jan 2019", trend: "Ranging", desc: "Konsolidasi pasca rally besar.", factor: "The Fed bersikap dovish & mengisyaratkan pause rate hike." },
+    { monthYear: "Feb 2019", trend: "Downtrend", desc: "Koreksi tajam.", factor: "Kekuatan Dolar AS sementara." },
+    { monthYear: "Mar 2019", trend: "Ranging", desc: "Sideways, mencari arah.", factor: "Tidak ada data besar." },
+    { monthYear: "Apr 2019", trend: "Ranging", desc: "Fluktuasi kecil.", factor: "Ketidakpastian negosiasi Brexit." },
+    { monthYear: "Mei 2019", trend: "Ranging", desc: "Konsolidasi di area support.", factor: "Peningkatan ketegangan perdagangan AS-Tiongkok." },
+    { monthYear: "Jun 2019", trend: "Uptrend tajam", desc: "Breakout kuat, momentum bullish.", factor: "The Fed mengisyaratkan pemotongan suku bunga (Rate Cut)." },
+    { monthYear: "Jul 2019", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "**The Fed memangkas suku bunga (Rate Cut pertama).**" },
+    { monthYear: "Agu 2019", trend: "Uptrend kuat", desc: "Lonjakan besar menuju area 1550.", factor: "Ketegangan perdagangan AS-Tiongkok meningkat tajam." },
+    { monthYear: "Sep 2019", trend: "Downtrend", desc: "Koreksi wajar pasca puncak.", factor: "**The Fed memangkas suku bunga (Rate Cut kedua).**" },
+    { monthYear: "Okt 2019", trend: "Ranging", desc: "Sideways di level tinggi.", factor: "Mulai ada harapan damai dagang AS-Tiongkok." },
+    { monthYear: "Nov 2019", trend: "Downtrend", desc: "Penurunan dari level tinggi.", factor: "**The Fed memangkas suku bunga (Rate Cut ketiga).**" },
+    { monthYear: "Des 2019", trend: "Uptrend", desc: "Rally mini akhir tahun.", factor: "Ekspektasi inflasi, perjanjian damai dagang fase 1." },
+    // --- Periode 2020 (Pandemi) hingga Okt 2025 (Menggunakan data Anda) ---
+    { monthYear: "Jan 2020", trend: "Uptrend moderat", desc: "Emas menguat stabil sejak awal tahun.", factor: "Ketegangan AS–Iran & penyebasan awal COVID-19 di Tiongkok." },
+    { monthYear: "Feb 2020", trend: "Uptrend kuat", desc: "Harga melonjak tajam ke area 1.680–1.700.", factor: "COVID-19 mulai menyebar global, minat safe haven naik." },
+    { monthYear: "Mar 2020", trend: "Volatil (Crash → Rebound)", desc: "Awalnya turun drastis karena panic selling, lalu pulih.", factor: "Crash likuiditas global (Maret 2020), lalu intervensi The Fed." },
+    { monthYear: "Apr 2020", trend: "Uptrend tajam", desc: "Rebound kuat menuju area 1.700–1750.", factor: "Stimulus besar-besaran & suku bunga mendekati 0%." },
+    { monthYear: "Mei 2020", trend: "Uptrend stabil", desc: "Harga bertahan tinggi, permintaan investasi naik.", factor: "The Fed lanjutkan QE, inflasi jangka panjang diantisipasi." },
+    { monthYear: "Jun 2020", trend: "Uptrend kuat", desc: "Breakout menuju area 1.780–1.800.", factor: "DXY melemah, ekspektasi stimulus tambahan." },
+    { monthYear: "Jul 2020", trend: "Uptrend kuat", desc: "Lonjakan besar akibat stimulus pandemi global.", factor: "Stimulus masif dari The Fed & paket bantuan COVID-19." },
+    { monthYear: "Agu 2020", trend: "Uptrend → Koreksi", desc: "Mencapai puncak historis, lalu koreksi tajam.", factor: "Euforia safe haven puncak, lalu profit taking." },
+    { monthYear: "Sep 2020", trend: "Downtrend", desc: "Tekanan jual pasca puncak Agustus.", factor: "Penguatan USD & ekspektasi pemulihan ekonomi." },
+    { monthYear: "Okt 2020", trend: "Ranging", desc: "Konsolidasi di area 1880–1920.", factor: "Menunggu hasil pemilu AS 2020." },
+    { monthYear: "Nov 2020", trend: "Downtrend", desc: "Penurunan akibat optimisme vaksin COVID-19.", factor: "Pengumuman vaksin Pfizer-BioNTech." },
+    { monthYear: "Des 2020", trend: "Ranging → Uptrend", desc: "Mulai pulih menjelang akhir tahun.", factor: "Paket stimulus tambahan AS disetujui." },
+    { monthYear: "Jan 2021", trend: "Uptrend → Downtrend", desc: "Lonjakan awal tahun, lalu terkoreksi.", factor: "Harapan stimulus Biden, lalu yield US naik." },
+    { monthYear: "Feb 2021", trend: "Downtrend", desc: "Yield US naik, tekanan jual tinggi.", factor: "Lonjakan yield Treasury 10 tahun." },
+    { monthYear: "Mar 2021", trend: "Ranging → Downtrend", desc: "Volatilitas tinggi, gagal rebound.", factor: "Dolar menguat akibat ekspektasi tapering." },
+    { monthYear: "Apr 2021", trend: "Ranging", desc: "Pasar mulai stabil di area bawah.", factor: "Tidak ada data besar; konsolidasi." },
+    { monthYear: "Mei 2021", trend: "Uptrend kuat", desc: "Rebound besar dari area support.", factor: "Inflasi AS naik tajam → dorong permintaan emas." },
+    { monthYear: "Jun 2021", trend: "Downtrend tajam", desc: "Penurunan cepat pasca FOMC hawkish.", factor: "FOMC sinyalkan kenaikan suku bunga lebih cepat." },
+    { monthYear: "Jul 2021", trend: "Ranging", desc: "Pergerakan datar, volatilitas rendah.", factor: "Pasar menunggu sinyal Fed berikutnya." },
+    { monthYear: "Agu 2021", trend: "Ranging", desc: "Tidak ada arah jelas, harga berosilasi.", factor: "Data ekonomi campuran AS." },
+    { monthYear: "Sep 2021", trend: "Downtrend", desc: "Tekanan jual dominan, lower low terbentuk.", factor: "Dolar menguat, ekspektasi tapering tinggi." },
+    { monthYear: "Okt 2021", trend: "Uptrend", desc: "Reversal naik dari support bawah.", factor: "Inflasi tinggi picu minat safe haven." },
+    { monthYear: "Nov 2021", trend: "Ranging", desc: "Konsolidasi di area tengah.", factor: "Menanti kepastian kebijakan tapering Fed." },
+    { monthYear: "Des 2021", trend: "Ranging", desc: "Fluktuasi kecil menjelang akhir tahun.", factor: "Volume pasar rendah, libur akhir tahun." },
+    { monthYear: "Jan 2022", trend: "Ranging → Uptrend", desc: "Mulai muncul tekanan beli signifikan.", factor: "Ketegangan geopolitik Rusia–Ukraina meningkat." },
+    { monthYear: "Feb 2022", trend: "Uptrend kuat", desc: "Lonjakan akibat geopolitik (Russia–Ukraine).", factor: "Invasi Rusia ke Ukraina (Feb 24)." },
+    { monthYear: "Mar 2022", trend: "Downtrend tajam", desc: "Koreksi kuat pasca lonjakan ekstrem.", factor: "Ekspektasi kenaikan suku bunga Fed." },
+    { monthYear: "Apr 2022", trend: "Ranging → Downtrend", desc: "Harga gagal menembus resistance, berbalik turun.", factor: "The Fed mulai agresif (kebijakan hawkish)." },
+    { monthYear: "Mei 2022", trend: "Downtrend", desc: "Bearish stabil dengan lower low.", factor: "Inflasi tinggi, Fed tingkatkan suku bunga." },
+    { monthYear: "Jun 2022", trend: "Downtrend", desc: "Tekanan jual masih kuat.", factor: "USD terus menguat, DXY tembus 105." },
+    { monthYear: "Jul 2022", trend: "Ranging", desc: "Konsolidasi membentuk base.", factor: "Ekspektasi inflasi mulai turun." },
+    { monthYear: "Agu 2022", trend: "Uptrend singkat", desc: "Rebound teknikal dari support.", factor: "DXY melemah sementara." },
+    { monthYear: "Sep 2022", trend: "Downtrend", desc: "Turun kembali setelah rally pendek.", factor: "Fed naikkan suku bunga 75 bps lagi." },
+    { monthYear: "Okt 2022", trend: "Ranging", desc: "Area bottom mulai terbentuk.", factor: "Investor mulai akumulasi emas kembali." },
+    { monthYear: "Nov 2022", trend: "Uptrend", desc: "Breakout resistance besar, momentum naik.", factor: "CPI AS turun → ekspektasi Fed melunak." },
+    { monthYear: "Des 2022", trend: "Uptrend", desc: "Tren naik stabil hingga akhir tahun.", factor: "Optimisme soft landing." },
+    { monthYear: "Jan 2023", trend: "Uptrend", desc: "Higher high konsisten, tren bullish kuat.", factor: "DXY melemah, ekspektasi Fed akan pivot." },
+    { monthYear: "Feb 2023", trend: "Downtrend", desc: "Koreksi dari puncak.", factor: "Data inflasi AS kembali tinggi." },
+    { monthYear: "Mar 2023", trend: "Uptrend", desc: "Rebound kuat pasca koreksi.", factor: "Krisis perbankan AS (Silicon Valley Bank)." },
+    { monthYear: "Apr 2023", trend: "Uptrend → Ranging", desc: "Kenaikan melambat di resistance.", factor: "Fed jaga suku bunga tetap tinggi." },
+    { monthYear: "Mei 2023", trend: "Downtrend", desc: "Tekanan jual mulai meningkat.", factor: "Debt ceiling AS & profit taking." },
+    { monthYear: "Jun 2023", trend: "Ranging", desc: "Harga mendatar.", factor: "Tidak ada katalis besar." },
+    { monthYear: "Jul 2023", trend: "Ranging", desc: "Volatilitas rendah.", factor: "Libur musim panas, volume tipis." },
+    { monthYear: "Agu 2023", trend: "Ranging → Uptrend awal", desc: "Mulai muncul higher low.", factor: "Data inflasi melunak." },
+    { monthYear: "Sep 2023", trend: "Uptrend", desc: "Tren bullish stabil.", factor: "Fed sinyalkan akhir siklus kenaikan suku bunga." },
+    { monthYear: "Okt 2023", trend: "Uptrend kuat", desc: "Breakout area resistance utama.", factor: "Konflik Hamas–Israel (Okt 7)." },
+    { monthYear: "Nov 2023", trend: "Uptrend", desc: "Momentum bullish masih dominan.", factor: "Ketegangan Timur Tengah berlanjut." },
+    { monthYear: "Des 2023", trend: "Ranging", desc: "Konsolidasi di area puncak.", factor: "Pasar tenang jelang akhir tahun." },
+    { monthYear: "Jan 2024", trend: "Ranging → Downtrend", desc: "Awal tahun terjadi koreksi besar.", factor: "DXY rebound & data tenaga kerja kuat." },
+    { monthYear: "Feb 2024", trend: "Downtrend", desc: "Penurunan konsisten, candle bearish besar.", factor: "CPI tinggi → Fed hawkish kembali." },
+    { monthYear: "Mar 2024", trend: "Ranging", desc: "Pasar tenang setelah koreksi.", factor: "Tidak ada data besar." },
+    { monthYear: "Apr 2024", trend: "Uptrend kuat", desc: "Breakout dari konsolidasi, kenaikan signifikan.", factor: "Dolar melemah, data inflasi turun." },
+    { monthYear: "Mei 2024", trend: "Uptrend", desc: "Tren naik masih terjaga.", factor: "Spekulasi pemotongan suku bunga Fed." },
+    { monthYear: "Jun 2024", trend: "Ranging", desc: "Pergerakan mendatar di level tinggi.", factor: "Investor tunggu keputusan FOMC." },
+    { monthYear: "Jul 2024", trend: "Downtrend", desc: "Koreksi dari area atas.", factor: "DXY menguat kembali." },
+    { monthYear: "Agu 2024", trend: "Downtrend", desc: "Lanjutan tekanan jual.", factor: "PMI dan CPI positif di AS." },
+    { monthYear: "Sep 2024", trend: "Ranging → Uptrend", desc: "Reversal mulai terbentuk.", factor: "Ekspektasi dovish Fed." },
+    { monthYear: "Okt 2024", trend: "Uptrend", desc: "Kenaikan stabil.", factor: "Inflasi global menurun." },
+    { monthYear: "Nov 2024", trend: "Ranging", desc: "Konsolidasi di area atas.", factor: "Menunggu hasil pemilu AS." },
+    { monthYear: "Dec 2024", trend: "Uptrend", desc: "Bullish continuation menjelang akhir tahun.", factor: "Euforia pasca pemilu AS." },
+    { monthYear: "Jan 2025", trend: "Uptrend", desc: "Harga menembus resistance lama.", factor: "Fed mulai potong suku bunga." },
+    { monthYear: "Feb 2025", trend: "Ranging", desc: "Sideways di puncak.", factor: "Tidak ada katalis besar." },
+    { monthYear: "Mar 2025", trend: "Downtrend", desc: "Koreksi wajar setelah rally panjang.", factor: "USD rebound teknikal." },
+    { monthYear: "Apr 2025", trend: "Downtrend", desc: "Tekanan jual meningkat.", factor: "Data inflasi naik kembali." },
+    { monthYear: "Mei 2025", trend: "Ranging", desc: "Konsolidasi setelah drop.", factor: "Pasar menunggu arah kebijakan baru Fed." },
+    { monthYear: "Jun 2025", trend: "Ranging → Uptrend", desc: "Tanda reversal bullish awal.", factor: "Data CPI menurun lagi." },
+    { monthYear: "Jul 2025", trend: "Uptrend", desc: "Momentum naik mulai kuat lagi.", factor: "Spekulasi pemotongan lanjutan suku bunga." },
+    { monthYear: "Agu 2025", trend: "Uptrend", desc: "Bullish stabil dengan higher low.", factor: "USD melemah, risk-off meningkat." },
+    { monthYear: "Sep 2025", trend: "Ranging", desc: "Mulai datar menjelang Q4.", factor: "Tidak ada event besar." },
+    { monthYear: "Okt 2025", trend: "Ranging → Uptrend", desc: "Ada potensi kenaikan lanjutan ke akhir tahun.", factor: "Ketegangan geopolitik baru di Timur Tengah." }
+
+];
+
+// Data Harga (priceData) - Detail dari Jan 2015 hingga Okt 2025
+const priceData = [
+    // ... (DATA ANDA DI SINI)
+    // --- Periode 2015 ---
+    { month: 'Jan', year: 2015, high: 1307.387, low: 1201.766 },
+    { month: 'Feb', year: 2015, high: 1295.277, low: 1195.424 },
+    { month: 'Mar', year: 2015, high: 1224.239, low: 1142.345 },
+    { month: 'Apr', year: 2015, high: 1224.591, low: 1178.614 },
+    { month: 'Mei', year: 2015, high: 1232.067, low: 1170.925 },
+    { month: 'Jun', year: 2015, high: 1204.31, low: 1172.935 },
+    { month: 'Jul', year: 2015, high: 1165.738, low: 1076.62 },
+    { month: 'Agu', year: 2015, high: 1131.742, low: 1079.176 },
+    { month: 'Sep', year: 2015, high: 1156.401, low: 1104.997 },
+    { month: 'Okt', year: 2015, high: 1184.225, low: 1100.868 },
+    { month: 'Nov', year: 2015, high: 1150.311, low: 1064.954 },
+    { month: 'Des', year: 2015, high: 1087.97, low: 1046.208 },
+    // --- Periode 2016 ---
+    { month: 'Jan', year: 2016, high: 1127.915, low: 1070.781 },
+    { month: 'Feb', year: 2016, high: 1263.951, low: 1092.793 },
+    { month: 'Mar', year: 2016, high: 1284.156, low: 1206.197 },
+    { month: 'Apr', year: 2016, high: 1297.042, low: 1210.027 },
+    { month: 'Mei', year: 2016, high: 1300.732, low: 1209.615 },
+    { month: 'Jun', year: 2016, high: 1358.97, low: 1201.037 },
+    { month: 'Jul', year: 2016, high: 1375.02, low: 1308.205 },
+    { month: 'Agu', year: 2016, high: 1367.62, low: 1310.875 },
+    { month: 'Sep', year: 2016, high: 1343.344, low: 1302.26 },
+    { month: 'Okt', year: 2016, high: 1337.894, low: 1241.055 },
+    { month: 'Nov', year: 2016, high: 1304.538, low: 1170.999 },
+    { month: 'Des', year: 2016, high: 1180.767, low: 1121.282 },
+    // --- Periode 2017 ---
+    { month: 'Jan', year: 2017, high: 1221.782, low: 1139.75 },
+    { month: 'Feb', year: 2017, high: 1263.268, low: 1209.083 },
+    { month: 'Mar', year: 2017, high: 1269.467, low: 1205.578 },
+    { month: 'Apr', year: 2017, high: 1295.631, low: 1239.544 },
+    { month: 'Mei', year: 2017, high: 1272.76, low: 1214.39 },
+    { month: 'Jun', year: 2017, high: 1295.731, low: 1230.134 },
+    { month: 'Jul', year: 2017, high: 1264.44, low: 1204.654 },
+    { month: 'Agu', year: 2017, high: 1317.02, low: 1251.107 },
+    { month: 'Sep', year: 2017, high: 1357.755, low: 1260.675 },
+    { month: 'Okt', year: 2017, high: 1306.075, low: 1260.368 },
+    { month: 'Nov', year: 2017, high: 1296.38, low: 1263.743 },
+    { month: 'Des', year: 2017, high: 1299.165, low: 1236.787 },
+    // --- Periode 2018 ---
+    { month: 'Jan', year: 2018, high: 1366.195, low: 1308.267 },
+    { month: 'Feb', year: 2018, high: 1361.642, low: 1307.747 },
+    { month: 'Mar', year: 2018, high: 1357.877, low: 1305.105 },
+    { month: 'Apr', year: 2018, high: 1365.17, low: 1304.57 },
+    { month: 'Mei', year: 2018, high: 1324.966, low: 1284.116 },
+    { month: 'Jun', year: 2018, high: 1309.847, low: 1243.618 },
+    { month: 'Jul', year: 2018, high: 1265.918, low: 1211.961 },
+    { month: 'Agu', year: 2018, high: 1220.738, low: 1160.038 },
+    { month: 'Sep', year: 2018, high: 1215.111, low: 1184.148 },
+    { month: 'Okt', year: 2018, high: 1243.518, low: 1183.05 },
+    { month: 'Nov', year: 2018, high: 1249.773, low: 1200.738 },
+    { month: 'Des', year: 2018, high: 1285.498, low: 1219.866 },
+    // --- Periode 2019 ---
+    { month: 'Jan', year: 2019, high: 1317.844, low: 1276.104 },
+    { month: 'Feb', year: 2019, high: 1346.746, low: 1280.975 },
+    { month: 'Mar', year: 2019, high: 1324.464, low: 1281.332 },
+    { month: 'Apr', year: 2019, high: 1310.279, low: 1266.386 },
+    { month: 'Mei', year: 2019, high: 1303.407, low: 1266.696 },
+    { month: 'Jun', year: 2019, high: 1441.761, low: 1270.751 },
+    { month: 'Jul', year: 2019, high: 1453.076, low: 1381.821 },
+    { month: 'Agu', year: 2019, high: 1555.708, low: 1451.916 },
+    { month: 'Sep', year: 2019, high: 1557.067, low: 1459.186 },
+    { month: 'Okt', year: 2019, high: 1519.814, low: 1457.551 },
+    { month: 'Nov', year: 2019, high: 1514.88, low: 1445.672 },
+    { month: 'Des', year: 2019, high: 1525.185, low: 1458.556 },
+    // --- Periode 2020 - Okt 2025 (Menggunakan data Anda) ---
+    { month: 'Jan', year: 2020, high: 1611.365, low: 1517.172 },
+    { month: 'Feb', year: 2020, high: 1689.213, low: 1547.479 },
+    { month: 'Mar', year: 2020, high: 1703.179, low: 1451.281 },
+    { month: 'Apr', year: 2020, high: 1746.579, low: 1571.348 },
+    { month: 'Mei', year: 2020, high: 1764.715, low: 1670.131 },
+    { month: 'Jun', year: 2020, high: 1785.729, low: 1670.51 },
+    { month: 'Jul', year: 2020, high: 1982.318, low: 1757.464 },
+    { month: 'Agu', year: 2020, high: 2073.682, low: 1863.593 },
+    { month: 'Sep', year: 2020, high: 1992.297, low: 1848.076 },
+    { month: 'Okt', year: 2020, high: 1933.178, low: 1859.815 },
+    { month: 'Nov', year: 2020, high: 1965.419, low: 1764.16 },
+    { month: 'Des', year: 2020, high: 1906.667, low: 1776.74 },
+    { month: 'Jan', year: 2021, high: 1959.29, low: 1802.438 },
+    { month: 'Feb', year: 2021, high: 1871.716, low: 1717.03 },
+    { month: 'Mar', year: 2021, high: 1759.715, low: 1676.627 },
+    { month: 'Apr', year: 2021, high: 1797.756, low: 1705.761 },
+    { month: 'Mei', year: 2021, high: 1912.616, low: 1766.046 },
+    { month: 'Jun', year: 2021, high: 1916.446, low: 1750.621 },
+    { month: 'Jul', year: 2021, high: 1834.039, low: 1765.633 },
+    { month: 'Agu', year: 2021, high: 1831.657, low: 1686.784 },
+    { month: 'Sep', year: 2021, high: 1833.859, low: 1721.571 },
+    { month: 'Okt', year: 2021, high: 1813.56, low: 1745.822 },
+    { month: 'Nov', year: 2021, high: 1877.067, low: 1758.534 },
+    { month: 'Des', year: 2021, high: 1828.722, low: 1753.053 },
+    { month: 'Jan', year: 2022, high: 1853.785, low: 1779.895 },
+    { month: 'Feb', year: 2022, high: 1974.331, low: 1788.521 },
+    { month: 'Mar', year: 2022, high: 2070.292, low: 1889.783 },
+    { month: 'Apr', year: 2022, high: 1998.024, low: 1871.981 },
+    { month: 'Mei', year: 2022, high: 1909.551, low: 1786.381 },
+    { month: 'Jun', year: 2022, high: 1878.832, low: 1802.627 },
+    { month: 'Jul', year: 2022, high: 1814.091, low: 1680.811 },
+    { month: 'Agu', year: 2022, high: 1807.831, low: 1705.48 },
+    { month: 'Sep', year: 2022, high: 1735.081, low: 1614.427 },
+    { month: 'Okt', year: 2022, high: 1729.469, low: 1616.886 },
+    { month: 'Nov', year: 2022, high: 1786.472, low: 1616.624 },
+    { month: 'Des', year: 2022, high: 1832.979, low: 1765.756 },
+    { month: 'Jan', year: 2023, high: 1949.116, low: 1823.998 },
+    { month: 'Feb', year: 2023, high: 1959.639, low: 1804.362 },
+    { month: 'Mar', year: 2023, high: 2009.668, low: 1809.372 },
+    { month: 'Apr', year: 2023, high: 2048.597, low: 1949.542 },
+    { month: 'Mei', year: 2023, high: 2079.817, low: 1932.042 },
+    { month: 'Jun', year: 2023, high: 1983.332, low: 1892.839 },
+    { month: 'Jul', year: 2023, high: 1987.421, low: 1902.568 },
+    { month: 'Agu', year: 2023, high: 1964.628, low: 1884.547 },
+    { month: 'Sep', year: 2023, high: 1952.331, low: 1846.282 },
+    { month: 'Okt', year: 2023, high: 2009.327, low: 1810.402 },
+    { month: 'Nov', year: 2023, high: 2052.03, low: 1921.394 },
+    { month: 'Des', year: 2023, high: 2144.46, low: 1973.033 },
+    { month: 'Jan', year: 2024, high: 2078.877, low: 2001.742 },
+    { month: 'Feb', year: 2024, high: 2065.458, low: 1984.121 },
+    { month: 'Mar', year: 2024, high: 2247.34, low: 2039.039 },
+    { month: 'Apr', year: 2024, high: 2431.527, low: 2228.472 },
+    { month: 'Mei', year: 2024, high: 2450.026, low: 2277.089 },
+    { month: 'Jun', year: 2024, high: 2387.702, low: 2286.723 },
+    { month: 'Jul', year: 2024, high: 2483.739, low: 2318.438 },
+    { month: 'Agu', year: 2024, high: 2531.668, low: 2364.267 },
+    { month: 'Sep', year: 2024, high: 2685.611, low: 2471.826 },
+    { month: 'Okt', year: 2024, high: 2790.075, low: 2602.178 },
+    { month: 'Nov', year: 2024, high: 2762.254, low: 2536.755 },
+    { month: 'Dec', year: 2024, high: 2726.206, low: 2583.389 },
+    { month: 'Jan', year: 2025, high: 2817.244, low: 2614.419 },
+    { month: 'Feb', year: 2025, high: 2956.229, low: 2772.151 },
+    { month: 'Mar', year: 2025, high: 3128.165, low: 2858.83 },
+    { month: 'Apr', year: 2025, high: 3500.033, low: 2956.374 },
+    { month: 'Mei', year: 2025, high: 3435.016, low: 3120.65 },
+    { month: 'Jun', year: 2025, high: 3451.251, low: 3247.921 },
+    { month: 'Jul', year: 2025, high: 3438.98, low: 3268.034 },
+    { month: 'Agu', year: 2025, high: 3453.924, low: 3281.566 },
+    { month: 'Sep', year: 2025, high: 3871.7, low: 3437.028 },
+    { month: 'Okt', year: 2025, high: 4380.074, low: 3819.335 }
+];
+
+
+// Dapatkan semua tahun unik dari data
+const uniqueYears = [...new Set(priceData.map(d => d.year))].sort((a, b) => b - a);
+const currentYear = uniqueYears[0]; // Set tahun default ke tahun terbaru
+
+// DOM Elements (Pastikan ID ini sesuai dengan HTML Anda)
+const trendTableBody = document.querySelector('#trend-data-table tbody');
+const yearSelectChart = document.getElementById('year-select-chart');
+const yearSelectTable = document.getElementById('year-select-table');
+const priceChartCanvas = document.getElementById('priceLineChart');
+
+// Inisialisasi Chart.js
+let priceChart; 
+
+/**
+ * 🎨 Helper: Mengembalikan warna berdasarkan tren
+ * @param {string} trend 
+ * @returns {string} Tailwind CSS class
+ */
+function getTrendColor(trend) {
+    if (trend.toLowerCase().includes('uptrend') || trend.toLowerCase().includes('rally') || trend.toLowerCase().includes('rebound')) {
+        return 'text-emerald-400 font-semibold';
+    } else if (trend.toLowerCase().includes('downtrend') || trend.toLowerCase().includes('crash') || trend.toLowerCase().includes('koreksi') || trend.toLowerCase().includes('volatil')) {
+        return 'text-red-400 font-semibold';
+    } else {
+        return 'text-amber-400';
+    }
+}
+
+/**
+ * 📊 Fungsi untuk mengisi dan merender Line Chart
+ * @param {number|string} year - Bisa berupa tahun (number) atau string "all-time"
+ */
+function renderPriceChart(year) {
+    let dataToUse;
+    let labels;
+    let chartTitleYear;
+    let pointSize;
+
+    if (year === 'all-time') {
+        // Mode All Time: Gunakan semua data dan buat label Bulan & Tahun
+        dataToUse = priceData;
+        labels = dataToUse.map(d => `${d.month.substring(0, 3)} ${d.year}`); // Label disingkat
+        chartTitleYear = '2015-2025 (All Time)';
+        pointSize = 1; // Titik lebih kecil untuk data banyak
+    } else {
+        // Mode Per Tahun: Filter data dan gunakan Bulan sebagai label
+        dataToUse = priceData.filter(d => d.year === year);
+        labels = dataToUse.map(d => d.month);
+        chartTitleYear = year;
+        pointSize = 4;
+    }
+    
+    const highs = dataToUse.map(d => d.high);
+    const lows = dataToUse.map(d => d.low);
+
+    if (priceChart) {
+        priceChart.destroy();
+    }
+
+    priceChart = new Chart(priceChartCanvas, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: `Harga High Bulanan (${chartTitleYear})`,
+                    data: highs,
+                    borderColor: 'rgb(16, 185, 129)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: pointSize,
+                    pointHoverRadius: pointSize + 2,
+                },
+                {
+                    label: `Harga Low Bulanan (${chartTitleYear})`,
+                    data: lows,
+                    borderColor: 'rgb(107, 114, 128)',
+                    backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: pointSize,
+                    pointHoverRadius: pointSize + 2,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'Harga (USD)',
+                        color: '#D1D5DB'
+                    },
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.3)',
+                        borderColor: '#4B5563'
+                    },
+                    ticks: {
+                        color: '#D1D5DB'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: year === 'all-time' ? 'Bulan & Tahun (2015-2025)' : 'Bulan',
+                        color: '#D1D5DB'
+                    },
+                    ticks: {
+                        color: '#D1D5DB',
+                        maxRotation: 90,
+                        minRotation: 90,
+                        // Hanya lewati label X jika mode All Time agar tidak terlalu padat
+                        autoSkip: (year === 'all-time'), 
+                        maxTicksLimit: (year === 'all-time' ? 30 : 12) 
+                    },
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.3)',
+                        borderColor: '#4B5563'
+                    },
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#D1D5DB'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1F2937',
+                    titleColor: '#FFFFFF',
+                    bodyColor: '#D1D5DB',
+                }
+            }
+        }
+    });
+}
+
+/**
+ * 📋 Fungsi untuk mengisi Tabel Tren
+ * @param {number} year 
+ * (Tabel HANYA menangani filter per tahun, tidak ada 'all-time')
+ */
+function fillTrendTable(year) {
+    trendTableBody.innerHTML = '';
+    // Memfilter berdasarkan tahun yang ada di string 'monthYear'
+    const filteredRawData = rawData.filter(d => d.monthYear.includes(year.toString()));
+
+    filteredRawData.forEach(item => {
+        const row = trendTableBody.insertRow();
+        row.className = 'hover:bg-gray-800 transition duration-150';
+
+        // Kolom Month & Year
+        let cell = row.insertCell();
+        cell.className = 'px-3 py-2 whitespace-nowrap font-medium text-gray-200';
+        cell.textContent = item.monthYear;
+
+        // Kolom Tren
+        cell = row.insertCell();
+        cell.className = `px-3 py-2 whitespace-nowrap ${getTrendColor(item.trend)}`;
+        cell.textContent = item.trend;
+
+        // Kolom Deskripsi
+        cell = row.insertCell();
+        cell.className = 'px-3 py-2 text-gray-300';
+        cell.textContent = item.desc;
+
+        // Kolom Faktor
+        cell = row.insertCell();
+        cell.className = 'px-3 py-2 text-gray-400';
+        // Mengganti penekanan Markdown menjadi HTML (bold)
+        cell.innerHTML = item.factor.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+    });
+    
+    if (filteredRawData.length === 0) {
+        const row = trendTableBody.insertRow();
+        const cell = row.insertCell(0);
+        cell.colSpan = 4;
+        cell.className = 'px-3 py-4 text-center text-gray-400';
+        cell.textContent = `Tidak ada data tren yang tersedia untuk tahun ${year}.`;
+    }
+}
+
+/**
+ * 🔄 Fungsi utama untuk memuat data berdasarkan filter yang dipilih
+ * @param {number|string} value - Bisa berupa tahun (number) atau string "all-time"
+ */
+function loadDataForYear(value) {
+    // Tentukan apakah nilai adalah 'all-time' atau tahun (integer)
+    const isAllTime = value === 'all-time';
+    const year = isAllTime ? 'all-time' : parseInt(value);
+
+    // Sinkronkan nilai dropdown CHART (jika tidak ada opsi all-time di tabel, jangan sentuh)
+    if(yearSelectChart) yearSelectChart.value = value;
+    if(yearSelectTable && !isAllTime) yearSelectTable.value = year; // Tabel hanya bisa tahun
+    
+    // Render Chart (menerima 'all-time' atau tahun integer)
+    renderPriceChart(year);
+    
+    // Render Tabel (HANYA menerima tahun integer)
+    if (!isAllTime) {
+        fillTrendTable(year);
+    } else {
+        // Jika All Time dipilih di chart, set default table ke tahun terbaru
+        if(yearSelectTable) {
+            yearSelectTable.value = currentYear;
+            fillTrendTable(currentYear);
+        }
+    }
+}
+
+
+/* ======== Inisialisasi Komponen Local Data ======== */
+function initializeLocalData() {
+    // Pastikan elemen dropdown ada sebelum mencoba menginisialisasi
+    if (!yearSelectChart || !yearSelectTable) return; 
+
+    // 1. Isi Dropdown/Select Options
+    // Opsi 'all-time' sudah di-hardcode di HTML chart, kita hanya tambahkan tahun.
+    uniqueYears.forEach(year => {
+        // Tambahkan tahun ke Dropdown Chart (setelah 'all-time' yang di HTML)
+        const optionChart = document.createElement('option');
+        optionChart.value = year;
+        optionChart.textContent = year;
+        yearSelectChart.appendChild(optionChart);
+
+        // Tambahkan tahun ke Dropdown Table (semua tahun)
+        const optionTable = document.createElement('option');
+        optionTable.value = year;
+        optionTable.textContent = year;
+        yearSelectTable.appendChild(optionTable);
+    });
+
+    // 2. Set Default Value dan Muat Data Awal
+    // Default untuk Chart adalah "All Time"
+    yearSelectChart.value = 'all-time'; 
+    
+    // Default untuk Tabel adalah tahun terbaru
+    yearSelectTable.value = currentYear; 
+
+    // Muat data awal: Chart All Time, Tabel tahun terbaru
+    loadDataForYear('all-time'); // Muat chart All Time
+
+    // 3. Tambahkan Event Listeners untuk Dropdown
+    yearSelectChart.addEventListener('change', (e) => {
+        // Langsung kirim nilai (string 'all-time' atau tahun string)
+        loadDataForYear(e.target.value);
+    });
+
+    yearSelectTable.addEventListener('change', (e) => {
+        // Langsung kirim nilai tahun string, loadDataForYear akan mengonversinya
+        loadDataForYear(e.target.value);
+    });
+}
+
+// Panggil inisialisasi setelah DOM dimuat
+document.addEventListener('DOMContentLoaded', initializeLocalData);
+/* ========================================================================================= */
+/* ======== ⬆️ END LOCAL HISTORICAL DATA ANALYSIS FEATURE ⬆️ ======== */
+/* ========================================================================================= */
+
+
 
 </script>
 </body>
