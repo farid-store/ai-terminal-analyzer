@@ -1,168 +1,571 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Analisis Pasar Premium</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Market Dashboard — XAU / Heatmap / Calendar / Chat</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Minimal reset + modern UI CSS -->
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --card:#0f1113;
+      --muted:rgba(255,255,255,0.65);
+      --accent:#00b894;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 6px 18px rgba(3,6,12,0.6);
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body,#app{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, #060607 0%, #0b0b0c 100%);
+      color:#e6eef3;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Layout */
+    .container{
+      max-width:1300px;
+      margin:24px auto;
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1fr 390px;
+      gap:16px;
+      align-items:start;
+    }
+
+    /* Left column: charts */
+    .main-grid{
+      display:grid;
+      grid-template-rows: auto 320px 320px;
+      gap:16px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:12px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.03);
+      min-height: 120px;
+    }
+    .card h3{
+      margin:0 0 8px 0;
+      font-size:14px;
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    /* big chart */
+    .chart-wrap{
+      height:520px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .chart-box{
+      flex:1;
+      min-height:380px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* right column */
+    .sidebar{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
+    /* small widget placeholders inside cards */
+    .widget-full{
+      height:100%;
+      width:100%;
+      border-radius:10px;
+      overflow:hidden;
+      background:var(--card);
+    }
+
+    /* tradingview container common adjustments */
+    .tradingview-widget-container{ height:100%; width:100%; display:block; }
+    .tradingview-widget-container__widget{ height:100%; width:100%; }
+
+    /* tidy footer links (leave attribution visible but subtle) */
+    .attribution {
+      font-size:11px;
+      color:rgba(230,238,243,0.58);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      padding-top:6px;
+    }
+    .attribution a{ color:var(--muted); text-decoration:none; font-weight:600; }
+
+    /* Floating chat button */
+    .chat-fab{
+      position:fixed;
+      right:24px;
+      bottom:24px;
+      width:62px;
+      height:62px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--accent),#00d09c);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      cursor:pointer;
+      z-index:1200;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .chat-fab:hover{ transform:translateY(-3px); transition:0.15s; }
+
+    .chat-fab svg{ width:26px;height:26px; fill:#04221a; }
+
+    /* chat modal */
+    .chat-modal{
+      position:fixed;
+      right:24px;
+      bottom:100px;
+      width:380px;
+      max-width:calc(100% - 48px);
+      background:linear-gradient(180deg,#071013 0%, #081214 100%);
+      border-radius:12px;
+      box-shadow:0 20px 60px rgba(3,6,12,0.7);
+      z-index:1199;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .chat-header{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,0.02);
+    }
+    .chat-header h4{ margin:0; font-size:14px; color:#e6eef3 }
+    .chat-body{
+      padding:12px;
+      height:360px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+    }
+    .chat-footer{
+      padding:10px;
+      border-top:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .chat-input{
+      flex:1;
+      background:var(--glass);
+      border:none;
+      padding:10px 12px;
+      border-radius:10px;
+      color:inherit;
+      outline:none;
+    }
+    .btn-send{
+      padding:10px 12px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#0ea37f,#00b894);
+      border:none;
+      color:#021412;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    /* message bubbles */
+    .msg{ max-width:80%; padding:8px 12px; border-radius:10px; line-height:1.3; }
+    .msg.user{ align-self:flex-end; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); color:#e6eef3; }
+    .msg.bot{ align-self:flex-start; background:rgba(255,255,255,0.03); color:#e6eef3; }
+
+    /* responsiveness */
+    @media (max-width:1100px){
+      .container{ grid-template-columns: 1fr; padding:12px; }
+      .chart-wrap{ height:auto }
+    }
+  </style>
 </head>
 <body>
-
-    <header class="header">
-        <div class="header-content">
-            <h1>📈 Dashboard Market Intelligence</h1>
-            <p>Data Pasar Global Real-Time dengan Bantuan AI</p>
+  <div id="app">
+    <div class="container">
+      <!-- LEFT: main content -->
+      <div class="main-grid">
+        <!-- Top: Large Chart -->
+        <div class="card chart-wrap" aria-label="Main chart area">
+          <h3>XAU / USD — Advanced Chart</h3>
+          <div class="chart-box widget-full" id="chart-widget">
+            <!-- TradingView Advanced Chart embed (kept attribution) -->
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+              <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+              <div class="tradingview-widget-copyright" style="position: absolute; right: 8px; bottom: 8px; font-size:11px; opacity:0.9;">
+                <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a>
+                <span style="margin-left:6px">by TradingView</span>
+              </div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {
+              "allow_symbol_change": true,
+              "calendar": false,
+              "details": false,
+              "hide_side_toolbar": true,
+              "hide_top_toolbar": false,
+              "hide_legend": false,
+              "hide_volume": false,
+              "hotlist": false,
+              "interval": "D",
+              "locale": "en",
+              "save_image": true,
+              "style": "1",
+              "symbol": "OANDA:XAUUSD",
+              "theme": "dark",
+              "timezone": "Etc/UTC",
+              "backgroundColor": "#0F0F0F",
+              "gridColor": "rgba(242, 242, 242, 0.06)",
+              "watchlist": [],
+              "withdateranges": false,
+              "compareSymbols": [],
+              "studies": [],
+              "autosize": true
+            }
+              </script>
+            </div>
+          </div>
         </div>
-    </header>
 
-    <main class="dashboard-container">
-
-        <section class="ticker-tape-full-width">
-            <div class="widget-card ticker-tape-container">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                    {
-                        "symbols": [
-                            { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500 Index" },
-                            { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" },
-                            { "proName": "OANDA:XAUUSD", "title": "Gold" },
-                            { "proName": "IDX:COMPOSITE", "title": "IHSG" },
-                            { "proName": "FX_IDC:EURUSD", "title": "EUR/USD" }
-                        ],
-                        "colorTheme": "dark", "locale": "en", "largeChartUrl": "", "isTransparent": false,
-                        "showSymbolLogo": true, "displayMode": "adaptive"
-                    }
-                    </script>
-                    </div>
+        <!-- Middle row: Ticker + Stock heatmap -->
+        <div class="card" style="display:flex;gap:12px;align-items:stretch;">
+          <div style="flex:1; min-width:0;">
+            <h3>Ticker Tape</h3>
+            <div class="widget-full" style="height:120px;">
+              <div class="tradingview-widget-container" style="height:100%">
+                <div class="tradingview-widget-container__widget"></div>
+                <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                  <a href="https://www.tradingview.com/markets/" rel="noopener nofollow" target="_blank"><span class="blue-text">Ticker tape</span></a>
+                  <span style="margin-left:6px">by TradingView</span>
+                </div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                {
+                "symbols": [
+                  {"proName":"FOREXCOM:SPXUSD","title":"S&P 500 Index"},
+                  {"proName":"FOREXCOM:NSXUSD","title":"US 100 Cash CFD"},
+                  {"proName":"FX_IDC:EURUSD","title":"EUR to USD"},
+                  {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
+                  {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
+                  {"proName":"OANDA:XAUUSD","title":"Gold"},
+                  {"proName":"IDX:COMPOSITE","title":"IHSG"}
+                ],
+                "colorTheme":"dark",
+                "locale":"en",
+                "largeChartUrl":"",
+                "isTransparent":false,
+                "showSymbolLogo":true,
+                "displayMode":"adaptive"
+              }
+                </script>
+              </div>
             </div>
-        </section>
+          </div>
 
-        <section class="main-grid">
-            
-            <div class="widget-card chart-panel">
-                <h2>XAUUSD Live Chart</h2>
-                <div class="tradingview-widget-container chart-main-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                    {
-                        "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, 
-                        "hide_top_toolbar": false, "interval": "D", "locale": "en", "style": "1", 
-                        "symbol": "OANDA:XAUUSD", "theme": "dark", "timezone": "Etc/UTC", 
-                        "backgroundColor": "#171822", "gridColor": "rgba(242, 242, 242, 0.08)",
-                        "autosize": true
-                    }
-                    </script>
-                    </div>
+          <div style="width:360px; min-width:220px;">
+            <h3>Stock Heatmap</h3>
+            <div class="widget-full" style="height:120px;">
+              <div class="tradingview-widget-container" style="height:100%">
+                <div class="tradingview-widget-container__widget"></div>
+                <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                  <a href="https://www.tradingview.com/heatmap/stock/" rel="noopener nofollow" target="_blank"><span class="blue-text">Stock Heatmap</span></a>
+                  <span style="margin-left:6px">by TradingView</span>
+                </div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                {
+                "dataSource":"SPX500",
+                "blockSize":"market_cap_basic",
+                "blockColor":"change",
+                "grouping":"sector",
+                "locale":"en",
+                "symbolUrl":"",
+                "colorTheme":"dark",
+                "exchanges":[],
+                "hasTopBar":false,
+                "isDataSetEnabled":false,
+                "isZoomEnabled":true,
+                "hasSymbolTooltip":true,
+                "isMonoSize":false,
+                "width":"100%",
+                "height":"100%"
+              }
+                </script>
+              </div>
             </div>
-            
-            <div class="widget-card news-card">
-                <h2>📰 Top Stories</h2>
-                <div class="tradingview-widget-container news-widget">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
-                    {
-                        "displayMode": "regular", "feedMode": "all_symbols", "colorTheme": "dark",
-                        "isTransparent": false, "locale": "en", "width": "100%", "height": "100%"
-                    }
-                    </script>
-                    </div>
-            </div>
-            
-            <div class="widget-card calendar-card">
-                <h2>📅 Economic Calendar</h2>
-                <div class="tradingview-widget-container calendar-widget">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                    {
-                        "colorTheme": "dark", "isTransparent": false, "locale": "en",
-                        "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
-                        "importanceFilter": "-1,0,1", "width": "100%", "height": "100%"
-                    }
-                    </script>
-                    </div>
-            </div>
-
-            <div class="widget-card small-widget stock-heatmap-card">
-                <h2>Stock Heatmap</h2>
-                <div class="tradingview-widget-container heatmap-widget-content">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-                    { "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector",
-                    "locale": "en", "colorTheme": "dark", "hasTopBar": false, "isZoomEnabled": true,
-                    "hasSymbolTooltip": true, "width": "100%", "height": "100%" }
-                    </script>
-                    </div>
-            </div>
-
-            <div class="widget-card small-widget crypto-heatmap-card">
-                <h2>Crypto Heatmap</h2>
-                <div class="tradingview-widget-container heatmap-widget-content">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-                    { "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "24h_close_change|5",
-                    "locale": "en", "colorTheme": "dark", "hasTopBar": false, "isZoomEnabled": true,
-                    "hasSymbolTooltip": true, "width": "100%", "height": "100%" }
-                    </script>
-                    </div>
-            </div>
-
-            <div class="widget-card small-widget forex-rates-card">
-                <h2>Forex Cross Rates</h2>
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
-                    { "colorTheme": "dark", "isTransparent": false, "locale": "en",
-                    "currencies": [ "EUR", "USD", "JPY", "GBP", "IDR", "CNY" ],
-                    "backgroundColor": "#171822", "width": "100%", "height": "100%" }
-                    </script>
-                    </div>
-            </div>
-
-            <div class="widget-card small-widget forex-heatmap-card">
-                <h2>Forex Heatmap</h2>
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
-                    { "colorTheme": "dark", "isTransparent": false, "locale": "en",
-                    "currencies": [ "EUR", "USD", "JPY", "GBP", "IDR", "CNY" ],
-                    "backgroundColor": "#171822", "width": "100%", "height": "100%" }
-                    </script>
-                    </div>
-            </div>
-            
-        </section>
-
-    </main>
-
-    <button id="chat-button" class="chat-button" title="Chat dengan Gemini AI">
-        <i class="fas fa-robot"></i>
-    </button>
-
-    <div id="chat-popup" class="chat-popup hidden">
-        <div class="chat-header">
-            <h3>🤖 Gemini AI Assistant</h3>
-            <button id="close-chat" class="close-chat">&times;</button>
+          </div>
         </div>
-        <div class="chat-body" id="chat-body">
-            <div class="chat-message bot">Halo! Saya asisten analisis pasar bertenaga Gemini. Bagaimana saya bisa membantu Anda hari ini?</div>
+
+        <!-- Bottom row: Crypto heatmap + Forex cross rates large -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card">
+            <h3>Crypto Heatmap</h3>
+            <div class="widget-full" style="height:260px">
+              <div class="tradingview-widget-container" style="height:100%">
+                <div class="tradingview-widget-container__widget"></div>
+                <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                  <a href="https://www.tradingview.com/heatmap/crypto/" rel="noopener nofollow" target="_blank"><span class="blue-text">Crypto Heatmap</span></a>
+                  <span style="margin-left:6px">by TradingView</span>
+                </div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+                {
+                "dataSource":"Crypto",
+                "blockSize":"market_cap_calc",
+                "blockColor":"24h_close_change|5",
+                "locale":"en",
+                "symbolUrl":"",
+                "colorTheme":"dark",
+                "hasTopBar":false,
+                "isDataSetEnabled":false,
+                "isZoomEnabled":true,
+                "hasSymbolTooltip":true,
+                "isMonoSize":false,
+                "width":"100%",
+                "height":"100%"
+              }
+                </script>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Forex Cross Rates / Heatmap</h3>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div class="widget-full" style="height:120px">
+                <div class="tradingview-widget-container" style="height:100%">
+                  <div class="tradingview-widget-container__widget"></div>
+                  <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                    <a href="https://www.tradingview.com/markets/currencies/" rel="noopener nofollow" target="_blank"><span class="blue-text">Forex market</span></a>
+                    <span style="margin-left:6px">by TradingView</span>
+                  </div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+                  {
+                  "colorTheme":"dark",
+                  "isTransparent":false,
+                  "locale":"en",
+                  "currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","NZD","CNY","IDR"],
+                  "backgroundColor":"#0F0F0F",
+                  "width":550,
+                  "height":400
+                }
+                  </script>
+                </div>
+              </div>
+
+              <div class="widget-full" style="height:120px">
+                <div class="tradingview-widget-container" style="height:100%">
+                  <div class="tradingview-widget-container__widget"></div>
+                  <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                    <a href="https://www.tradingview.com/markets/currencies/cross-rates-overview-heat-map/" rel="noopener nofollow" target="_blank"><span class="blue-text">Forex Heatmap</span></a>
+                    <span style="margin-left:6px">by TradingView</span>
+                  </div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
+                  {
+                  "colorTheme":"dark",
+                  "isTransparent":false,
+                  "locale":"en",
+                  "currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","NZD","CNY","IDR"],
+                  "backgroundColor":"#0F0F0F",
+                  "width":550,
+                  "height":400
+                }
+                  </script>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="image-preview-container hidden" id="image-preview-container">
-            <img id="uploaded-image-preview" src="" alt="Preview Gambar" class="uploaded-image-preview">
-            <button class="remove-image-button" id="remove-image-button">&times;</button>
+
+      </div>
+
+      <!-- RIGHT: sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h3>Top Stories / Timeline</h3>
+          <div class="widget-full" style="height:240px;">
+            <div class="tradingview-widget-container" style="height:100%">
+              <div class="tradingview-widget-container__widget"></div>
+              <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                <a href="https://www.tradingview.com/news/top-providers/tradingview/" rel="noopener nofollow" target="_blank"><span class="blue-text">Top stories</span></a>
+                <span style="margin-left:6px">by TradingView</span>
+              </div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+              {
+              "displayMode":"regular",
+              "feedMode":"all_symbols",
+              "colorTheme":"dark",
+              "isTransparent":false,
+              "locale":"en",
+              "width":400,
+              "height":550
+            }
+              </script>
+            </div>
+          </div>
         </div>
-        <div class="chat-input">
-            <label for="image-upload" class="upload-button" title="Unggah Gambar">
-                <i class="fas fa-camera"></i>
-                <input type="file" id="image-upload" accept="image/*" class="hidden-file-input">
-            </label>
-            <input type="text" id="chat-input-text" placeholder="Tanyakan tentang XAUUSD, pasar, atau gambar ini...">
-            <button id="send-chat-message"><i class="fas fa-paper-plane"></i></button>
+
+        <div class="card">
+          <h3>Economic Calendar</h3>
+          <div class="widget-full" style="height:240px;">
+            <div class="tradingview-widget-container" style="height:100%">
+              <div class="tradingview-widget-container__widget"></div>
+              <div class="tradingview-widget-copyright" style="opacity:0.9;font-size:11px;">
+                <a href="https://www.tradingview.com/economic-calendar/" rel="noopener nofollow" target="_blank"><span class="blue-text">Economic Calendar</span></a>
+                <span style="margin-left:6px">by TradingView</span>
+              </div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+              {
+              "colorTheme":"dark",
+              "isTransparent":false,
+              "locale":"en",
+              "countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
+              "importanceFilter":"-1,0,1",
+              "width":400,
+              "height":550
+            }
+              </script>
+            </div>
+          </div>
         </div>
+
+        <div class="card" style="text-align:center; padding:16px;">
+          <h3>Quick actions</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <button onclick="focusChart()" style="padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);cursor:pointer;color:var(--muted)">Focus XAU Chart</button>
+            <button onclick="openChat()" style="padding:10px;border-radius:8px;border:none;background:linear-gradient(180deg,#0ea37f,#00b894);cursor:pointer;color:#021412;font-weight:700">Open AI Chat</button>
+            <a href="https://www.tradingview.com/" target="_blank" style="display:inline-block;padding:10px;border-radius:8px;text-decoration:none;background:rgba(255,255,255,0.03);color:var(--muted)">Visit TradingView</a>
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center;padding:12px;">
+          <small style="color:var(--muted)">Dashboard dibuat — pastikan Anda mematuhi T&Cs TradingView untuk embed dan lisensi.</small>
+        </div>
+      </aside>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@google/genai@0.15.0/dist/index.min.js"></script>
-    <script src="script.js"></script>
+    <!-- Floating chat FAB -->
+    <div class="chat-fab" id="chatFab" title="Open chat (Gemini)">
+      <!-- simple chat icon -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 1.8.7 3.5 1.9 4.9L5 20l4.3-1.1C10.6 19.4 11.3 19.5 12 19.5c5 0 9-3.6 9-8.5S17 3 12 3z"/></svg>
+    </div>
+
+    <!-- Chat modal (hidden initially) -->
+    <div class="chat-modal" id="chatModal" style="display:none" role="dialog" aria-modal="true" aria-label="AI Chat">
+      <div class="chat-header">
+        <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(180deg,#00c08a,#007b5a);display:flex;align-items:center;justify-content:center;color:#021412;font-weight:800">AI</div>
+        <div style="flex:1">
+          <h4>Gemini AI Chat</h4>
+          <small style="color:var(--muted)">Enter your prompts — messages sent to your backend endpoint.</small>
+        </div>
+        <button onclick="closeChat()" title="Close" style="background:none;border:none;color:var(--muted);cursor:pointer;font-weight:700">✕</button>
+      </div>
+
+      <div class="chat-body" id="chatBody" aria-live="polite"></div>
+
+      <div class="chat-footer">
+        <input id="chatInput" class="chat-input" placeholder="Tanyakan ke AI (contoh: analisa XAU hari ini)"/>
+        <button class="btn-send" id="sendBtn">Kirim</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS -->
+  <script>
+    // Small helpers for chat UI
+    const chatFab = document.getElementById('chatFab');
+    const chatModal = document.getElementById('chatModal');
+    const chatBody = document.getElementById('chatBody');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function openChat(){
+      chatModal.style.display = 'flex';
+      chatFab.style.display = 'none';
+      chatInput.focus();
+    }
+    function closeChat(){
+      chatModal.style.display = 'none';
+      chatFab.style.display = 'flex';
+    }
+    chatFab.addEventListener('click', openChat);
+    function focusChart(){ window.scrollTo({top:0,behavior:'smooth'}) }
+
+    // append messages
+    function appendMessage(who, text){
+      const d = document.createElement('div');
+      d.className = 'msg ' + (who === 'user' ? 'user' : 'bot');
+      d.textContent = text;
+      chatBody.appendChild(d);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Handle send -> call backend /api/gemini (example)
+    // IMPORTANT: For security, call Gemini/RPC from your server (backend).
+    // Frontend calls this endpoint which must attach your actual API key on server side.
+    // Example backend route: POST /api/gemini { "prompt": "...." } -> your server calls Gemini API and returns {reply: "..."}
+    sendBtn.addEventListener('click', async ()=>{
+      const v = chatInput.value.trim();
+      if(!v) return;
+      appendMessage('user', v);
+      chatInput.value = '';
+      appendMessage('bot', 'Menanyakan ke AI...');
+
+      try {
+        // change URL to your backend that implements the call to Gemini
+        const res = await fetch('/api/gemini', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ prompt: v })
+        });
+        if(!res.ok){
+          throw new Error('Server error: ' + res.status);
+        }
+        const data = await res.json();
+        // Expecting { reply: "..." }
+        // If streaming is desired, implement SSE or WebSocket on server side
+        // For now we display plain reply
+        // Remove the "Menanyakan ke AI..." placeholder (last bot message)
+        const last = chatBody.querySelectorAll('.msg.bot');
+        if(last && last.length) last[last.length-1].remove();
+        appendMessage('bot', data.reply || '[Tidak ada jawaban dari server]');
+      } catch(err){
+        // remove placeholder
+        const last = chatBody.querySelectorAll('.msg.bot');
+        if(last && last.length) last[last.length-1].remove();
+        appendMessage('bot', 'Gagal berkomunikasi dengan server: ' + err.message);
+      }
+    });
+
+    // send on Enter
+    chatInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // Accessibility: close chat with Esc
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && chatModal.style.display === 'flex') closeChat();
+    });
+  </script>
 </body>
 </html>
