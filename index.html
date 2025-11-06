@@ -49,14 +49,11 @@
 <body class="bg-gray-950 text-slate-100 antialiased font-sans">
 
 <script>
-    // 🛑 KUNCI API DIHAPUS. Endpoint ini akan merujuk ke Vercel Function: api/gemini-chat.js
-    // MENGUBAH LOGIKA: AKSES LANGSUNG DARI JAVASCRIPT
-    
     // =========================================================================
-    // ⚠️ KRITIS: GANTI 'YOUR_GEMINI_API_KEY' DENGAN KUNCI API ANDA YANG SEBENARNYA!
-    // KUNCI INI AKAN TERLIHAT PUBLIK DI BROWSER PENGGUNA!
-    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
-    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; // Base URL
+    // 🛑 KUNCI API ANDA DIMASUKKAN DI SINI. INI SANGAT TIDAK AMAN!
+    // HANYA UNTUK DEMO/PRIVATE TESTING.
+    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
+    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
 
     // Model IDs
@@ -338,7 +335,7 @@
     AI
 </button>
 
-<div id="chatModal" class="fixed right-8 bottom-8 w-[450px] max-w-[calc(100%-48px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
+<div id="chatModal" class="fixed right-8 bottom-8 w-[360px] max-w-[calc(100%-48px)] bg-gray-900 border border-emerald-600/50 rounded-2xl shadow-2xl z-[901] hidden flex-col overflow-hidden transform transition duration-300">
     <div class="flex items-center gap-3 p-4 border-b border-gray-800 bg-gray-800/50">
         <div class="w-10 h-10 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-lg">G</div>
         <div>
@@ -352,12 +349,12 @@
         </button>
     </div>
 
-    <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[400px] overflow-y-auto bg-gray-950/70">
+    <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[380px] overflow-y-auto bg-gray-950/70">
         <div class="self-start max-w-[85%]">
             <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span> Anda sekarang mengakses API Gemini **secara langsung dari browser** (berisiko).
+                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span>
             </div>
         </div>
     </div>
@@ -376,7 +373,7 @@
             </button>
         </div>
 
-        <div id="chatNotes" class="mt-3 text-xs text-red-500 font-bold">⚠️ PERINGATAN: Kunci API Gemini Anda sekarang terekspos langsung di browser! Gunakan dengan hati-hati.</div>
+        <div id="chatNotes" class="mt-3 text-xs text-red-500 font-bold">⚠️ PERINGATAN: Kunci API terekspos langsung di browser! Gunakan dengan hati-hati.</div>
     </div>
 </div>
 
@@ -491,7 +488,8 @@
             } else {
                  bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
                  bubble.style.whiteSpace = 'pre-wrap';
-                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'); // Handle basic markdown for bold/newlines
+                 // Mengganti Markdown sederhana ke HTML
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
             }
         }
         
@@ -518,13 +516,6 @@
         imageInput.disabled = disable;
     }
 
-    function removeLastBotBubble() {
-        const botBubbles = chatBody.querySelectorAll('.self-start .bg-gray-700.animate-pulse');
-        if (botBubbles && botBubbles.length) {
-            botBubbles[botBubbles.length - 1].remove();
-        }
-    }
-
     /* ======== Gemini Direct API Request (CORE LOGIC) ======== */
     async function callGemini(bodyParts, type) {
         disableInputs(true); // Disable inputs while processing
@@ -534,8 +525,8 @@
         let thinkingBubble = appendMsg('bot', loadingMessage);
 
         // Kunci API harus ada
-        if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU') {
-            thinkingBubble.textContent = "❌ ERROR: GEMINI_API_KEY tidak dikonfigurasi. Harap periksa kode Anda!";
+        if (!GEMINI_API_KEY) {
+            thinkingBubble.textContent = "❌ ERROR: GEMINI_API_KEY tidak dikonfigurasi.";
             thinkingBubble.classList.remove('animate-pulse', 'bg-gray-700', 'text-slate-400');
             thinkingBubble.classList.add('bg-red-900', 'text-red-300');
             disableInputs(false);
@@ -562,7 +553,7 @@
             
             if (!res.ok) {
                 const errorData = await res.json();
-                const errorMessage = `API Error ${res.status}: ${errorData.error.message || 'Unknown API Error'}`;
+                const errorMessage = `API Error ${res.status}: ${errorData.error?.message || 'Unknown API Error'}`;
                 appendMsg('bot', `<span class="text-red-400 font-semibold">${errorMessage}</span>`);
                 return;
             }
@@ -576,7 +567,7 @@
                 appendMsg('bot', responseText);
             } else {
                 // Tangani kasus di mana respons tidak memiliki teks
-                appendMsg('bot', "Maaf, AI tidak memberikan respons teks. Mungkin ada masalah filter keamanan.");
+                appendMsg('bot', "Maaf, AI tidak memberikan respons teks. Mungkin ada masalah filter keamanan atau API tidak merespons.");
             }
             
         } catch (e) {
@@ -596,6 +587,7 @@
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
+                // Ambil hanya string Base64 (setelah koma)
                 const base64Data = reader.result.split(',')[1];
                 resolve({
                     inlineData: {
@@ -633,7 +625,14 @@
         appendMsg('user', { imagePreview, fileName: file.name }, true);
         
         // Buat generative part dari file
-        const imagePart = await fileToGenerativePart(file);
+        try {
+             var imagePart = await fileToGenerativePart(file);
+        } catch (error) {
+             appendMsg('bot', `<span class="text-red-400 font-semibold">❌ Error saat membaca file: ${error.message}</span>`);
+             imageInput.value = '';
+             sendImageBtn.disabled = true;
+             return;
+        }
 
         // Siapkan body API: gambar + teks (jika ada)
         const bodyParts = [imagePart];
@@ -657,7 +656,7 @@
     // Tombol Kirim untuk pesan teks
     sendBtn.addEventListener('click', handleSend);
     messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleSend();
+        if (e.key === 'Enter' && !messageInput.disabled) handleSend();
     });
 
     // Tombol Kirim Gambar
@@ -665,7 +664,8 @@
 
     // Aktifkan tombol Kirim Gambar saat file dipilih
     imageInput.addEventListener('change', () => {
-        sendImageBtn.disabled = !imageInput.files.length;
+        // Matikan tombol jika tidak ada file atau disabled karena proses lain
+        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
     });
 
     // Pastikan tombol kirim gambar mati saat modal dimuat
