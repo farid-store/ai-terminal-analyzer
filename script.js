@@ -13,7 +13,8 @@ const removeImageBtn = document.getElementById('remove-image-btn');
 
 let uploadedImageBase64 = null;
 let uploadedImageMimeType = null;
-let conversationHistory = []; // Untuk Multi-Turn (Riwayat Obrolan)
+// Riwayat obrolan untuk menjaga konteks (Multi-Turn Conversation)
+let conversationHistory = []; 
 
 // --- FUNGSI UTAMA ---
 
@@ -21,24 +22,23 @@ function displayMessage(text, sender) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', `${sender}-message`);
     
-    // Menggunakan white-space: pre-wrap di CSS untuk menampilkan format teks Gemini (seperti Markdown dasar)
+    // Menggunakan textContent agar Markdown/HTML dari respons Gemini aman ditampilkan
     messageElement.textContent = text; 
     
     chatBox.appendChild(messageElement);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Konversi File Gambar ke Base64
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]); // Ambil hanya string Base64
+        // Ambil hanya string Base64 (setelah koma)
+        reader.onload = () => resolve(reader.result.split(',')[1]); 
         reader.onerror = error => reject(error);
         reader.readAsDataURL(file);
     });
 }
 
-// Tambahkan pesan ke riwayat obrolan
 function addToHistory(text, role) {
     conversationHistory.push({
         role: role,
@@ -46,7 +46,7 @@ function addToHistory(text, role) {
     });
 }
 
-// --- HANDLER GAMBAR ---
+// --- HANDLER GAMBAR (MULTIMODAL) ---
 
 uploadBtn.addEventListener('click', () => {
     imageUpload.click(); // Memicu klik pada input file tersembunyi
@@ -63,7 +63,6 @@ imageUpload.addEventListener('change', async (e) => {
             imagePreview.src = URL.createObjectURL(file);
             imagePreviewContainer.style.display = 'flex';
             
-            // Beri notifikasi ke pengguna
             displayMessage(`Gambar ${file.name} telah diunggah. Silakan ajukan pertanyaan terkait chart ini.`, 'gemini');
 
         } catch (error) {
@@ -87,16 +86,19 @@ inputForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userText = userInput.value.trim();
     if (userText === '' && !uploadedImageBase64) return;
-
-    // 1. Tampilkan pesan pengguna dan tambahkan ke riwayat
+    
+    // 1. Tampilkan pesan pengguna
     displayMessage(userText, 'user');
+    
+    // 2. Tambahkan pesan pengguna ke riwayat untuk persiapan payload
+    // Jika ada gambar, kita akan menambahkan 'parts' gambar ke pesan ini nanti.
     addToHistory(userText, 'user');
     
-    // 2. Persiapan Payload untuk Gemini
+    // 3. Persiapan Payload untuk Gemini
     const contents = [...conversationHistory];
     
     if (uploadedImageBase64) {
-        // Jika ada gambar, tambahkan gambar ke bagian parts dari pesan pengguna terakhir
+        // Jika ada gambar, tambahkan objek gambar (Base64) ke dalam 'parts' dari pesan pengguna terakhir
         const lastUserMessage = contents[contents.length - 1];
         lastUserMessage.parts.unshift({
             inlineData: {
@@ -105,11 +107,11 @@ inputForm.addEventListener('submit', async (e) => {
             }
         });
         
-        // Hapus gambar setelah dikirim
+        // Bersihkan gambar setelah berhasil ditambahkan ke payload
         removeImageBtn.click();
     }
     
-    // 3. Tampilkan pesan loading
+    // 4. Tampilkan pesan loading
     const loadingMessage = document.createElement('div');
     loadingMessage.classList.add('message', 'gemini-message');
     loadingMessage.textContent = 'Gemini sedang menganalisis...';
@@ -141,8 +143,8 @@ inputForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error('Error memanggil Gemini API:', error);
         chatBox.removeChild(loadingMessage);
-        const errorMessage = 'Maaf, terjadi kesalahan saat menghubungi Gemini. Pastikan API Key Anda benar dan aman.';
+        const errorMessage = 'Maaf, terjadi kesalahan saat menghubungi Gemini. Periksa konsol untuk detail error.';
         displayMessage(errorMessage, 'gemini');
-        addToHistory(errorMessage, 'model'); // Tambahkan error ke riwayat (opsional)
+        addToHistory(errorMessage, 'model'); // Tambahkan error ke riwayat
     }
 });
