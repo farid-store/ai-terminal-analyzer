@@ -37,15 +37,13 @@
 <body class="bg-gray-950 text-slate-100 antialiased font-sans">
 
 <script>
-    // === YOUR GEMINI / GOOGLE API KEY (PUBLIC IN JS) ===
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU";
-    // === MODEL IDs (Adjust if needed for specific Gemini versions) ===
-    const TEXT_MODEL = "gemini-2.5-flash"; // Modern model for text
-    const MULTIMODAL_MODEL = "gemini-2.5-flash"; // Unified model for multimodal
-    // Upstream endpoint base (Google Generative-style)
-    const GENERATIVE_BASE = "https://generative.googleapis.com/v1beta";
-    // The Gemini models use a different endpoint for text/multimodal than the older Bison models
-    const GEMINI_ENDPOINT = (model) => `${GENERATIVE_BASE}/models/${encodeURIComponent(model)}:generateContent`;
+    // 🛑 PENTING: KUNCI API DIHAPUS DARI SINI UNTUK KEAMANAN & MENGATASI CORS
+    // Asumsi: Semua permintaan akan diarahkan ke Server Proxy
+    const PROXY_ENDPOINT = "/api/gemini-chat"; // Ini harus disiapkan di Backend Anda
+    
+    // Model IDs
+    const TEXT_MODEL = "gemini-2.5-flash"; 
+    const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
 </script>
 
 <header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
@@ -145,6 +143,7 @@
     </div>
 
     <div class="col-center space-y-6">
+        
         <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[500px]">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-lg font-bold text-slate-200">Stock Heatmap — Sector View (S&P 500)</h3>
@@ -159,6 +158,28 @@
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
                     {
                         "dataSource": "SPX500", "blockSize": "market_cap_basic", "blockColor": "change", "grouping": "sector", "locale": "en", "symbolUrl": "", "colorTheme": "dark", "exchanges": [], "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "isMonoSize": false, "width": "100%", "height": "100%"
+                    }
+                    </script>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-[400px]">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-slate-200">Forex Heatmap — Currency Strength</h3>
+                <div class="text-sm text-gray-400">Real-time Comparison</div>
+            </div>
+            <div class="h-[320px] rounded-xl overflow-hidden border border-gray-700">
+                <div class="tradingview-widget-container" style="height:100%">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <div class="tradingview-widget-copyright" style="position:absolute; right:8px; bottom:8px; font-size:11px; opacity:0.95; z-index:10;">
+                        <a href="https://www.tradingview.com/markets/currencies/cross-rates-overview-heat-map/" rel="noopener nofollow" target="_blank"><span class="text-emerald-400">Forex Heatmap</span></a><span class="text-slate-500"> by TradingView</span>
+                    </div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
+                    {
+                        "colorTheme": "dark", "isTransparent": false, "locale": "en", 
+                        "currencies": ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "NZD", "CNY", "IDR"], 
+                        "backgroundColor": "#0D1113", "width": "100%", "height": "100%"
                     }
                     </script>
                 </div>
@@ -303,7 +324,7 @@
         <div class="w-10 h-10 rounded-full bg-emerald-500 text-black font-bold flex items-center justify-center text-lg">G</div>
         <div>
             <div class="text-base font-semibold text-slate-100">Gemini AI Chat</div>
-            <div class="text-xs text-emerald-400">Analisis Teks & Gambar (Chart)</div>
+            <div class="text-xs text-emerald-400">Analisis Teks & Gambar</div>
         </div>
         <button id="closeChat" class="ml-auto text-slate-400 hover:text-white transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -314,7 +335,11 @@
 
     <div id="chatBody" class="p-4 custom-scroll flex flex-col gap-3 h-[400px] overflow-y-auto bg-gray-950/70">
         <div class="self-start max-w-[85%]">
-            <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis teknikal!</div>
+            <div class="px-4 py-3 rounded-lg bg-gray-800 text-slate-200 text-sm">
+                Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
+                <br><br>
+                <span class="text-red-400 font-semibold">⚠️ NOTE: Chat ini akan error (CORS) jika Anda belum menyiapkan Backend Proxy di: <code class="bg-gray-900 px-1 rounded text-xs">${PROXY_ENDPOINT}</code></span>
+            </div>
         </div>
     </div>
 
@@ -332,12 +357,12 @@
             </button>
         </div>
 
-        <div id="chatNotes" class="mt-3 text-xs text-gray-500">Note: Gunakan `gemini-2.5-flash` untuk multimodal. Periksa konsol untuk error CORS jika request gagal.</div>
+        <div id="chatNotes" class="mt-3 text-xs text-gray-500">PENTING: Anda harus menyiapkan <span class="text-emerald-400">Backend Proxy</span> di alamat <span class="text-emerald-400">/api/gemini-chat</span> untuk mengatasi CORS dan menyembunyikan API Key.</div>
     </div>
 </div>
 
 <script>
-    /* ======== UI: Tabs ======== */
+    /* ======== UI: Tabs & Chart Symbol (Tidak Berubah) ======== */
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabStoriesBtn = document.getElementById('tabStoriesBtn');
     const tabNews = document.getElementById('tabNews');
@@ -361,35 +386,28 @@
         setActiveTab(tabStories, tabNews);
         setActiveBtn(tabStoriesBtn, tabNewsBtn);
     });
-    // Set initial active button style
     setActiveBtn(tabNewsBtn, tabStoriesBtn);
 
 
-    /* ======== Chart symbol switch (reload advanced chart) ======== */
     const applySymbol = document.getElementById('applySymbol');
     applySymbol.addEventListener('click', () => {
         const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
         const container = document.querySelector('#advancedChart .tradingview-widget-container');
         
-        // Remove old script and container children
         let oldScript = document.getElementById('tv-advanced-script');
         if (oldScript) oldScript.remove();
         
-        // Clear all children except the copyright notice
         Array.from(container.children).forEach(child => {
             if (!child.classList.contains('tradingview-widget-copyright')) {
                 child.remove();
             }
         });
 
-        // Re-add the widget placeholder
         const widgetPlaceholder = document.createElement('div');
         widgetPlaceholder.className = 'tradingview-widget-container__widget';
         widgetPlaceholder.style.cssText = 'height:calc(100% - 32px);width:100%';
         container.insertBefore(widgetPlaceholder, container.querySelector('.tradingview-widget-copyright'));
 
-
-        // Create new script tag with updated symbol JSON
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.async = true;
@@ -400,13 +418,12 @@
             "allow_symbol_change": true, "calendar": false, "details": false, "hide_side_toolbar": true, "hide_top_toolbar": false, "hide_legend": false, "hide_volume": false, "hotlist": false, "interval": "D", "locale": "en", "save_image": true, "style": "1", "symbol": sym, "theme": "dark", "timezone": "Etc/UTC",
             "backgroundColor": "#0D1113", "gridColor": "rgba(242, 242, 242, 0.08)", "watchlist": [], "withdateranges": false, "compareSymbols": [], "studies": [], "autosize": true
         };
-        // TradingView requires the JSON directly inside the script tag's content
         script.textContent = JSON.stringify(config, null, 2); 
         
         container.appendChild(script);
     });
 
-    /* ======== Chat UI show/hide ======== */
+    /* ======== Chat UI show/hide (Tidak Berubah) ======== */
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -421,7 +438,6 @@
     function showChat(){ 
         chatModal.classList.remove('hidden'); 
         chatFab.classList.add('hidden'); 
-        // Animate modal appearance
         setTimeout(() => {
             chatModal.style.transform = 'translateY(0) scale(1)';
             messageInput.focus(); 
@@ -430,12 +446,9 @@
     function hideChat(){ 
         chatModal.classList.add('hidden'); 
         chatFab.classList.remove('hidden'); 
-        // Reset animation state (optional, for smoother re-opening)
         chatModal.style.transform = '';
     }
-    // Initial state for animation
     chatModal.style.transform = 'translateY(50px) scale(0.95)';
-
 
     chatFab.addEventListener('click', showChat);
     openChatBtnHeader.addEventListener('click', showChat);
@@ -452,19 +465,16 @@
         if(who === 'user'){
             bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
         } else {
-            // Apply different style for thinking indicator
             if(content === '(AI is thinking...)' || content === '(AI analyzing image...)') {
                  bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
                  bubble.textContent = content;
             } else {
                  bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-                 // For bot replies, use pre-wrap for better formatting (like bullet points)
                  bubble.style.whiteSpace = 'pre-wrap';
                  bubble.textContent = content;
             }
         }
         
-        // Add image preview if it's a user image message
         if (isImage) {
              const imgElement = document.createElement('img');
              imgElement.src = content.imagePreview;
@@ -474,12 +484,11 @@
              bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`;
         }
 
-
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);
         chatBody.scrollTop = chatBody.scrollHeight;
 
-        return bubble; // Return the bubble element for easy reference (e.g., to remove loading state)
+        return bubble; 
     }
 
     function removeLastBotBubble() {
@@ -490,33 +499,32 @@
     }
 
 
-    /* ======== Gemini request (text) ======== */
+    /* ======== Gemini request (text) (DIREVISI UNTUK PROXY) ======== */
     async function callGeminiText(prompt){
         let thinkingBubble = appendMsg('bot','(AI is thinking...)');
         try {
-            const url = GEMINI_ENDPOINT(TEXT_MODEL);
+            // Mengirim permintaan ke server proxy lokal, bukan langsung ke Google
+            const url = PROXY_ENDPOINT; 
 
             const body = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                config: { temperature: 0.2, maxOutputTokens: 512 }
+                model: TEXT_MODEL,
+                type: 'text',
+                prompt: prompt
             };
 
             const res = await fetch(url, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': GEMINI_API_KEY // Use header for key for modern endpoint
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
             if(!res.ok){
-                const errorData = await res.json();
-                throw new Error(`Upstream error ${res.status}: ${errorData.error.message || JSON.stringify(errorData)}`);
+                const errorText = await res.text();
+                throw new Error(`Proxy/Server error ${res.status}: ${errorText || 'Unknown error'}`);
             }
 
             const j = await res.json();
-            let reply = j.candidates?.[0]?.content?.parts?.[0]?.text || 'No valid response content.';
+            let reply = j.text || 'No valid response content from proxy.';
             
             // Update the thinking bubble
             thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
@@ -529,51 +537,45 @@
 
         } catch (err){
             removeLastBotBubble();
-            appendMsg('bot', `Error: ${err.message}\n\nPeriksa konsol. Jika ini CORS error, gunakan proxy backend.`);
+            appendMsg('bot', `Error: ${err.message}\n\nPerlu diatasi: Siapkan **Backend Proxy** di ${PROXY_ENDPOINT} untuk mengatasi CORS!`);
             console.error(err);
             throw err;
         }
     }
 
-    /* ======== GEMINI IMAGE ANALYSIS ======== */
+    /* ======== GEMINI IMAGE ANALYSIS (DIREVISI UNTUK PROXY) ======== */
     async function callGeminiImage(file, userNote = ''){
         const base64 = await toBase64(file);
         let thinkingBubble = appendMsg('bot','(AI analyzing image...)');
         
         try {
-            const url = GEMINI_ENDPOINT(MULTIMODAL_MODEL);
-
+            // Mengirim permintaan ke server proxy lokal, bukan langsung ke Google
+            const url = PROXY_ENDPOINT; 
             const mimeType = file.type;
 
-            const prompt = userNote || 'Please analyze this chart for candlestick patterns, supports/resistances, trend direction, and any notable signals. Return a concise, actionable market analysis (bullet points).';
-
             const body = {
-                contents: [{ 
-                    role: "user", 
-                    parts: [
-                        { text: prompt },
-                        { inlineData: { mimeType: mimeType, data: base64 } }
-                    ]
-                }],
-                config: { temperature: 0.2, maxOutputTokens: 1024 }
+                model: MULTIMODAL_MODEL,
+                type: 'image',
+                prompt: userNote || 'Please analyze this chart for candlestick patterns, supports/resistances, trend direction, and any notable signals. Return a concise, actionable market analysis (bullet points).',
+                imageData: {
+                    mimeType: mimeType,
+                    data: base64
+                }
             };
 
             const res = await fetch(url, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': GEMINI_API_KEY // Use header for key for modern endpoint
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
             if(!res.ok){
-                const errorData = await res.json();
-                throw new Error(`Upstream error ${res.status}: ${errorData.error.message || JSON.stringify(errorData)}`);
+                const errorText = await res.text();
+                throw new Error(`Proxy/Server error ${res.status}: ${errorText || 'Unknown error'}`);
             }
 
             const j = await res.json();
-            let reply = j.candidates?.[0]?.content?.parts?.[0]?.text || 'No valid response content.';
+            let reply = j.text || 'No valid response content from proxy.';
 
             // Update the thinking bubble
             thinkingBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
@@ -586,7 +588,7 @@
 
         } catch(err){
             removeLastBotBubble();
-            appendMsg('bot', `Error: ${err.message}\n\nPeriksa konsol. Pastikan model yang digunakan mendukung input multimodal.`);
+            appendMsg('bot', `Error: ${err.message}\n\nPerlu diatasi: Siapkan **Backend Proxy** di ${PROXY_ENDPOINT} untuk mengatasi CORS!`);
             console.error(err);
             throw err;
         }
@@ -596,7 +598,6 @@
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-                // Remove the data:*/*;base64, prefix
                 const res = reader.result;
                 const comma = res.indexOf(',');
                 const base64 = comma >= 0 ? res.slice(comma + 1) : res;
@@ -628,21 +629,16 @@
         const f = imageInput.files && imageInput.files[0];
         if(!f){ alert('Pilih gambar terlebih dahulu'); return; }
 
-        // Read the image data URL for local preview before sending
         const reader = new FileReader();
         reader.onload = async (e) => {
             const imagePreview = e.target.result;
-            // Display user message with image preview
             appendMsg('user', { imagePreview, fileName: f.name }, true); 
             
-            // The prompt/note is taken from the input field if available, then cleared
             const userNote = messageInput.value.trim();
             messageInput.value = '';
 
             try {
-                // Call the Gemini Image analysis function
                 await callGeminiImage(f, userNote);
-                // Clear file input after successful send
                 imageInput.value = '';
             } catch(e){}
         };
