@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Market Dashboard — Data Analysis, Charts, Heatmaps, News, Gemini AI Chat</title>
+    <title>Market Dashboard — Data Analysis, Charts, Heatmaps, News, Stories, Gemini AI Chat</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -47,22 +47,6 @@
         @media (min-width: 1101px) {
             .col-center { min-height: 900px; } 
         }
-
-        /* 💡 UI FIX: Simplify AI Chatbox Input */
-        #chatModal #chatInputArea {
-            display: flex;
-            flex-direction: column; 
-            gap: 8px; 
-        }
-        #chatModal #chatInputArea .flex {
-            gap: 8px;
-        }
-        #chatModal #imageInputContainer {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
     </style>
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased font-sans">
@@ -74,7 +58,6 @@
     const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
 
-    // Model IDs
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
     let chartInstance = null; // Global variable for Chart.js instance
@@ -233,13 +216,11 @@
     </div>
 
     <aside class="right-col bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl flex flex-col">
-        
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold">Market Analysis</h3>
             <div class="flex gap-2 p-1 bg-gray-800 rounded-lg">
                 <button id="tabNewsBtn" class="px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-sm font-medium transition duration-200">News</button>
                 <button id="tabStoriesBtn" class="px-3 py-1.5 rounded-md hover:bg-gray-700 text-sm font-medium transition duration-200">Stories</button>
-                <button id="tabDataBtn" class="px-3 py-1.5 rounded-md hover:bg-gray-700 text-sm font-medium transition duration-200">Data</button>
             </div>
         </div>
 
@@ -249,11 +230,6 @@
                     <div class="text-sm text-slate-200 font-semibold">US CPI higher than expected</div>
                     <div class="text-xs text-emerald-400 mt-1">Implication: USD strength; gold reacts.</div>
                     <div class="text-xs text-gray-500 mt-2">Apr 10, 2025</div>
-                </div>
-                <div class="p-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg border border-gray-700/50 transition cursor-pointer">
-                    <div class="text-sm text-slate-200 font-semibold">Fed holds rates steady</div>
-                    <div class="text-xs text-amber-400 mt-1">Market expects data-driven changes.</div>
-                    <div class="text-xs text-gray-500 mt-2">Mar 22, 2025</div>
                 </div>
                 </div>
 
@@ -265,32 +241,7 @@
                 </div>
                 </div>
             
-            <div id="tabData" class="hidden space-y-4 flex-1 flex-col">
-                <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                    <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">Upload CSV File (Open/High/Low/Close Data)</label>
-                    <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
-                </div>
-
-                <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
-                    <label for="yearSelector" class="block text-sm font-medium text-slate-300">Pilih Tahun Analisis:</label>
-                    <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        <option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>
-                        <option value="all_daily">Semua Tahun (Rata-rata Harian)</option>
-                    </select>
-                    
-                    <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
-                        Tampilkan Chart
-                    </button>
-                    <div id="dataStatus" class="text-xs text-red-400 mt-1"></div>
-                </div>
-                
-                <div class="flex-1 bg-gray-900 p-2 rounded-lg border border-gray-700 min-h-[250px] flex items-center justify-center">
-                    <canvas id="csvChartCanvas"></canvas>
-                    <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV untuk melihat chart.</div>
-                </div>
             </div>
-            
-        </div>
         
         <div class="mt-6 pt-4 border-t border-gray-800">
             <h4 class="text-sm font-semibold mb-3 text-slate-300">Quick Actions</h4>
@@ -332,7 +283,7 @@
 
 </main>
 
-<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6">
+<section class="max-w-[1400px] mx-auto px-4 pb-6 mt-6">
     <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">Global Market Context</h2>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl">
@@ -365,6 +316,44 @@
     </div>
 </section>
 
+<section class="max-w-[1400px] mx-auto px-4 pb-12 mt-6 csv-analysis-section">
+    <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-2">CSV Data Analysis & Visualization</h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+        
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl h-full flex flex-col justify-start space-y-4">
+            
+            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+                <label for="csvFileInput" class="block text-sm font-medium text-slate-300 mb-2">1. Upload CSV File</label>
+                <input type="file" id="csvFileInput" accept=".csv" class="text-sm text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer w-full" />
+            </div>
+
+            <div id="csvControls" class="flex flex-col gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 hidden">
+                <label for="yearSelector" class="block text-sm font-medium text-slate-300">2. Pilih Mode Analisis:</label>
+                <select id="yearSelector" class="w-full rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>
+                    <option value="all_daily">Semua Tahun (Rata-rata Harian)</option>
+                </select>
+                
+                <button id="processCsvBtn" class="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 shadow-md" disabled>
+                    3. Tampilkan Chart
+                </button>
+            </div>
+            
+            <div id="dataStatus" class="text-xs text-red-400 p-2 text-center bg-gray-800 rounded-lg hidden"></div>
+        </div>
+
+        <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl min-h-[400px]">
+            <h4 id="chartTitle" class="text-lg font-bold text-slate-200 mb-3">Chart Data (Hasil Analisis CSV)</h4>
+            <div class="h-[400px] md:h-[500px] flex items-center justify-center">
+                <canvas id="csvChartCanvas"></canvas>
+                <div id="chartPlaceholder" class="text-gray-500 text-sm">Upload data CSV dan klik 'Tampilkan Chart'.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
 <button id="chatFab" aria-label="Open AI chat" class="fixed right-6 bottom-6 w-14 h-14 rounded-full shadow-2xl bg-emerald-600 hover:bg-emerald-500 text-black flex items-center justify-center text-lg font-bold transition duration-300 transform hover:scale-105 z-[900]">
     AI
 </button>
@@ -391,15 +380,15 @@
     </div>
 
     <div class="p-3 border-t border-gray-800 bg-gray-800/50">
-        <div id="chatInputArea">
-            <div class="flex">
+        <div id="chatInputArea" class="flex flex-col gap-2">
+            <div class="flex gap-2">
                 <input id="messageInput" class="flex-1 rounded-lg bg-gray-700/50 border border-gray-700 px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500" placeholder="Tanyakan..." />
                 <button id="sendBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-black font-semibold transition duration-200 text-sm">
                     Kirim
                 </button>
             </div>
 
-            <div id="imageInputContainer">
+            <div id="imageInputContainer" class="flex items-center gap-2">
                 <input id="imageInput" type="file" accept="image/*" class="text-xs text-slate-300 flex-1 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gray-700 file:text-emerald-400 hover:file:bg-gray-600 cursor-pointer" />
                 <button id="sendImageBtn" class="px-2 py-1 rounded-lg border border-gray-600 hover:bg-gray-700 text-xs transition duration-200 text-slate-300" disabled>
                     Kirim Gbr
@@ -407,7 +396,7 @@
             </div>
         </div>
 
-        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-bold hidden">⚠️ PERINGATAN: Kunci API terekspos langsung di browser! Gunakan dengan hati-hati.</div>
+        <div id="chatNotes" class="mt-2 text-xs text-red-500 font-bold hidden"></div>
     </div>
 </div>
 
@@ -419,37 +408,30 @@
     // --- Tabs Logic ---
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabStoriesBtn = document.getElementById('tabStoriesBtn');
-    const tabDataBtn = document.getElementById('tabDataBtn');
     const tabNews = document.getElementById('tabNews');
     const tabStories = document.getElementById('tabStories');
-    const tabData = document.getElementById('tabData');
 
-    function setActiveTab(active, ...inactives) {
+    function setActiveTab(active, inactive) {
         active.classList.remove('hidden');
-        inactives.forEach(tab => tab.classList.add('hidden'));
+        inactive.classList.add('hidden');
     }
 
-    function setActiveBtn(activeBtn, ...inactiveBtns) {
+    function setActiveBtn(activeBtn, inactiveBtn) {
         activeBtn.classList.add('bg-gray-700');
-        inactiveBtns.forEach(btn => btn.classList.remove('bg-gray-700'));
+        inactiveBtn.classList.remove('bg-gray-700');
     }
 
     tabNewsBtn.addEventListener('click', () => {
-        setActiveTab(tabNews, tabStories, tabData);
-        setActiveBtn(tabNewsBtn, tabStoriesBtn, tabDataBtn);
+        setActiveTab(tabNews, tabStories);
+        setActiveBtn(tabNewsBtn, tabStoriesBtn);
     });
     tabStoriesBtn.addEventListener('click', () => {
-        setActiveTab(tabStories, tabNews, tabData);
-        setActiveBtn(tabStoriesBtn, tabNewsBtn, tabDataBtn);
+        setActiveTab(tabStories, tabNews);
+        setActiveBtn(tabStoriesBtn, tabNewsBtn);
     });
-    tabDataBtn.addEventListener('click', () => {
-        setActiveTab(tabData, tabNews, tabStories);
-        setActiveBtn(tabDataBtn, tabNewsBtn, tabStoriesBtn);
-    });
-    setActiveBtn(tabNewsBtn, tabStoriesBtn, tabDataBtn);
+    setActiveBtn(tabNewsBtn, tabStoriesBtn);
 
-
-    // --- TradingView Symbol Logic (omitted for brevity, assume working) ---
+    // --- TradingView Symbol Logic (disederhanakan) ---
     const applySymbol = document.getElementById('applySymbol');
     if (applySymbol) {
         applySymbol.addEventListener('click', () => {
@@ -478,8 +460,7 @@
         });
     }
 
-
-    // --- Chat UI Logic (omitted for brevity, assume working) ---
+    // --- Chat UI Logic (disederhanakan) ---
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -512,19 +493,30 @@
     imageInput.addEventListener('change', () => {
         sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
     });
-    // Placeholder for actual Gemini logic (omitted for brevity)
-    sendBtn.addEventListener('click', () => { /* ... callGemini ... */ });
-    sendImageBtn.addEventListener('click', () => { /* ... handleSendImage ... */ });
+    // Placeholder for actual Gemini logic 
+    sendBtn.addEventListener('click', () => { 
+        appendMsg('user', messageInput.value.trim()); 
+        messageInput.value = '';
+        appendMsg('bot', '(AI is thinking...)');
+    });
+    sendImageBtn.addEventListener('click', () => { 
+        if (imageInput.files[0]) {
+            appendMsg('user', { fileName: imageInput.files[0].name }, true);
+            appendMsg('bot', '(AI analyzing image...)');
+            imageInput.value = '';
+            sendImageBtn.disabled = true;
+        }
+    });
     
     function appendMsg(who, content, isImage = false){
         const wrap = document.createElement('div');
         wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
-        
         const bubble = document.createElement('div');
-        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; // Lebih ringkas
+        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
         
         if(who === 'user'){
             bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
+            bubble.textContent = content;
         } else {
             if(content.includes('thinking') || content.includes('analyzing')) {
                  bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
@@ -536,18 +528,16 @@
             }
         }
         
-        // Image logic (simplified)
-        if (isImage) { /* ... image preview logic ... */ }
+        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`; }
 
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);
         chatBody.scrollTop = chatBody.scrollHeight;
-
         return bubble; 
     }
 
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic
+    // 🚀 Data Analysis (CSV) Logic (Dipindahkan & Ditingkatkan)
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
@@ -556,6 +546,7 @@
     const dataStatus = document.getElementById('dataStatus');
     const chartPlaceholder = document.getElementById('chartPlaceholder');
     const csvChartCanvas = document.getElementById('csvChartCanvas');
+    const chartTitleElement = document.getElementById('chartTitle');
     
     let parsedCsvData = null;
     let availableYears = new Set();
@@ -566,18 +557,19 @@
         const file = e.target.files[0];
         if (!file) {
             csvControls.classList.add('hidden');
+            dataStatus.classList.add('hidden');
             return;
         }
+        dataStatus.classList.remove('hidden');
+        dataStatus.textContent = 'Memproses file...';
 
-        // Use PapaParse to handle different delimiters
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
-            delimiter: '\t', // Assuming tab-delimited based on user's file snippet
+            delimiter: '\t', // Menggunakan tab sebagai delimiter
             complete: (results) => {
                 parsedCsvData = results.data;
                 
-                // Clear and repopulate year selector
                 yearSelector.innerHTML = '<option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>';
                 yearSelector.innerHTML += '<option value="all_daily">Semua Tahun (Rata-rata Harian)</option>';
 
@@ -589,7 +581,6 @@
                     }
                 });
                 
-                // Add individual year options
                 Array.from(availableYears).sort().reverse().forEach(year => {
                     yearSelector.innerHTML += `<option value="${year}_daily">${year} (Harian)</option>`;
                     yearSelector.innerHTML += `<option value="${year}_monthly">${year} (Bulanan)</option>`;
@@ -598,14 +589,20 @@
                 if (parsedCsvData.length > 0) {
                     csvControls.classList.remove('hidden');
                     processCsvBtn.disabled = false;
-                    dataStatus.textContent = `File di-load: ${parsedCsvData.length} baris.`;
+                    dataStatus.textContent = `✅ File di-load: ${parsedCsvData.length} baris. Pilih mode analisis.`;
+                    dataStatus.classList.remove('text-red-400');
+                    dataStatus.classList.add('text-emerald-400');
+                    // Tampilkan chart default
+                    processCsvBtn.click();
                 } else {
-                    dataStatus.textContent = `Error: File kosong atau format salah.`;
+                    dataStatus.textContent = `❌ Error: File kosong atau format salah.`;
+                    dataStatus.classList.add('text-red-400');
                     csvControls.classList.add('hidden');
                 }
             },
             error: (error) => {
-                dataStatus.textContent = `Error parsing file: ${error.message}`;
+                dataStatus.textContent = `❌ Error parsing file: ${error.message}`;
+                dataStatus.classList.add('text-red-400');
                 csvControls.classList.add('hidden');
             }
         });
@@ -614,23 +611,34 @@
     // 2. Data Processing & Visualization
     processCsvBtn.addEventListener('click', () => {
         if (!parsedCsvData) return;
+        dataStatus.textContent = 'Membuat Chart...';
 
         const [selectedYear, mode] = yearSelector.value.split('_');
         let chartData = {};
         let title = '';
         let xAxisLabel = '';
 
-        if (mode === 'monthly') {
-            chartData = processMonthlyAverages(selectedYear);
-            title = selectedYear === 'all' ? 'Rata-rata Harga Bulanan (Semua Tahun)' : `Rata-rata Harga Bulanan Tahun ${selectedYear}`;
-            xAxisLabel = 'Bulan';
-        } else if (mode === 'daily') {
-             chartData = processDailyData(selectedYear);
-             title = selectedYear === 'all' ? 'Rata-rata Harga Harian (Semua Tahun)' : `Harga Tutup Harian Tahun ${selectedYear}`;
-             xAxisLabel = 'Tanggal';
-        }
+        try {
+            if (mode === 'monthly') {
+                chartData = processMonthlyAverages(selectedYear);
+                title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Bulanan (Semua Tahun)' : `Rata-rata Harga Tutup Bulanan Tahun ${selectedYear}`;
+                xAxisLabel = 'Bulan';
+            } else if (mode === 'daily') {
+                 chartData = processDailyData(selectedYear);
+                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Rata-rata Bulanan/Harian)' : `Harga Tutup Harian Tahun ${selectedYear}`;
+                 xAxisLabel = selectedYear === 'all' ? 'Bulan/Tanggal' : 'Tanggal';
+            }
 
-        renderChart(chartData.labels, chartData.data, title, xAxisLabel);
+            renderChart(chartData.labels, chartData.data, title, xAxisLabel);
+            dataStatus.textContent = `✅ Chart berhasil diperbarui: ${title}`;
+            dataStatus.classList.remove('text-red-400');
+            dataStatus.classList.add('text-emerald-400');
+
+        } catch (error) {
+            dataStatus.textContent = `❌ Error saat membuat chart: ${error.message}`;
+            dataStatus.classList.add('text-red-400');
+            dataStatus.classList.remove('text-emerald-400');
+        }
     });
 
     // Helper: Process Monthly Averages
@@ -641,32 +649,39 @@
         parsedCsvData.forEach(row => {
             if (!row['<DATE>'] || !row['<CLOSE>']) return;
             
-            const dateParts = row['<DATE>'].split('.');
+            const dateParts = row['<DATE>'].split('.'); // YYYY.MM.DD
             if (dateParts.length < 3) return;
             const year = dateParts[0];
-            const month = parseInt(dateParts[1], 10) - 1; // 0-11 index
+            const month = parseInt(dateParts[1], 10) - 1; 
             const closePrice = parseFloat(row['<CLOSE>']);
 
             if (isNaN(closePrice)) return;
             
-            // Filter by year if a specific year is selected
             if (targetYear !== 'all' && year !== targetYear) return;
 
-            const key = targetYear === 'all' ? month : `${MONTHS[month]} ${year}`;
+            const key = targetYear === 'all' ? MONTHS[month] : `${MONTHS[month]} ${year}`;
 
             monthlyAverages[key] = (monthlyAverages[key] || 0) + closePrice;
             monthlyCounts[key] = (monthlyCounts[key] || 0) + 1;
         });
 
-        const labels = targetYear === 'all' ? MONTHS : Object.keys(monthlyAverages).sort((a,b) => MONTHS.indexOf(a.split(' ')[0]) - MONTHS.indexOf(b.split(' ')[0]));
+        // Sorting labels: If all, sort by month index. If specific year, month order is preserved.
+        let labels;
+        if (targetYear === 'all') {
+            labels = MONTHS.filter((_, index) => monthlyAverages.hasOwnProperty(index)).map(m => m);
+        } else {
+            labels = Object.keys(monthlyAverages).sort((a,b) => MONTHS.indexOf(a.split(' ')[0]) - MONTHS.indexOf(b.split(' ')[0]));
+        }
 
         const data = labels.map(label => {
-            const avg = monthlyAverages[label] / monthlyCounts[label];
+            let key = targetYear === 'all' ? MONTHS.indexOf(label) : label;
+            const avg = monthlyAverages[key] / monthlyCounts[key];
             return parseFloat(avg.toFixed(2));
         });
 
-        return { labels: labels, data: data };
+        return { labels: targetYear === 'all' ? MONTHS : labels, data: data };
     }
+
 
     // Helper: Process Daily Data for a Year or All Years (Average)
     function processDailyData(targetYear) {
@@ -685,15 +700,18 @@
             if (targetYear !== 'all') {
                 if (year !== targetYear) return;
                 
-                // For a specific year, use YYYY.MM.DD as key
-                dailyPrices[date] = closePrice;
-                dailyCounts[date] = 1;
+                // For a specific year, use full date (YYYY.MM.DD) as key
+                if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
+                    dailyPrices[date] = closePrice;
+                    dailyCounts[date] = 1;
+                }
             } else {
                 // For all years, use MM.DD as key and calculate average price
-                const monthDay = date.substring(5); // MM.DD
-                
-                dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
-                dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
+                 if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
+                    const monthDay = date.substring(5); // MM.DD
+                    dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
+                    dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
+                }
             }
         });
         
@@ -703,7 +721,6 @@
             return parseFloat(avg.toFixed(2));
         });
 
-        // If 'all' is selected, format labels as 'MM/DD'
         if (targetYear === 'all') {
              labels = labels.map(label => label.replace('.', '/'));
         }
@@ -714,6 +731,8 @@
     // 3. Render Chart.js
     function renderChart(labels, data, title, xAxisLabel) {
         chartPlaceholder.classList.add('hidden');
+        csvChartCanvas.style.display = 'block';
+        chartTitleElement.textContent = title;
         
         if (chartInstance) {
             chartInstance.destroy();
@@ -726,11 +745,11 @@
                 datasets: [{
                     label: 'Harga Tutup (USD)',
                     data: data,
-                    borderColor: '#10B981', // emerald-500
+                    borderColor: '#10B981', 
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 1.5
+                    pointRadius: labels.length > 50 ? 0 : 3 
                 }]
             },
             options: {
@@ -743,7 +762,8 @@
                         color: '#E2E8F0',
                         font: { size: 14 }
                     },
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
                     x: {
