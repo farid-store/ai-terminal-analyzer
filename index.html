@@ -53,14 +53,15 @@
 
 <script>
     // =========================================================================
-    // 🛑 KUNCI API ANDA DIMASUKKAN DI SINI. INI SANGAT TIDAK AMAN!
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
+    // 🛑 KONFIGURASI API GEMINI (HARAP GANTI DENGAN KUNCI ANDA YANG VALID)
+    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; // Ganti dengan KUNCI API Gemini Anda!
     const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
     // =========================================================================
 
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
     let chartInstance = null; // Global variable for Chart.js instance
+    let conversationHistory = []; // Untuk menyimpan konteks chat
 </script>
 
 <header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
@@ -460,7 +461,7 @@
         });
     }
 
-    // --- Chat UI Logic (disederhanakan) ---
+    // --- Chat UI Logic ---
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -472,7 +473,82 @@
     const messageInput = document.getElementById('messageInput');
     const chatBody = document.getElementById('chatBody');
     const imageInput = document.getElementById('imageInput');
+    const chatInputArea = document.getElementById('chatInputArea');
+    const chatNotes = document.getElementById('chatNotes');
+    
+    // Status UI helper
+    function setChatUI(disabled, note = '') {
+        messageInput.disabled = disabled;
+        sendBtn.disabled = disabled;
+        imageInput.disabled = disabled;
+        sendImageBtn.disabled = disabled || !imageInput.files.length;
+        if (disabled) {
+            messageInput.placeholder = "Menunggu respons...";
+            chatInputArea.classList.add('opacity-50');
+        } else {
+            messageInput.placeholder = "Tanyakan...";
+            chatInputArea.classList.remove('opacity-50');
+        }
+        chatNotes.textContent = note;
+        if (note) {
+             chatNotes.classList.remove('hidden');
+        } else {
+             chatNotes.classList.add('hidden');
+        }
+    }
 
+
+    // Function to display messages
+    function appendMsg(who, content, isImage = false, placeholderEl = null){
+        const wrap = document.createElement('div');
+        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
+        const bubble = document.createElement('div');
+        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
+        
+        if(who === 'user'){
+            bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
+            if (isImage) {
+                bubble.textContent = `[GAMBAR DIUPLOAD] ${content.text}`;
+                const img = document.createElement('img');
+                img.src = content.src;
+                img.className = 'mt-2 max-w-full h-auto rounded-lg border border-emerald-500/50';
+                wrap.appendChild(img);
+            } else {
+                bubble.textContent = content;
+            }
+        } else {
+            // Check if this is a temporary placeholder
+            if(placeholderEl && placeholderEl.parentNode) {
+                // If replacing a placeholder, use the existing element
+                bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+                placeholderEl.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
+                placeholderEl.style.whiteSpace = 'pre-wrap';
+                placeholderEl.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                chatBody.scrollTop = chatBody.scrollHeight;
+                return placeholderEl;
+            }
+            
+            // If adding a new message (usually the "thinking" placeholder)
+            if(content.includes('thinking') || content.includes('analyzing')) {
+                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
+                 bubble.textContent = content;
+            } else {
+                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+                 bubble.style.whiteSpace = 'pre-wrap';
+                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            }
+            wrap.appendChild(bubble);
+        }
+        
+        if (!placeholderEl) {
+            wrap.appendChild(bubble);
+            chatBody.appendChild(wrap);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return bubble; 
+        }
+    }
+
+    // --- Chat Modal Visibility Logic ---
     function showChat(){ 
         chatModal.classList.remove('hidden'); 
         chatFab.classList.add('hidden'); 
@@ -490,54 +566,169 @@
     openChatBtnAside.addEventListener('click', showChat);
     openChatBtnMobile.addEventListener('click', showChat); 
     closeChat.addEventListener('click', hideChat);
-    imageInput.addEventListener('change', () => {
-        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
-    });
-    // Placeholder for actual Gemini logic 
+
+    // --- Gemini Core Functions (The FIX) ---
+
+    // 1. Convert file to GenerativePart structure
+    function fileToGenerativePart(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64Data = e.target.result.split(',')[1];
+                resolve({
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type
+                    }
+                });
+            };
+            reader.onerror = (e) => reject(e);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // 2. Main API Call Handler
+    async function callGeminiAPI(parts, modelName) {
+        if (!GEMINI_API_KEY || GEMINI_API_KEY === "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU") {
+             setChatUI(false, "❌ Harap masukkan KUNCI API Gemini yang valid.");
+             return "Error: KUNCI API tidak valid.";
+        }
+        
+        try {
+            const url = `${GEMINI_API_URL}/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+            
+            // Add conversation history to the request
+            const contents = [...conversationHistory, { role: "user", parts: parts }];
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents, generationConfig: { temperature: 0.7 } })
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json();
+                console.error("Gemini API Error:", errorBody);
+                return `Error API (${response.status}): ${errorBody.error.message || 'Gagal memuat respons.'}`;
+            }
+
+            const data = await response.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak dapat menghasilkan respons. Coba lagi.";
+
+            // Update conversation history
+            conversationHistory.push({ role: "user", parts: parts });
+            conversationHistory.push({ role: "model", parts: [{ text: text }] });
+            
+            return text;
+
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            return `Kesalahan jaringan: ${error.message}`;
+        }
+    }
+
+    // 3. Send Message Handler (Unifies Text and Multimodal)
+    async function sendMessage(text, imageFile) {
+        setChatUI(true); 
+        chatNotes.classList.add('hidden');
+        
+        const textValue = text.trim();
+        const parts = [];
+        let model = TEXT_MODEL;
+        
+        let placeholder;
+
+        if (imageFile) {
+            model = MULTIMODAL_MODEL;
+            try {
+                const imgPart = await fileToGenerativePart(imageFile);
+                parts.push(imgPart);
+                
+                // Display image message
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    appendMsg('user', { text: textValue || imageFile.name, src: e.target.result }, true);
+                };
+                reader.readAsDataURL(imageFile);
+                
+            } catch (e) {
+                 setChatUI(false, "❌ Gagal memproses gambar.");
+                 return;
+            }
+        } else {
+             // Display text message
+             appendMsg('user', textValue);
+        }
+
+        if (textValue) {
+            parts.push({ text: textValue });
+        }
+        
+        if (parts.length === 0) {
+            setChatUI(false, "❌ Masukkan teks atau gambar.");
+            return;
+        }
+        
+        // Add thinking placeholder
+        placeholder = appendMsg('bot', imageFile ? '(AI menganalisis gambar...)' : '(AI sedang berpikir...)');
+
+        try {
+            const responseText = await callGeminiAPI(parts, model);
+            
+            // Replace placeholder with actual response
+            appendMsg('bot', responseText, false, placeholder);
+            
+        } catch (error) {
+            console.error("Main Send Error:", error);
+            appendMsg('bot', `Kesalahan kritis: ${error.message}`, false, placeholder);
+        } finally {
+            setChatUI(false); 
+            imageInput.value = ''; // Clear image input
+        }
+    }
+
+    // --- Event Listeners for Chat ---
+    
     sendBtn.addEventListener('click', () => { 
-        appendMsg('user', messageInput.value.trim()); 
-        messageInput.value = '';
-        appendMsg('bot', '(AI is thinking...)');
+        if (messageInput.value.trim() !== '') {
+            sendMessage(messageInput.value, null);
+            messageInput.value = '';
+        }
     });
+
     sendImageBtn.addEventListener('click', () => { 
-        if (imageInput.files[0]) {
-            appendMsg('user', { fileName: imageInput.files[0].name }, true);
-            appendMsg('bot', '(AI analyzing image...)');
+        const file = imageInput.files[0];
+        const text = messageInput.value;
+        if (file) {
+            sendMessage(text, file);
+            messageInput.value = '';
             imageInput.value = '';
             sendImageBtn.disabled = true;
         }
     });
-    
-    function appendMsg(who, content, isImage = false){
-        const wrap = document.createElement('div');
-        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
-        const bubble = document.createElement('div');
-        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
-        
-        if(who === 'user'){
-            bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
-            bubble.textContent = content;
-        } else {
-            if(content.includes('thinking') || content.includes('analyzing')) {
-                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
-                 bubble.textContent = content;
-            } else {
-                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-                 bubble.style.whiteSpace = 'pre-wrap';
-                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-            }
-        }
-        
-        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`; }
 
-        wrap.appendChild(bubble);
-        chatBody.appendChild(wrap);
-        chatBody.scrollTop = chatBody.scrollHeight;
-        return bubble; 
-    }
+    imageInput.addEventListener('change', () => {
+        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
+        if (imageInput.files.length > 0) {
+             chatNotes.textContent = `✅ Gambar siap dianalisis. Masukkan prompt teks jika perlu.`;
+             chatNotes.classList.remove('hidden');
+             chatNotes.classList.remove('text-red-500');
+             chatNotes.classList.add('text-emerald-400');
+        } else {
+             chatNotes.classList.add('hidden');
+        }
+    });
+
+    messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && messageInput.value.trim() !== '' && !sendBtn.disabled) {
+            e.preventDefault();
+            sendBtn.click();
+        }
+    });
+
 
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (Dipindahkan & Ditingkatkan)
+    // 🚀 Data Analysis (CSV) Logic (Dipertahankan)
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
