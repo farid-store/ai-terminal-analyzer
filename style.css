@@ -1,172 +1,211 @@
-/* Warna Dasar Terminal */
+/* Bloomberg-Inspired Color Scheme */
 :root {
-    --bg-color: #1e1e1e;
-    --text-color: #00ff41; /* Hijau neon */
-    --input-bg: #333;
-    --border-color: #444;
+    --bg-dark: #1f1f1f; /* Background Gelap */
+    --text-light: #f0f0f0; /* Teks Utama */
+    --accent-color: #008080; /* Warna Aksen Biru-Hijau Khas */
+    --border-color: #383838; /* Garis Pemisah Halus */
+    --positive: #00ff00; /* Hijau untuk Kenaikan */
+    --negative: #ff3333; /* Merah untuk Penurunan */
 }
 
 body {
-    font-family: 'Consolas', 'Courier New', monospace; /* Font Terminal */
+    font-family: 'Arial', sans-serif;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    font-size: 14px;
 }
 
 .terminal-container {
-    width: 90%;
-    max-width: 1200px;
-    height: 90vh;
-    background: var(--bg-color);
-    border: 1px solid var(--text-color);
-    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5); /* Efek neon */
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.terminal-header {
-    background-color: var(--input-bg);
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
-    text-align: center;
-    color: white;
-}
-
-.main-content {
+/* --- NAVBAR --- */
+.navbar {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    background-color: #111; /* Lebih gelap dari background */
+    border-bottom: 1px solid var(--accent-color);
+}
+
+.logo {
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 1.2em;
+}
+
+.nav-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    margin-left: 20px;
+    padding: 5px 10px;
+    transition: background-color 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: var(--accent-color);
+    color: var(--bg-dark);
+}
+
+.user-info {
+    font-size: 0.9em;
+    color: var(--positive);
+}
+
+/* --- MAIN GRID (3 Kolom) --- */
+.main-grid {
+    display: flex; /* Menggunakan Flexbox untuk 3 kolom */
     flex-grow: 1;
     overflow: hidden;
 }
 
-.panel {
+.grid-item {
     padding: 15px;
-    overflow-y: auto;
     border-right: 1px solid var(--border-color);
+    overflow-y: auto; /* Memungkinkan konten panel di-scroll */
 }
 
-.chat-panel {
-    flex: 3; /* Ambil 60% lebar */
+/* Ukuran Kolom */
+.left-panel {
+    flex: 1; /* Kolom Kiri: Kecil (mis. 20%) */
+    max-width: 250px;
+}
+.center-panel {
+    flex: 3; /* Kolom Tengah: Paling Besar (mis. 50%) */
+    border-right: 1px solid var(--border-color);
+}
+.right-panel {
+    flex: 2; /* Kolom Kanan (Chatbot): Menengah (mis. 30%) */
+    min-width: 300px;
     display: flex;
     flex-direction: column;
 }
 
-.market-panel {
-    flex: 2; /* Ambil 40% lebar */
-    background-color: #2a2a2a;
-}
-.market-panel h2 {
-    color: #ffd700; /* Emas/kuning untuk judul data */
-    border-bottom: 1px dashed var(--border-color);
+/* Judul Panel */
+.panel-title {
+    color: var(--accent-color);
+    margin-top: 0;
     padding-bottom: 5px;
-}
-.placeholder-text {
-    font-size: 0.8em;
-    color: #aaa;
-    margin-top: 50px;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1.1em;
 }
 
-/* --- CHAT STYLING --- */
+/* --- KOLOM KIRI: Market Data --- */
+.data-row {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1em;
+}
+.change {
+    font-weight: bold;
+}
+.positive {
+    color: var(--positive);
+}
+.negative {
+    color: var(--negative);
+}
+
+/* --- KOLOM TENGAH: News Feed --- */
+.article {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted var(--border-color);
+}
+.article h4 {
+    color: var(--text-light);
+    margin: 0 0 5px 0;
+    font-size: 1em;
+}
+.article p {
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+/* --- KOLOM KANAN: Chatbot (Ambil dari kode sebelumnya, sedikit penyesuaian) --- */
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    padding: 0;
+}
+
 .chat-box {
     flex-grow: 1;
     overflow-y: auto;
-    padding-bottom: 10px;
+    padding-right: 10px; /* Jarak dari scrollbar */
 }
 
 .message {
     padding: 8px 12px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     border-radius: 4px;
-    max-width: 85%;
-    font-size: 0.9em;
+    max-width: 90%;
 }
-
 .user-message {
-    background-color: #007bff;
-    color: white;
+    background-color: #004a7a;
+    color: var(--text-light);
     margin-left: auto;
-    text-align: right;
-    border-left: 3px solid #0056b3;
 }
-
 .gemini-message {
     background-color: #2a2a2a;
-    color: var(--text-color);
+    color: var(--text-light);
     margin-right: auto;
-    border-left: 3px solid var(--text-color);
-    white-space: pre-wrap; /* Penting untuk format teks/kode dari Gemini */
+    border-left: 2px solid var(--accent-color);
+    white-space: pre-wrap;
 }
 
 .input-form {
     display: flex;
     padding-top: 10px;
     border-top: 1px solid var(--border-color);
+    align-items: center;
 }
-
 #user-input {
     flex-grow: 1;
     padding: 10px;
-    border: 1px solid var(--text-color);
-    background-color: var(--input-bg);
-    color: white;
-    border-radius: 0; /* Terminal look */
+    border: 1px solid var(--border-color);
+    background-color: #2a2a2a;
+    color: var(--text-light);
     margin-right: 5px;
 }
-
 .input-form button {
-    background-color: var(--text-color);
-    color: var(--bg-color);
+    background-color: var(--accent-color);
+    color: var(--bg-dark);
     border: none;
-    padding: 10px 15px;
+    padding: 10px 10px;
     cursor: pointer;
     font-weight: bold;
 }
-#upload-btn {
-    margin-right: 5px;
-}
 
-/* Gambar Preview */
+/* Gambar Preview (Gaya minimalis terminal) */
 #image-preview-container {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-top: 1px solid var(--border-color);
+    padding: 5px 0;
+    border-top: 1px dotted var(--border-color);
+    background-color: #2a2a2a;
+    margin-top: 5px;
 }
 #image-preview {
-    max-height: 50px;
+    max-height: 40px;
     width: auto;
     margin-right: 10px;
-    border: 1px solid var(--text-color);
+    border: 1px solid var(--accent-color);
 }
 #remove-image-btn {
-    background-color: red;
-    color: white;
-    padding: 5px 10px;
+    background-color: var(--negative);
+    color: var(--text-light);
+    padding: 3px 8px;
     border: none;
     cursor: pointer;
-}
-
-/* Responsif */
-@media (max-width: 800px) {
-    .main-content {
-        flex-direction: column;
-    }
-    .panel {
-        border-right: none;
-        height: 50vh;
-    }
-    .chat-panel {
-        height: 60vh;
-    }
-    .market-panel {
-        height: 30vh;
-        border-top: 1px solid var(--border-color);
-    }
-    .terminal-container {
-        width: 100%;
-        height: 100vh;
-    }
+    font-size: 0.8em;
 }
