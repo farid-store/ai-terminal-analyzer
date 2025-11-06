@@ -53,15 +53,18 @@
 
 <script>
     // =========================================================================
-    // 🛑 KONFIGURASI API GEMINI (HARAP GANTI DENGAN KUNCI ANDA YANG VALID)
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; // Ganti dengan KUNCI API Gemini Anda!
-    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
+    // 🛑 KUNCI API ANDA HARUS DIMASUKKAN DI SINI SECARA AMAN.
+    // JANGAN PERNAH MEMASUKKAN KUNCI API SECARA LANGSUNG PADA CLIENT-SIDE (BROWSER) CODE!
+    // GUNAKAN PROXY BACKEND/SERVERLESS (seperti Firebase Functions, Cloud Run, atau Node.js)
+    // untuk melakukan panggilan API dengan kunci Anda.
+    const GEMINI_API_KEY = ""; // Kunci API dihapus untuk keamanan.
+    const SECURE_PROXY_URL = "/api/gemini-chat"; // Endpoint proxy yang aman untuk chat teks.
+    const MULTIMODAL_API_URL = "/api/gemini-vision"; // Endpoint proxy yang aman untuk chat gambar.
     // =========================================================================
 
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
     let chartInstance = null; // Global variable for Chart.js instance
-    let conversationHistory = []; // Untuk menyimpan konteks chat
 </script>
 
 <header class="w-full bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-800">
@@ -375,7 +378,7 @@
             <div class="px-3 py-2 rounded-lg bg-gray-800 text-slate-200 text-sm">
                 Halo! Saya asisten AI. Tanyakan tentang sentimen pasar, atau **upload chart** untuk analisis.
                 <br><br>
-                <span class="text-emerald-400 font-semibold">✅ Chat siap digunakan!</span>
+                <span class="text-red-400 font-semibold">⚠️ Harap diperhatikan: Fungsi AI Chat memerlukan **proxy server** yang aman.</span>
             </div>
         </div>
     </div>
@@ -461,7 +464,7 @@
         });
     }
 
-    // --- Chat UI Logic ---
+    // --- Chat UI Logic (disederhanakan) ---
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -473,82 +476,9 @@
     const messageInput = document.getElementById('messageInput');
     const chatBody = document.getElementById('chatBody');
     const imageInput = document.getElementById('imageInput');
-    const chatInputArea = document.getElementById('chatInputArea');
-    const chatNotes = document.getElementById('chatNotes');
-    
-    // Status UI helper
-    function setChatUI(disabled, note = '') {
-        messageInput.disabled = disabled;
-        sendBtn.disabled = disabled;
-        imageInput.disabled = disabled;
-        sendImageBtn.disabled = disabled || !imageInput.files.length;
-        if (disabled) {
-            messageInput.placeholder = "Menunggu respons...";
-            chatInputArea.classList.add('opacity-50');
-        } else {
-            messageInput.placeholder = "Tanyakan...";
-            chatInputArea.classList.remove('opacity-50');
-        }
-        chatNotes.textContent = note;
-        if (note) {
-             chatNotes.classList.remove('hidden');
-        } else {
-             chatNotes.classList.add('hidden');
-        }
-    }
 
+    let botMessageBubble = null;
 
-    // Function to display messages
-    function appendMsg(who, content, isImage = false, placeholderEl = null){
-        const wrap = document.createElement('div');
-        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
-        const bubble = document.createElement('div');
-        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
-        
-        if(who === 'user'){
-            bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
-            if (isImage) {
-                bubble.textContent = `[GAMBAR DIUPLOAD] ${content.text}`;
-                const img = document.createElement('img');
-                img.src = content.src;
-                img.className = 'mt-2 max-w-full h-auto rounded-lg border border-emerald-500/50';
-                wrap.appendChild(img);
-            } else {
-                bubble.textContent = content;
-            }
-        } else {
-            // Check if this is a temporary placeholder
-            if(placeholderEl && placeholderEl.parentNode) {
-                // If replacing a placeholder, use the existing element
-                bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-                placeholderEl.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
-                placeholderEl.style.whiteSpace = 'pre-wrap';
-                placeholderEl.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                chatBody.scrollTop = chatBody.scrollHeight;
-                return placeholderEl;
-            }
-            
-            // If adding a new message (usually the "thinking" placeholder)
-            if(content.includes('thinking') || content.includes('analyzing')) {
-                 bubble.classList.add('bg-gray-700','text-slate-400','animate-pulse');
-                 bubble.textContent = content;
-            } else {
-                 bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
-                 bubble.style.whiteSpace = 'pre-wrap';
-                 bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-            }
-            wrap.appendChild(bubble);
-        }
-        
-        if (!placeholderEl) {
-            wrap.appendChild(bubble);
-            chatBody.appendChild(wrap);
-            chatBody.scrollTop = chatBody.scrollHeight;
-            return bubble; 
-        }
-    }
-
-    // --- Chat Modal Visibility Logic ---
     function showChat(){ 
         chatModal.classList.remove('hidden'); 
         chatFab.classList.add('hidden'); 
@@ -566,169 +496,138 @@
     openChatBtnAside.addEventListener('click', showChat);
     openChatBtnMobile.addEventListener('click', showChat); 
     closeChat.addEventListener('click', hideChat);
+    imageInput.addEventListener('change', () => {
+        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
+    });
 
-    // --- Gemini Core Functions (The FIX) ---
-
-    // 1. Convert file to GenerativePart structure
-    function fileToGenerativePart(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64Data = e.target.result.split(',')[1];
-                resolve({
-                    inlineData: {
-                        data: base64Data,
-                        mimeType: file.type
-                    }
-                });
-            };
-            reader.onerror = (e) => reject(e);
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // 2. Main API Call Handler
-    async function callGeminiAPI(parts, modelName) {
-        if (!GEMINI_API_KEY || GEMINI_API_KEY === "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU") {
-             setChatUI(false, "❌ Harap masukkan KUNCI API Gemini yang valid.");
-             return "Error: KUNCI API tidak valid.";
-        }
-        
-        try {
-            const url = `${GEMINI_API_URL}/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-            
-            // Add conversation history to the request
-            const contents = [...conversationHistory, { role: "user", parts: parts }];
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents, generationConfig: { temperature: 0.7 } })
-            });
-
-            if (!response.ok) {
-                const errorBody = await response.json();
-                console.error("Gemini API Error:", errorBody);
-                return `Error API (${response.status}): ${errorBody.error.message || 'Gagal memuat respons.'}`;
-            }
-
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak dapat menghasilkan respons. Coba lagi.";
-
-            // Update conversation history
-            conversationHistory.push({ role: "user", parts: parts });
-            conversationHistory.push({ role: "model", parts: [{ text: text }] });
-            
-            return text;
-
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            return `Kesalahan jaringan: ${error.message}`;
-        }
-    }
-
-    // 3. Send Message Handler (Unifies Text and Multimodal)
-    async function sendMessage(text, imageFile) {
-        setChatUI(true); 
-        chatNotes.classList.add('hidden');
-        
-        const textValue = text.trim();
-        const parts = [];
-        let model = TEXT_MODEL;
-        
-        let placeholder;
-
-        if (imageFile) {
-            model = MULTIMODAL_MODEL;
-            try {
-                const imgPart = await fileToGenerativePart(imageFile);
-                parts.push(imgPart);
-                
-                // Display image message
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    appendMsg('user', { text: textValue || imageFile.name, src: e.target.result }, true);
-                };
-                reader.readAsDataURL(imageFile);
-                
-            } catch (e) {
-                 setChatUI(false, "❌ Gagal memproses gambar.");
-                 return;
-            }
-        } else {
-             // Display text message
-             appendMsg('user', textValue);
-        }
-
-        if (textValue) {
-            parts.push({ text: textValue });
-        }
-        
-        if (parts.length === 0) {
-            setChatUI(false, "❌ Masukkan teks atau gambar.");
-            return;
-        }
-        
-        // Add thinking placeholder
-        placeholder = appendMsg('bot', imageFile ? '(AI menganalisis gambar...)' : '(AI sedang berpikir...)');
-
-        try {
-            const responseText = await callGeminiAPI(parts, model);
-            
-            // Replace placeholder with actual response
-            appendMsg('bot', responseText, false, placeholder);
-            
-        } catch (error) {
-            console.error("Main Send Error:", error);
-            appendMsg('bot', `Kesalahan kritis: ${error.message}`, false, placeholder);
-        } finally {
-            setChatUI(false); 
-            imageInput.value = ''; // Clear image input
-        }
-    }
-
-    // --- Event Listeners for Chat ---
-    
     sendBtn.addEventListener('click', () => { 
-        if (messageInput.value.trim() !== '') {
-            sendMessage(messageInput.value, null);
+        const message = messageInput.value.trim();
+        if (message) {
+            appendMsg('user', message); 
             messageInput.value = '';
+            sendGeminiMessage(message);
         }
     });
 
     sendImageBtn.addEventListener('click', () => { 
-        const file = imageInput.files[0];
-        const text = messageInput.value;
-        if (file) {
-            sendMessage(text, file);
+        if (imageInput.files[0]) {
+            const imageFile = imageInput.files[0];
+            appendMsg('user', { fileName: imageFile.name }, true);
+            sendGeminiImage(imageFile, messageInput.value.trim());
             messageInput.value = '';
             imageInput.value = '';
             sendImageBtn.disabled = true;
         }
     });
-
-    imageInput.addEventListener('change', () => {
-        sendImageBtn.disabled = !imageInput.files.length || messageInput.disabled;
-        if (imageInput.files.length > 0) {
-             chatNotes.textContent = `✅ Gambar siap dianalisis. Masukkan prompt teks jika perlu.`;
-             chatNotes.classList.remove('hidden');
-             chatNotes.classList.remove('text-red-500');
-             chatNotes.classList.add('text-emerald-400');
+    
+    function appendMsg(who, content, isImage = false){
+        const wrap = document.createElement('div');
+        wrap.className = who === 'user' ? 'self-end max-w-[85%]' : 'self-start max-w-[85%]';
+        const bubble = document.createElement('div');
+        bubble.className = 'px-3 py-2 rounded-xl text-sm break-words'; 
+        
+        if(who === 'user'){
+            bubble.classList.add('bg-emerald-600','text-black','shadow-md','font-medium');
+            bubble.textContent = content;
         } else {
-             chatNotes.classList.add('hidden');
+            bubble.classList.add('bg-gray-800','text-slate-200','shadow-md');
+            bubble.style.whiteSpace = 'pre-wrap';
+            bubble.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
         }
-    });
+        
+        if (isImage) { bubble.textContent = `[GAMBAR DIUPLOAD] ${content.fileName}`; }
 
-    messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey && messageInput.value.trim() !== '' && !sendBtn.disabled) {
-            e.preventDefault();
-            sendBtn.click();
+        wrap.appendChild(bubble);
+        chatBody.appendChild(wrap);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return bubble; 
+    }
+
+    function setChatState(thinking) {
+        messageInput.disabled = thinking;
+        sendBtn.disabled = thinking;
+        imageInput.disabled = thinking;
+        sendImageBtn.disabled = thinking || !imageInput.files.length;
+    }
+
+    // Fungsi inti untuk mengirim pesan (Teks) ke Proxy Backend yang aman
+    async function sendGeminiMessage(message) {
+        setChatState(true);
+        botMessageBubble = appendMsg('bot', 'AI sedang berpikir...');
+
+        try {
+            const response = await fetch(SECURE_PROXY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Proxy Error: ${errorData.error || response.statusText}`);
+            }
+
+            const data = await response.json();
+            const botResponse = data.text || "Gagal mendapatkan respons dari AI. Cek log server proxy Anda.";
+            botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
+            botMessageBubble.classList.add('bg-gray-800');
+
+        } catch (error) {
+            console.error('Gemini API Error:', error);
+            botMessageBubble.textContent = `❌ Error koneksi ke AI: ${error.message}. Pastikan proxy server berjalan dengan benar.`;
+            botMessageBubble.classList.add('text-red-400');
+        } finally {
+            setChatState(false);
         }
-    });
+    }
 
+    // Fungsi inti untuk mengirim pesan (Gambar) ke Proxy Backend yang aman
+    async function sendGeminiImage(imageFile, prompt) {
+        setChatState(true);
+        botMessageBubble = appendMsg('bot', 'AI sedang menganalisis gambar...');
 
+        try {
+            // Konversi file gambar ke Base64
+            const base64Image = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(imageFile);
+            });
+
+            const response = await fetch(MULTIMODAL_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    prompt: prompt || "Jelaskan dan analisis chart ini.",
+                    image: base64Image,
+                    mimeType: imageFile.type
+                })
+            });
+
+            if (!response.ok) {
+                 const errorData = await response.json();
+                throw new Error(`Proxy Error: ${errorData.error || response.statusText}`);
+            }
+
+            const data = await response.json();
+            const botResponse = data.text || "Gagal mendapatkan respons dari AI. Cek log server proxy Anda.";
+            botMessageBubble.innerHTML = botResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            botMessageBubble.classList.remove('bg-gray-700','text-slate-400','animate-pulse');
+            botMessageBubble.classList.add('bg-gray-800');
+            
+        } catch (error) {
+            console.error('Gemini Image API Error:', error);
+            botMessageBubble.textContent = `❌ Error koneksi/pemrosesan gambar: ${error.message}.`;
+            botMessageBubble.classList.add('text-red-400');
+        } finally {
+            setChatState(false);
+        }
+    }
+    
     // =========================================================================
-    // 🚀 Data Analysis (CSV) Logic (Dipertahankan)
+    // 🚀 Data Analysis (CSV) Logic (DIPERBAIKI)
     // =========================================================================
     const csvFileInput = document.getElementById('csvFileInput');
     const csvControls = document.getElementById('csvControls');
@@ -759,16 +658,16 @@
             skipEmptyLines: true,
             delimiter: '\t', // Menggunakan tab sebagai delimiter
             complete: (results) => {
-                parsedCsvData = results.data;
+                parsedCsvData = results.data.filter(row => row['<DATE>'] && row['<CLOSE>']);
                 
                 yearSelector.innerHTML = '<option value="all_monthly">Semua Tahun (Rata-rata Bulanan)</option>';
                 yearSelector.innerHTML += '<option value="all_daily">Semua Tahun (Rata-rata Harian)</option>';
 
                 availableYears.clear();
                 parsedCsvData.forEach(row => {
-                    if (row['<DATE>']) {
-                        const year = row['<DATE>'].substring(0, 4);
-                        availableYears.add(year);
+                    const dateString = row['<DATE>'].substring(0, 4);
+                    if (dateString.length === 4) {
+                        availableYears.add(dateString);
                     }
                 });
                 
@@ -805,7 +704,7 @@
         dataStatus.textContent = 'Membuat Chart...';
 
         const [selectedYear, mode] = yearSelector.value.split('_');
-        let chartData = {};
+        let chartData = { labels: [], data: [] };
         let title = '';
         let xAxisLabel = '';
 
@@ -816,7 +715,7 @@
                 xAxisLabel = 'Bulan';
             } else if (mode === 'daily') {
                  chartData = processDailyData(selectedYear);
-                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Rata-rata Bulanan/Harian)' : `Harga Tutup Harian Tahun ${selectedYear}`;
+                 title = selectedYear === 'all' ? 'Rata-rata Harga Tutup Harian (Semua Tahun)' : `Harga Tutup Harian Tahun ${selectedYear}`;
                  xAxisLabel = selectedYear === 'all' ? 'Bulan/Tanggal' : 'Tanggal';
             }
 
@@ -829,92 +728,119 @@
             dataStatus.textContent = `❌ Error saat membuat chart: ${error.message}`;
             dataStatus.classList.add('text-red-400');
             dataStatus.classList.remove('text-emerald-400');
+            console.error(error);
         }
     });
 
-    // Helper: Process Monthly Averages
+    // Helper: Process Monthly Averages (FIXED LOGIC)
     function processMonthlyAverages(targetYear) {
-        const monthlyAverages = {};
-        const monthlyCounts = {};
+        const aggregation = {}; // Key: 'MM' for all_monthly, or 'YYYY-MM' for specific year_monthly
 
         parsedCsvData.forEach(row => {
-            if (!row['<DATE>'] || !row['<CLOSE>']) return;
-            
-            const dateParts = row['<DATE>'].split('.'); // YYYY.MM.DD
+            const dateString = row['<DATE>'].substring(0, 10); // Ambil YYYY.MM.DD
+            const dateParts = dateString.split('.');
             if (dateParts.length < 3) return;
+            
             const year = dateParts[0];
-            const month = parseInt(dateParts[1], 10) - 1; 
+            const month = dateParts[1]; // MM
             const closePrice = parseFloat(row['<CLOSE>']);
 
             if (isNaN(closePrice)) return;
             
             if (targetYear !== 'all' && year !== targetYear) return;
 
-            const key = targetYear === 'all' ? MONTHS[month] : `${MONTHS[month]} ${year}`;
+            const key = targetYear === 'all' ? month : `${year}-${month}`; 
 
-            monthlyAverages[key] = (monthlyAverages[key] || 0) + closePrice;
-            monthlyCounts[key] = (monthlyCounts[key] || 0) + 1;
+            if (!aggregation[key]) {
+                aggregation[key] = { sum: 0, count: 0 };
+            }
+            aggregation[key].sum += closePrice;
+            aggregation[key].count += 1;
         });
 
-        // Sorting labels: If all, sort by month index. If specific year, month order is preserved.
-        let labels;
+        let keys = Object.keys(aggregation);
+        
         if (targetYear === 'all') {
-            labels = MONTHS.filter((_, index) => monthlyAverages.hasOwnProperty(index)).map(m => m);
+            keys.sort(); // Sort by month number (01 to 12)
         } else {
-            labels = Object.keys(monthlyAverages).sort((a,b) => MONTHS.indexOf(a.split(' ')[0]) - MONTHS.indexOf(b.split(' ')[0]));
+            keys.sort(); // Sort by YYYY-MM
         }
-
-        const data = labels.map(label => {
-            let key = targetYear === 'all' ? MONTHS.indexOf(label) : label;
-            const avg = monthlyAverages[key] / monthlyCounts[key];
-            return parseFloat(avg.toFixed(2));
-        });
-
-        return { labels: targetYear === 'all' ? MONTHS : labels, data: data };
-    }
-
-
-    // Helper: Process Daily Data for a Year or All Years (Average)
-    function processDailyData(targetYear) {
-        const dailyPrices = {};
-        const dailyCounts = {};
-
-        parsedCsvData.forEach(row => {
-            if (!row['<DATE>'] || !row['<CLOSE>']) return;
-            
-            const date = row['<DATE>'];
-            const closePrice = parseFloat(row['<CLOSE>']);
-            if (isNaN(closePrice)) return;
-
-            const year = date.substring(0, 4);
-
-            if (targetYear !== 'all') {
-                if (year !== targetYear) return;
-                
-                // For a specific year, use full date (YYYY.MM.DD) as key
-                if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
-                    dailyPrices[date] = closePrice;
-                    dailyCounts[date] = 1;
-                }
+        
+        const labels = keys.map(key => {
+            if (targetYear === 'all') {
+                // Key is 'MM'
+                return MONTHS[parseInt(key, 10) - 1];
             } else {
-                // For all years, use MM.DD as key and calculate average price
-                 if(date.endsWith('00:00:00')) { // Filter to only use daily (00:00:00) entries
-                    const monthDay = date.substring(5); // MM.DD
-                    dailyPrices[monthDay] = (dailyPrices[monthDay] || 0) + closePrice;
-                    dailyCounts[monthDay] = (dailyCounts[monthDay] || 0) + 1;
-                }
+                // Key is 'YYYY-MM'
+                const [year, month] = key.split('-');
+                return `${MONTHS[parseInt(month, 10) - 1]} ${year}`;
             }
         });
         
-        let labels = Object.keys(dailyPrices).sort();
-        let data = labels.map(label => {
-            const avg = dailyPrices[label] / dailyCounts[label];
-            return parseFloat(avg.toFixed(2));
+        const data = keys.map(key => {
+            return parseFloat((aggregation[key].sum / aggregation[key].count).toFixed(2));
         });
 
+        // Jika 'all_monthly', pastikan semua bulan ada di label
         if (targetYear === 'all') {
-             labels = labels.map(label => label.replace('.', '/'));
+            const fullData = Array(12).fill(null);
+            const fullLabels = [...MONTHS];
+            
+            labels.forEach((label, index) => {
+                const monthIndex = MONTHS.indexOf(label);
+                if(monthIndex !== -1) {
+                    fullData[monthIndex] = data[index];
+                }
+            });
+            return { labels: fullLabels, data: fullData };
         }
+
+        return { labels, data };
+    }
+
+
+    // Helper: Process Daily Data for a Year or All Years (Average) (FIXED LOGIC)
+    function processDailyData(targetYear) {
+        const aggregation = {}; // Key: 'MM.DD' for all_daily, or 'YYYY.MM.DD' for specific year_daily
+        
+        parsedCsvData.forEach(row => {
+            const dateString = row['<DATE>'].substring(0, 10); // YYYY.MM.DD
+            const dateParts = dateString.split('.');
+            if (dateParts.length < 3) return;
+            
+            const year = dateParts[0];
+            const monthDay = `${dateParts[1]}.${dateParts[2]}`; // MM.DD
+            const closePrice = parseFloat(row['<CLOSE>']);
+
+            if (isNaN(closePrice)) return;
+
+            if (targetYear !== 'all') {
+                if (year !== targetYear) return;
+                // Specific year: key is full date
+                const key = dateString;
+                if (!aggregation[key]) { aggregation[key] = { sum: 0, count: 0 }; }
+                aggregation[key].sum = closePrice; // Assuming only one entry per day
+                aggregation[key].count = 1;
+
+            } else {
+                // All years: key is month.day (average for that day across all years)
+                const key = monthDay;
+                if (!aggregation[key]) { aggregation[key] = { sum: 0, count: 0 }; }
+                aggregation[key].sum += closePrice;
+                aggregation[key].count += 1;
+            }
+        });
+        
+        let keys = Object.keys(aggregation);
+        keys.sort();
+
+        const labels = keys.map(key => {
+            return targetYear === 'all' ? key.replace('.', '/') : key;
+        });
+        
+        const data = keys.map(key => {
+            return parseFloat((aggregation[key].sum / aggregation[key].count).toFixed(2));
+        });
 
         return { labels: labels, data: data };
     }
