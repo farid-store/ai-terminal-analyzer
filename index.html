@@ -9,29 +9,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     
     <style>
-        /* Modern scrollbar for dark theme */
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.6); }
         .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
 
-        /* tradingview sizing helpers */
         .tradingview-widget-container { width: 100%; height: 100%; }
         .tradingview-widget-container__widget { width: 100%; height: 100%; }
         
-        /* Smooth transitions */
         .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
     </style>
 </head>
 <body class="bg-gray-950 text-slate-100 antialiased font-sans custom-scroll selection:bg-emerald-500/30">
 
 <script>
-    // =========================================================================
-    // Kunci API ditempatkan langsung di script untuk aplikasi web lokal
-    const GEMINI_API_KEY = "AIzaSyBD22OZdh4V0ypkIj2DfG1wHcY_6KYLcCU"; 
-    const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"; 
-    // =========================================================================
-
     // Model IDs
     const TEXT_MODEL = "gemini-2.5-flash"; 
     const MULTIMODAL_MODEL = "gemini-2.5-flash"; 
@@ -87,9 +78,7 @@
 </header>
 
 <main class="max-w-[1600px] mx-auto px-4 py-6 grid gap-6 grid-cols-1 lg:grid-cols-12 min-h-screen">
-    
     <div class="lg:col-span-8 xl:col-span-9 space-y-6">
-        
         <section class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl flex flex-col h-[550px] md:h-[650px]">
             <div class="flex flex-wrap items-center justify-between mb-4 gap-3">
                 <div>
@@ -218,7 +207,7 @@
         <section class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl mt-6">
             <h2 class="text-2xl font-bold text-slate-100 mb-6 border-b border-gray-800 pb-4 flex items-center gap-3">
                 <span class="p-2 bg-gray-800 rounded-lg text-amber-500">📈</span> 
-                Analisis Data Historis Pasar (2015-2025)
+                Analisis Data Historis Emas (2015-2025)
             </h2>
             <div id="local-data-container" class="space-y-6">
                 <div id="chart-area" class="bg-gray-950 p-5 rounded-xl border border-gray-800">
@@ -255,7 +244,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-800 bg-gray-950/50">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -264,7 +253,6 @@
     </div>
 
     <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-6 sticky top-[80px] h-fit">
-        
         <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-xl flex flex-col h-[550px]">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold">Market Feed</h3>
@@ -407,7 +395,6 @@
 </div>
 
 <script>
-    /* ======== UI: Tabs & Chart Symbol ======== */
     const tabNewsBtn = document.getElementById('tabNewsBtn');
     const tabAnalysisBtn = document.getElementById('tabAnalysisBtn');
     const tabNews = document.getElementById('tabNews');
@@ -463,7 +450,6 @@
         container.appendChild(script);
     });
 
-    /* ======== Chat UI ======== */
     const chatFab = document.getElementById('chatFab');
     const chatModal = document.getElementById('chatModal');
     const openChatBtnHeader = document.getElementById('openChatBtnHeader');
@@ -548,7 +534,6 @@
         }
     }
 
-    /* ======== Gemini AI Logic (+ HISTORY) ======== */
     let chatHistory = []; 
 
     async function callGemini(bodyParts, type) {
@@ -558,35 +543,26 @@
         const loadingMessage = type === 'text' ? '(AI is thinking...)' : '(AI analyzing image...)';
         let thinkingBubble = appendMsg('bot', loadingMessage);
 
-        if (!GEMINI_API_KEY) {
-            thinkingBubble.textContent = "❌ ERROR: Kunci API tidak disetel.";
-            thinkingBubble.className = "px-3 py-2.5 rounded-xl bg-red-900/50 border border-red-700 text-red-300 text-xs";
-            disableInputs(false);
-            return;
-        }
-
         const newUserMessage = { role: "user", parts: bodyParts };
         const currentRequestContents = [...chatHistory, newUserMessage];
 
         try {
-            const url = `${GEMINI_API_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
-            const apiBody = { contents: currentRequestContents };
-
-            const res = await fetch(url, {
+            // Memanggil endpoint backend Vercel secara lokal
+            const response = await fetch('/api/gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(apiBody)
+                body: JSON.stringify({ contents: currentRequestContents, model: model })
             });
 
             thinkingBubble.remove();
             
-            if (!res.ok) {
-                const errorData = await res.json();
-                appendMsg('bot', `<span class="text-red-400">API Error: ${errorData.error?.message || 'Unknown Error'}</span>`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                appendMsg('bot', `<span class="text-red-400">API Error: ${data.error || 'Unknown Error'}</span>`);
                 return;
             }
 
-            const data = await res.json();
             const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
             if (responseText) {
@@ -599,7 +575,7 @@
             
         } catch (e) {
             thinkingBubble.remove();
-            appendMsg('bot', `<span class="text-red-400">❌ Error: ${e.message}</span>`);
+            appendMsg('bot', `<span class="text-red-400">❌ Error Jaringan/Server: ${e.message}</span>`);
         } finally {
             disableInputs(false); 
         }
@@ -665,10 +641,7 @@
     });
     imageInput.addEventListener('change', handleImageFileChange);
 
-/* ========================================================================================= */
-/* ======== 📈 LOCAL HISTORICAL DATA ANALYSIS ======== */
-/* ========================================================================================= */
-
+// Data Tren Historis
 const rawData = [
     { monthYear: "Jan 2015", trend: "Ranging", desc: "Konsolidasi di tengah penguatan Dolar AS.", factor: "Kekuatan Dolar AS pasca berakhirnya Quantitative Easing (QE) The Fed." },
     { monthYear: "Feb 2015", trend: "Downtrend", desc: "Penurunan tajam, momentum bearish kuat.", factor: "Ekspektasi kenaikan suku bunga AS (Rate Hike)." },
@@ -802,6 +775,7 @@ const rawData = [
     { monthYear: "Okt 2025", trend: "Ranging → Uptrend", desc: "Ada potensi kenaikan lanjutan ke akhir tahun.", factor: "Ketegangan geopolitik baru di Timur Tengah." }
 ];
 
+// Data Harga
 const priceData = [
     { month: 'Jan', year: 2015, high: 1307.387, low: 1201.766 },
     { month: 'Feb', year: 2015, high: 1295.277, low: 1195.424 },
