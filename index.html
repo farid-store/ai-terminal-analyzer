@@ -976,29 +976,29 @@ body::before {
     </div>
 
     <!-- Global Macro -->
-<div class="panel panel-bracket" style="height:450px; display:flex; flex-direction:column;">
-      <div class="panel-header" style="flex-shrink:0; border-left:2px solid var(--txt-2);">
-        <span class="label-sm" style="color:var(--txt-1);">Global Macro Radar</span>
+<div class="panel panel-bracket" style="display:flex; flex-direction:column; height:450px;">
+      <div class="panel-header" style="flex-shrink:0; border-left:2px solid var(--amber);">
+        <span class="label-sm" style="color:var(--amber);">Global Macro Radar</span>
         <span class="label-xs">1D CANDLESTICK CHARTS</span>
       </div>
 
       <div style="margin:8px; padding:8px; background:rgba(255, 170, 0, 0.05); border:1px dashed var(--amber); border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--txt-1); line-height:1.5; letter-spacing:0.04em; flex-shrink:0;">
         <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY & US10Y Naik:</strong> Gravitasi pasar kuat. <span style="color:var(--amber);">XAU/BTC tertekan turun.</span><br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Inflasi meroket. The Fed berpotensi tahan suku bunga tinggi.<br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">VIX > 30:</strong> Pasar panik (Risk-Off). Hati-hati anjloknya saham & crypto.
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY Naik / T-NOTE Turun:</strong> Suku bunga & Dolar menguat. <span style="color:var(--amber);">XAU & BTC biasanya tertekan turun.</span><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Ancaman inflasi meroket. The Fed berpotensi menahan suku bunga tinggi.<br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">SPX500 Anjlok:</strong> Pasar saham panik (Risk-Off). Uang investor biasanya lari ke Safe Haven (Emas).
       </div>
       
       <div style="flex:1; padding:0 8px 8px 8px; display:flex; flex-direction:row; gap:8px; overflow:hidden;">
 
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); position:relative;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--p-bright); font-weight:bold; letter-spacing:1px; pointer-events:none;">DXY</div>
+        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--p-bright); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">DXY (DOLLAR)</div>
           <div class="tradingview-widget-container" style="height:100%; width:100%;">
             <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
             {
             "autosize": true,
-            "symbol": "TVC:DXY",
+            "symbol": "FOREXCOM:DXY",
             "interval": "D",
             "timezone": "Asia/Jakarta",
             "theme": "dark",
@@ -1016,14 +1016,14 @@ body::before {
           </div>
         </div>
 
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); position:relative;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none;">US10Y</div>
+        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">US 10Y T-NOTE</div>
           <div class="tradingview-widget-container" style="height:100%; width:100%;">
             <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
             {
             "autosize": true,
-            "symbol": "TVC:US10Y",
+            "symbol": "OANDA:USB10YUSD",
             "interval": "D",
             "timezone": "Asia/Jakarta",
             "theme": "dark",
@@ -1041,8 +1041,8 @@ body::before {
           </div>
         </div>
 
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); position:relative;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none;">OIL (WTI)</div>
+        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">OIL (WTI)</div>
           <div class="tradingview-widget-container" style="height:100%; width:100%;">
             <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -1066,14 +1066,14 @@ body::before {
           </div>
         </div>
 
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); position:relative;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none;">VIX</div>
+        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">S&P 500</div>
           <div class="tradingview-widget-container" style="height:100%; width:100%;">
             <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
             {
             "autosize": true,
-            "symbol": "TVC:VIX",
+            "symbol": "OANDA:SPX500USD",
             "interval": "D",
             "timezone": "Asia/Jakarta",
             "theme": "dark",
