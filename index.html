@@ -1143,13 +1143,18 @@ const tabNews = document.getElementById('tabNews');
 const tabAnalysis = document.getElementById('tabAnalysis');
 
 tabNewsBtn.addEventListener('click', () => {
-  tabNews.style.display = 'block'; tabAnalysis.style.display = 'none';
-  tabNewsBtn.classList.add('active'); tabAnalysisBtn.classList.remove('active');
+  tabNews.style.display = 'block'; 
+  tabAnalysis.style.display = 'none';
+  tabNewsBtn.classList.add('active'); 
+  tabAnalysisBtn.classList.remove('active');
 });
+
 tabAnalysisBtn.addEventListener('click', () => {
-  tabAnalysis.style.display = 'flex'; tabAnalysis.style.flexDirection = 'column';
+  tabAnalysis.style.display = 'flex'; 
+  // Perintah flexDirection = 'column' dihapus dari sini!
   tabNews.style.display = 'none';
-  tabAnalysisBtn.classList.add('active'); tabNewsBtn.classList.remove('active');
+  tabAnalysisBtn.classList.add('active'); 
+  tabNewsBtn.classList.remove('active');
 });
 
 // ── Apply Symbol ──
