@@ -1364,11 +1364,11 @@ messageInput.addEventListener('input', function(){
   this.style.height='auto'; this.style.height=this.scrollHeight+'px';
 });
 imageInput.addEventListener('change', handleImage);
+// ═════════════════════════════════════════════════════════════
+// ██ SECTION 05: HISTORICAL DATA & CHART SYSTEM (REVISED) ██
+// ═════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════
-// HISTORICAL DATA
-// ═══════════════════════════════════════
-const rawData=[
+const rawData = [
   {monthYear:"Jan 2015",trend:"Ranging",desc:"Konsolidasi di tengah penguatan Dolar AS.",factor:"Kekuatan Dolar AS pasca berakhirnya QE The Fed."},
   {monthYear:"Feb 2015",trend:"Downtrend",desc:"Penurunan tajam, momentum bearish kuat.",factor:"Ekspektasi kenaikan suku bunga AS."},
   {monthYear:"Mar 2015",trend:"Ranging",desc:"Sideways di area support.",factor:"Pasar mencerna data ekonomi AS yang beragam."},
@@ -1489,32 +1489,41 @@ const rawData=[
   {monthYear:"Okt 2024",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Inflasi global menurun."},
   {monthYear:"Nov 2024",trend:"Ranging",desc:"Konsolidasi.",factor:"Menunggu hasil pemilu AS."},
   {monthYear:"Dec 2024",trend:"Uptrend",desc:"Bullish continuation.",factor:"Euforia pasca pemilu AS."},
-  {monthYear:"Jan 2025",trend:"Uptrend",desc:"Tembus resistance lama.",factor:"Fed mulai potong suku bunga."},
-  {monthYear:"Feb 2025",trend:"Ranging",desc:"Sideways di puncak.",factor:"Tidak ada katalis besar."},
-  {monthYear:"Mar 2025",trend:"Downtrend",desc:"Koreksi wajar.",factor:"USD rebound teknikal."},
-  {monthYear:"Apr 2025",trend:"Downtrend",desc:"Tekanan jual meningkat.",factor:"Data inflasi naik kembali."},
-  {monthYear:"Mei 2025",trend:"Ranging",desc:"Konsolidasi setelah drop.",factor:"Menunggu arah kebijakan baru Fed."},
-  {monthYear:"Jun 2025",trend:"Ranging → Uptrend",desc:"Tanda reversal bullish.",factor:"Data CPI menurun lagi."},
-  {monthYear:"Jul 2025",trend:"Uptrend",desc:"Momentum naik kuat.",factor:"Spekulasi pemotongan lanjutan suku bunga."},
-  {monthYear:"Agu 2025",trend:"Uptrend",desc:"Bullish stabil dengan higher low.",factor:"USD melemah, risk-off meningkat."},
-  {monthYear:"Sep 2025",trend:"Ranging",desc:"Datar menjelang Q4.",factor:"Tidak ada event besar."},
-  {monthYear:"Okt 2025",trend:"Ranging → Uptrend",desc:"Potensi kenaikan ke akhir tahun.",factor:"Ketegangan geopolitik baru di Timur Tengah."}
+  // TERBARU: 2025 - 2026
+  {monthYear:"Jan 2025",trend:"Uptrend",desc:"Tembus resistance lama.",factor:"The Fed mulai potong suku bunga."},
+  {monthYear:"Feb 2025",trend:"Uptrend",desc:"Kenaikan stabil tembus $2900.",factor:"Geopolitik & pembelian emas sentral."},
+  {monthYear:"Mar 2025",trend:"Uptrend kuat",desc:"Tembus $3000 pertama kali.",factor:"Ketidakpastian ekonomi global."},
+  {monthYear:"Apr 2025",trend:"Uptrend tajam",desc:"Rally ke area $3500.",factor:"Permintaan kuat Safe Haven."},
+  {monthYear:"Mei 2025",trend:"Ranging",desc:"Konsolidasi pasca rally.",factor:"Aksi Profit taking."},
+  {monthYear:"Jun 2025",trend:"Ranging",desc:"Mendatar di $3300-$3400.",factor:"Menunggu data inflasi berikutnya."},
+  {monthYear:"Jul 2025",trend:"Uptrend",desc:"Momentum naik kembali.",factor:"Spekulasi pemotongan lanjutan."},
+  {monthYear:"Agu 2025",trend:"Uptrend",desc:"Kenaikan menjelang FOMC.",factor:"Sinyal dovish makin kuat."},
+  {monthYear:"Sep 2025",trend:"Uptrend kuat",desc:"Breakout tembus $3800.",factor:"Fed memangkas suku bunga 50 bps."},
+  {monthYear:"Okt 2025",trend:"Breakout Historis",desc:"Tembus $4000 pertama kalinya.",factor:"Eskalasi Perang Dagang AS-Tiongkok."},
+  {monthYear:"Nov 2025",trend:"Ranging",desc:"Koreksi dan konsolidasi.",factor:"Pasar mencerna rekor harga baru."},
+  {monthYear:"Des 2025",trend:"Uptrend tajam",desc:"Rally ke rekor $4550.",factor:"Permintaan institusi & ETF membludak."},
+  {monthYear:"Jan 2026",trend:"Puncak Historis",desc:"Lonjakan masif mencapai $5595.",factor:"Krisis energi global & geopolitik."},
+  {monthYear:"Feb 2026",trend:"Downtrend Awal",desc:"Koreksi tajam dari puncak.",factor:"Rotasi modal, ekspektasi rate hike ulang."},
+  {monthYear:"Mar 2026",trend:"Crash",desc:"Jatuh 27% ke level $4099.",factor:"Ketakutan Stagflasi, Dolar & Minyak menguat."}
 ];
 
-const priceData=[
-  {month:'Jan',year:2015,high:1307.387,low:1201.766},{month:'Feb',year:2015,high:1295.277,low:1195.424},{month:'Mar',year:2015,high:1224.239,low:1142.345},{month:'Apr',year:2015,high:1224.591,low:1178.614},{month:'Mei',year:2015,high:1232.067,low:1170.925},{month:'Jun',year:2015,high:1204.31,low:1172.935},{month:'Jul',year:2015,high:1165.738,low:1076.62},{month:'Agu',year:2015,high:1131.742,low:1079.176},{month:'Sep',year:2015,high:1156.401,low:1104.997},{month:'Okt',year:2015,high:1184.225,low:1100.868},{month:'Nov',year:2015,high:1150.311,low:1064.954},{month:'Des',year:2015,high:1087.97,low:1046.208},
-  {month:'Jan',year:2016,high:1127.915,low:1070.781},{month:'Feb',year:2016,high:1263.951,low:1092.793},{month:'Mar',year:2016,high:1284.156,low:1206.197},{month:'Apr',year:2016,high:1297.042,low:1210.027},{month:'Mei',year:2016,high:1300.732,low:1209.615},{month:'Jun',year:2016,high:1358.97,low:1201.037},{month:'Jul',year:2016,high:1375.02,low:1308.205},{month:'Agu',year:2016,high:1367.62,low:1310.875},{month:'Sep',year:2016,high:1343.344,low:1302.26},{month:'Okt',year:2016,high:1337.894,low:1241.055},{month:'Nov',year:2016,high:1304.538,low:1170.999},{month:'Des',year:2016,high:1180.767,low:1121.282},
-  {month:'Jan',year:2017,high:1221.782,low:1139.75},{month:'Feb',year:2017,high:1263.268,low:1209.083},{month:'Mar',year:2017,high:1269.467,low:1205.578},{month:'Apr',year:2017,high:1295.631,low:1239.544},{month:'Mei',year:2017,high:1272.76,low:1214.39},{month:'Jun',year:2017,high:1295.731,low:1230.134},{month:'Jul',year:2017,high:1264.44,low:1204.654},{month:'Agu',year:2017,high:1317.02,low:1251.107},{month:'Sep',year:2017,high:1357.755,low:1260.675},{month:'Okt',year:2017,high:1306.075,low:1260.368},{month:'Nov',year:2017,high:1296.38,low:1263.743},{month:'Des',year:2017,high:1299.165,low:1236.787},
-  {month:'Jan',year:2018,high:1366.195,low:1308.267},{month:'Feb',year:2018,high:1361.642,low:1307.747},{month:'Mar',year:2018,high:1357.877,low:1305.105},{month:'Apr',year:2018,high:1365.17,low:1304.57},{month:'Mei',year:2018,high:1324.966,low:1284.116},{month:'Jun',year:2018,high:1309.847,low:1243.618},{month:'Jul',year:2018,high:1265.918,low:1211.961},{month:'Agu',year:2018,high:1220.738,low:1160.038},{month:'Sep',year:2018,high:1215.111,low:1184.148},{month:'Okt',year:2018,high:1243.518,low:1183.05},{month:'Nov',year:2018,high:1249.773,low:1200.738},{month:'Des',year:2018,high:1285.498,low:1219.866},
-  {month:'Jan',year:2019,high:1317.844,low:1276.104},{month:'Feb',year:2019,high:1346.746,low:1280.975},{month:'Mar',year:2019,high:1324.464,low:1281.332},{month:'Apr',year:2019,high:1310.279,low:1266.386},{month:'Mei',year:2019,high:1303.407,low:1266.696},{month:'Jun',year:2019,high:1441.761,low:1270.751},{month:'Jul',year:2019,high:1453.076,low:1381.821},{month:'Agu',year:2019,high:1555.708,low:1451.916},{month:'Sep',year:2019,high:1557.067,low:1459.186},{month:'Okt',year:2019,high:1519.814,low:1457.551},{month:'Nov',year:2019,high:1514.88,low:1445.672},{month:'Des',year:2019,high:1525.185,low:1458.556},
-  {month:'Jan',year:2020,high:1611.365,low:1517.172},{month:'Feb',year:2020,high:1689.213,low:1547.479},{month:'Mar',year:2020,high:1703.179,low:1451.281},{month:'Apr',year:2020,high:1746.579,low:1571.348},{month:'Mei',year:2020,high:1764.715,low:1670.131},{month:'Jun',year:2020,high:1785.729,low:1670.51},{month:'Jul',year:2020,high:1982.318,low:1757.464},{month:'Agu',year:2020,high:2073.682,low:1863.593},{month:'Sep',year:2020,high:1992.297,low:1848.076},{month:'Okt',year:2020,high:1933.178,low:1859.815},{month:'Nov',year:2020,high:1965.419,low:1764.16},{month:'Des',year:2020,high:1906.667,low:1776.74},
-  {month:'Jan',year:2021,high:1959.29,low:1802.438},{month:'Feb',year:2021,high:1871.716,low:1717.03},{month:'Mar',year:2021,high:1759.715,low:1676.627},{month:'Apr',year:2021,high:1797.756,low:1705.761},{month:'Mei',year:2021,high:1912.616,low:1766.046},{month:'Jun',year:2021,high:1916.446,low:1750.621},{month:'Jul',year:2021,high:1834.039,low:1765.633},{month:'Agu',year:2021,high:1831.657,low:1686.784},{month:'Sep',year:2021,high:1833.859,low:1721.571},{month:'Okt',year:2021,high:1813.56,low:1745.822},{month:'Nov',year:2021,high:1877.067,low:1758.534},{month:'Des',year:2021,high:1828.722,low:1753.053},
-  {month:'Jan',year:2022,high:1853.785,low:1779.895},{month:'Feb',year:2022,high:1974.331,low:1788.521},{month:'Mar',year:2022,high:2070.292,low:1889.783},{month:'Apr',year:2022,high:1998.024,low:1871.981},{month:'Mei',year:2022,high:1909.551,low:1786.381},{month:'Jun',year:2022,high:1878.832,low:1802.627},{month:'Jul',year:2022,high:1814.091,low:1680.811},{month:'Agu',year:2022,high:1807.831,low:1705.48},{month:'Sep',year:2022,high:1735.081,low:1614.427},{month:'Okt',year:2022,high:1729.469,low:1616.886},{month:'Nov',year:2022,high:1786.472,low:1616.624},{month:'Des',year:2022,high:1832.979,low:1765.756},
-  {month:'Jan',year:2023,high:1949.116,low:1823.998},{month:'Feb',year:2023,high:1959.639,low:1804.362},{month:'Mar',year:2023,high:2009.668,low:1809.372},{month:'Apr',year:2023,high:2048.597,low:1949.542},{month:'Mei',year:2023,high:2079.817,low:1932.042},{month:'Jun',year:2023,high:1983.332,low:1892.839},{month:'Jul',year:2023,high:1987.421,low:1902.568},{month:'Agu',year:2023,high:1964.628,low:1884.547},{month:'Sep',year:2023,high:1952.331,low:1846.282},{month:'Okt',year:2023,high:2009.327,low:1810.402},{month:'Nov',year:2023,high:2052.03,low:1921.394},{month:'Des',year:2023,high:2144.46,low:1973.033},
-  {month:'Jan',year:2024,high:2078.877,low:2001.742},{month:'Feb',year:2024,high:2065.458,low:1984.121},{month:'Mar',year:2024,high:2247.34,low:2039.039},{month:'Apr',year:2024,high:2431.527,low:2228.472},{month:'Mei',year:2024,high:2450.026,low:2277.089},{month:'Jun',year:2024,high:2387.702,low:2286.723},{month:'Jul',year:2024,high:2483.739,low:2318.438},{month:'Agu',year:2024,high:2531.668,low:2364.267},{month:'Sep',year:2024,high:2685.611,low:2471.826},{month:'Okt',year:2024,high:2790.075,low:2602.178},{month:'Nov',year:2024,high:2762.254,low:2536.755},{month:'Dec',year:2024,high:2726.206,low:2583.389},
-  {month:'Jan',year:2025,high:2817.244,low:2614.419},{month:'Feb',year:2025,high:2956.229,low:2772.151},{month:'Mar',year:2025,high:3128.165,low:2858.83},{month:'Apr',year:2025,high:3500.033,low:2956.374},{month:'Mei',year:2025,high:3435.016,low:3120.65},{month:'Jun',year:2025,high:3451.251,low:3247.921},{month:'Jul',year:2025,high:3438.98,low:3268.034},{month:'Agu',year:2025,high:3453.924,low:3281.566},{month:'Sep',year:2025,high:3871.7,low:3437.028},{month:'Okt',year:2025,high:4380.074,low:3819.335}
+const priceData = [
+  {month:'Jan',year:2015,high:1307.38,low:1201.76},{month:'Feb',year:2015,high:1295.27,low:1195.42},{month:'Mar',year:2015,high:1224.23,low:1142.34},{month:'Apr',year:2015,high:1224.59,low:1178.61},{month:'Mei',year:2015,high:1232.06,low:1170.92},{month:'Jun',year:2015,high:1204.31,low:1172.93},{month:'Jul',year:2015,high:1165.73,low:1076.62},{month:'Agu',year:2015,high:1131.74,low:1079.17},{month:'Sep',year:2015,high:1156.40,low:1104.99},{month:'Okt',year:2015,high:1184.22,low:1100.86},{month:'Nov',year:2015,high:1150.31,low:1064.95},{month:'Des',year:2015,high:1087.97,low:1046.20},
+  {month:'Jan',year:2016,high:1127.91,low:1070.78},{month:'Feb',year:2016,high:1263.95,low:1092.79},{month:'Mar',year:2016,high:1284.15,low:1206.19},{month:'Apr',year:2016,high:1297.04,low:1210.02},{month:'Mei',year:2016,high:1300.73,low:1209.61},{month:'Jun',year:2016,high:1358.97,low:1201.03},{month:'Jul',year:2016,high:1375.02,low:1308.20},{month:'Agu',year:2016,high:1367.62,low:1310.87},{month:'Sep',year:2016,high:1343.34,low:1302.26},{month:'Okt',year:2016,high:1337.89,low:1241.05},{month:'Nov',year:2016,high:1304.53,low:1170.99},{month:'Des',year:2016,high:1180.76,low:1121.28},
+  {month:'Jan',year:2017,high:1221.78,low:1139.75},{month:'Feb',year:2017,high:1263.26,low:1209.08},{month:'Mar',year:2017,high:1269.46,low:1205.57},{month:'Apr',year:2017,high:1295.63,low:1239.54},{month:'Mei',year:2017,high:1272.76,low:1214.39},{month:'Jun',year:2017,high:1295.73,low:1230.13},{month:'Jul',year:2017,high:1264.44,low:1204.65},{month:'Agu',year:2017,high:1317.02,low:1251.10},{month:'Sep',year:2017,high:1357.75,low:1260.67},{month:'Okt',year:2017,high:1306.07,low:1260.36},{month:'Nov',year:2017,high:1296.38,low:1263.74},{month:'Des',year:2017,high:1299.16,low:1236.78},
+  {month:'Jan',year:2018,high:1366.19,low:1308.26},{month:'Feb',year:2018,high:1361.64,low:1307.74},{month:'Mar',year:2018,high:1357.87,low:1305.10},{month:'Apr',year:2018,high:1365.17,low:1304.57},{month:'Mei',year:2018,high:1324.96,low:1284.11},{month:'Jun',year:2018,high:1309.84,low:1243.61},{month:'Jul',year:2018,high:1265.91,low:1211.96},{month:'Agu',year:2018,high:1220.73,low:1160.03},{month:'Sep',year:2018,high:1215.11,low:1184.14},{month:'Okt',year:2018,high:1243.51,low:1183.05},{month:'Nov',year:2018,high:1249.77,low:1200.73},{month:'Des',year:2018,high:1285.49,low:1219.86},
+  {month:'Jan',year:2019,high:1317.84,low:1276.10},{month:'Feb',year:2019,high:1346.74,low:1280.97},{month:'Mar',year:2019,high:1324.46,low:1281.33},{month:'Apr',year:2019,high:1310.27,low:1266.38},{month:'Mei',year:2019,high:1303.40,low:1266.69},{month:'Jun',year:2019,high:1441.76,low:1270.75},{month:'Jul',year:2019,high:1453.07,low:1381.82},{month:'Agu',year:2019,high:1555.70,low:1451.91},{month:'Sep',year:2019,high:1557.06,low:1459.18},{month:'Okt',year:2019,high:1519.81,low:1457.55},{month:'Nov',year:2019,high:1514.88,low:1445.67},{month:'Des',year:2019,high:1525.18,low:1458.55},
+  {month:'Jan',year:2020,high:1611.36,low:1517.17},{month:'Feb',year:2020,high:1689.21,low:1547.47},{month:'Mar',year:2020,high:1703.17,low:1451.28},{month:'Apr',year:2020,high:1746.57,low:1571.34},{month:'Mei',year:2020,high:1764.71,low:1670.13},{month:'Jun',year:2020,high:1785.72,low:1670.51},{month:'Jul',year:2020,high:1982.31,low:1757.46},{month:'Agu',year:2020,high:2073.68,low:1863.59},{month:'Sep',year:2020,high:1992.29,low:1848.07},{month:'Okt',year:2020,high:1933.17,low:1859.81},{month:'Nov',year:2020,high:1965.41,low:1764.16},{month:'Des',year:2020,high:1906.66,low:1776.74},
+  {month:'Jan',year:2021,high:1959.29,low:1802.43},{month:'Feb',year:2021,high:1871.71,low:1717.03},{month:'Mar',year:2021,high:1759.71,low:1676.62},{month:'Apr',year:2021,high:1797.75,low:1705.76},{month:'Mei',year:2021,high:1912.61,low:1766.04},{month:'Jun',year:2021,high:1916.44,low:1750.62},{month:'Jul',year:2021,high:1834.03,low:1765.63},{month:'Agu',year:2021,high:1831.65,low:1686.78},{month:'Sep',year:2021,high:1833.85,low:1721.57},{month:'Okt',year:2021,high:1813.56,low:1745.82},{month:'Nov',year:2021,high:1877.06,low:1758.53},{month:'Des',year:2021,high:1828.72,low:1753.05},
+  {month:'Jan',year:2022,high:1853.78,low:1779.89},{month:'Feb',year:2022,high:1974.33,low:1788.52},{month:'Mar',year:2022,high:2070.29,low:1889.78},{month:'Apr',year:2022,high:1998.02,low:1871.98},{month:'Mei',year:2022,high:1909.55,low:1786.38},{month:'Jun',year:2022,high:1878.83,low:1802.62},{month:'Jul',year:2022,high:1814.09,low:1680.81},{month:'Agu',year:2022,high:1807.83,low:1705.48},{month:'Sep',year:2022,high:1735.08,low:1614.42},{month:'Okt',year:2022,high:1729.46,low:1616.88},{month:'Nov',year:2022,high:1786.47,low:1616.62},{month:'Des',year:2022,high:1832.97,low:1765.75},
+  {month:'Jan',year:2023,high:1949.11,low:1823.99},{month:'Feb',year:2023,high:1959.63,low:1804.36},{month:'Mar',year:2023,high:2009.66,low:1809.37},{month:'Apr',year:2023,high:2048.59,low:1949.54},{month:'Mei',year:2023,high:2079.81,low:1932.04},{month:'Jun',year:2023,high:1983.33,low:1892.83},{month:'Jul',year:2023,high:1987.42,low:1902.56},{month:'Agu',year:2023,high:1964.62,low:1884.54},{month:'Sep',year:2023,high:1952.33,low:1846.28},{month:'Okt',year:2023,high:2009.32,low:1810.40},{month:'Nov',year:2023,high:2052.03,low:1921.39},{month:'Des',year:2023,high:2144.46,low:1973.03},
+  {month:'Jan',year:2024,high:2078.87,low:2001.74},{month:'Feb',year:2024,high:2065.45,low:1984.12},{month:'Mar',year:2024,high:2247.34,low:2039.03},{month:'Apr',year:2024,high:2431.52,low:2228.47},{month:'Mei',year:2024,high:2450.02,low:2277.08},{month:'Jun',year:2024,high:2387.70,low:2286.72},{month:'Jul',year:2024,high:2483.73,low:2318.43},{month:'Agu',year:2024,high:2531.66,low:2364.26},{month:'Sep',year:2024,high:2685.61,low:2471.82},{month:'Okt',year:2024,high:2790.07,low:2602.17},{month:'Nov',year:2024,high:2762.25,low:2536.75},{month:'Dec',year:2024,high:2726.20,low:2583.38},
+  // TERBARU: 2025 - 2026
+  {month:'Jan',year:2025,high:2817.24,low:2614.41},{month:'Feb',year:2025,high:2956.22,low:2772.15},{month:'Mar',year:2025,high:3128.16,low:2858.83},{month:'Apr',year:2025,high:3500.03,low:2956.37},{month:'Mei',year:2025,high:3435.01,low:3120.65},{month:'Jun',year:2025,high:3451.25,low:3247.92},{month:'Jul',year:2025,high:3438.98,low:3268.03},{month:'Agu',year:2025,high:3453.92,low:3281.56},{month:'Sep',year:2025,high:3865.00,low:3437.02},{month:'Okt',year:2025,high:4379.00,low:3819.33},{month:'Nov',year:2025,high:4232.11,low:4040.50},{month:'Des',year:2025,high:4550.00,low:4190.71},
+  {month:'Jan',year:2026,high:5595.02,low:4534.00},{month:'Feb',year:2026,high:5418.84,low:4800.00},{month:'Mar',year:2026,high:5185.28,low:4099.00}
 ];
 
+// ── DOM & VARIABLES ──
 const uniqueYears = [...new Set(priceData.map(d=>d.year))].sort((a,b)=>b-a);
 const latestYear = uniqueYears[0];
 const trendTbody = document.querySelector('#trend-data-table tbody');
@@ -1523,84 +1532,106 @@ const yearSelectTable = document.getElementById('year-select-table');
 const priceCanvas = document.getElementById('priceLineChart');
 let priceChart;
 
-function getTrendClass(t){
-  const l=t.toLowerCase();
-  if(l.includes('uptrend')||l.includes('rebound')||l.includes('rally')) return 'up';
-  if(l.includes('downtrend')||l.includes('koreksi')||l.includes('crash')||l.includes('volatil')) return 'down';
-  return 'side';
+// ── WARNA DINAMIS BERDASARKAN TEMA CSS ──
+// Daripada memakai class HTML manual, kita inject variabel CSS langsung agar lebih konsisten
+function getTrendColor(t) {
+  const l = t.toLowerCase();
+  if (l.includes('uptrend') || l.includes('breakout') || l.includes('puncak') || l.includes('rally') || l.includes('rebound')) {
+    return 'var(--p-bright, #00ff88)'; // Hijau/Sesuai tema
+  }
+  if (l.includes('downtrend') || l.includes('crash') || l.includes('koreksi')) {
+    return 'var(--amber, #ffaa00)'; // Peringatan/Merah/Oranye
+  }
+  return 'var(--txt-1, #cccccc)'; // Netral/Sideways
 }
 
-function renderChart(yr){
+// ── CHART RENDERER ──
+function renderChart(yr) {
   let data, labels, pointSz;
-  if(yr==='all-time'){
-    data=priceData; labels=data.map(d=>`${d.month.substring(0,3)}'${String(d.year).slice(2)}`); pointSz=0;
+  
+  if (yr === 'all-time') {
+    data = priceData; 
+    labels = data.map(d => `${d.month.substring(0,3)}'${String(d.year).slice(2)}`); 
+    pointSz = 0; // Hilangkan titik jika 'all-time' agar garis tidak bertumpuk berantakan
   } else {
-    data=priceData.filter(d=>d.year===parseInt(yr)); labels=data.map(d=>d.month); pointSz=3;
+    data = priceData.filter(d => d.year === parseInt(yr)); 
+    labels = data.map(d => d.month); 
+    pointSz = 3;
   }
-  if(priceChart) priceChart.destroy();
-  priceChart = new Chart(priceCanvas,{
-    type:'line',
-    data:{
+  
+  if (priceChart) priceChart.destroy();
+  
+  // Menggunakan style terminal (Hijau Neon + Transparansi)
+  const colorHigh = 'rgba(0, 255, 136, 0.8)';
+  const colorHighBg = 'rgba(0, 255, 136, 0.05)';
+  const colorLow = 'rgba(100, 100, 100, 0.6)'; // Warna Low dibuat lebih redup (abu-abu/biru redup) agar kontras
+
+  priceChart = new Chart(priceCanvas, {
+    type: 'line',
+    data: {
       labels,
-      datasets:[
+      datasets: [
         {
-          label:'HIGH',
-          data:data.map(d=>d.high),
-          borderColor:'rgba(0,255,136,0.8)',
-          backgroundColor:'rgba(0,255,136,0.03)',
-          fill:true, tension:0.25,
-          pointRadius:pointSz,
-          pointHoverRadius:pointSz+2,
-          borderWidth:1.5,
-          pointBackgroundColor:'rgba(0,255,136,0.8)'
+          label: 'HIGH',
+          data: data.map(d => d.high),
+          borderColor: colorHigh,
+          backgroundColor: colorHighBg,
+          fill: true, 
+          tension: 0.25,
+          pointRadius: pointSz,
+          pointHoverRadius: pointSz + 2,
+          borderWidth: 1.5,
+          pointBackgroundColor: colorHigh
         },
         {
-          label:'LOW',
-          data:data.map(d=>d.low),
-          borderColor:'rgba(0,153,80,0.5)',
-          backgroundColor:'rgba(0,0,0,0)',
-          fill:false, tension:0.25,
-          pointRadius:pointSz,
-          pointHoverRadius:pointSz+2,
-          borderWidth:1,
-          borderDash:[4,4]
+          label: 'LOW',
+          data: data.map(d => d.low),
+          borderColor: colorLow,
+          backgroundColor: 'transparent',
+          fill: false, 
+          tension: 0.25,
+          pointRadius: pointSz,
+          pointHoverRadius: pointSz + 2,
+          borderWidth: 1,
+          borderDash: [4, 4] // Garis putus-putus untuk Support/Low
         }
       ]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'index', intersect:false},
-      scales:{
-        y:{
-          grid:{color:'rgba(0,255,136,0.05)', borderColor:'rgba(0,255,136,0.1)'},
-          ticks:{color:'rgba(0,153,80,0.8)', font:{family:"'IBM Plex Mono', monospace", size:9}, maxTicksLimit:8}
+    options: {
+      responsive: true, 
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' },
+          ticks: { color: 'var(--txt-2, #888)', font: { family: "'IBM Plex Mono', monospace", size: 9 }, maxTicksLimit: 8 }
         },
-        x:{
-          grid:{display:false, borderColor:'rgba(0,255,136,0.1)'},
-          ticks:{color:'rgba(0,153,80,0.6)', font:{family:"'IBM Plex Mono', monospace", size:9}, autoSkip:yr==='all-time', maxTicksLimit:yr==='all-time'?20:12}
+        x: {
+          grid: { display: false },
+          ticks: { color: 'var(--txt-2, #888)', font: { family: "'IBM Plex Mono', monospace", size: 9 }, autoSkip: yr === 'all-time', maxTicksLimit: yr === 'all-time' ? 20 : 12 }
         }
       },
-      plugins:{
-        legend:{
-          labels:{
-            color:'rgba(0,204,106,0.8)',
-            usePointStyle:true,
-            boxWidth:6,
-            font:{family:"'IBM Plex Mono', monospace", size:9},
-            padding:16
+      plugins: {
+        legend: {
+          labels: {
+            color: 'var(--txt-1, #ccc)',
+            usePointStyle: true,
+            boxWidth: 6,
+            font: { family: "'IBM Plex Mono', monospace", size: 9 },
+            padding: 16
           }
         },
-        tooltip:{
-          backgroundColor:'#040608',
-          titleColor:'#00ff88',
-          bodyColor:'rgba(0,204,106,0.8)',
-          borderColor:'rgba(0,255,136,0.2)',
-          borderWidth:1,
-          padding:10,
-          titleFont:{family:"'IBM Plex Mono', monospace", size:10},
-          bodyFont:{family:"'IBM Plex Mono', monospace", size:10},
-          callbacks:{
-            label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`
+        tooltip: {
+          backgroundColor: '#040608', // Background gelap terminal
+          titleColor: colorHigh,
+          bodyColor: 'var(--txt-1)',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          padding: 10,
+          titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+          bodyFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`
           }
         }
       }
@@ -1608,49 +1639,77 @@ function renderChart(yr){
   });
 }
 
-function renderTable(yr){
-  trendTbody.innerHTML='';
-  const items = rawData.filter(d=>d.monthYear.includes(yr.toString()));
-  if(!items.length){
-    trendTbody.innerHTML=`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txt-3); letter-spacing:0.1em;">[ NO DATA FOR ${yr} ]</td></tr>`;
+// ── TABLE RENDERER ──
+function renderTable(yr) {
+  trendTbody.innerHTML = '';
+  const items = rawData.filter(d => d.monthYear.includes(yr.toString()));
+  
+  if (!items.length) {
+    trendTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--txt-3); letter-spacing:0.1em;">[ NO NARRATIVE DATA FOR ${yr} ]</td></tr>`;
     return;
   }
-  items.forEach((item,i)=>{
-    const tr=trendTbody.insertRow();
-    tr.style.animationDelay = (i*0.02)+'s';
-    tr.insertCell().innerHTML=`<span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em;">${item.monthYear}</span>`;
-    tr.insertCell().innerHTML=`<span class="${getTrendClass(item.trend)}" style="font-size:10px; white-space:nowrap; letter-spacing:0.04em;">${item.trend}</span>`;
-    tr.cells[2].style.cssText='font-size:10px; color:rgba(0,153,80,0.8); line-height:1.5;';
-    tr.cells[2].textContent=item.desc;
-    const fc=tr.insertCell();
-    fc.style.cssText='font-size:10px; color:rgba(0,153,80,0.7); line-height:1.5;';
-    fc.innerHTML=item.factor.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--p-bright)">$1</strong>');
+  
+  items.forEach((item, i) => {
+    const tr = trendTbody.insertRow();
+    tr.style.animationDelay = (i * 0.02) + 's';
+    
+    // Terapkan pewarnaan spesifik dan tipografi ala terminal
+    const trendColor = getTrendColor(item.trend);
+    
+    tr.innerHTML = `
+      <td style="font-family:'IBM Plex Mono', monospace; font-size:10px; font-weight:bold; letter-spacing:0.08em; color:var(--txt-1);">${item.monthYear}</td>
+      <td style="font-size:10px; font-weight:bold; white-space:nowrap; letter-spacing:0.04em; color:${trendColor};">${item.trend}</td>
+      <td style="font-size:10px; color:var(--txt-1); line-height:1.5;">${item.desc}</td>
+      <td style="font-size:10px; color:var(--txt-2); line-height:1.5;">${item.factor.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--p-bright)">$1</strong>')}</td>
+    `;
   });
 }
 
-function loadYear(val){
-  const isAll=val==='all-time';
-  if(yearSelectChart) yearSelectChart.value=val;
-  renderChart(isAll?'all-time':val);
-  if(!isAll){ if(yearSelectTable) yearSelectTable.value=val; renderTable(val); }
-  else { if(yearSelectTable) yearSelectTable.value=latestYear; renderTable(latestYear); }
+// ── DROPDOWN SYNC LOGIC ──
+function loadYear(val) {
+  const isAll = val === 'all-time';
+  
+  // Update Chart
+  if (yearSelectChart) yearSelectChart.value = val;
+  renderChart(isAll ? 'all-time' : val);
+  
+  // Update Table (Jika Chart "All Time", Tabel di-set ke tahun terbaru saja agar tidak kepanjangan)
+  if (yearSelectTable) {
+    const tableVal = isAll ? latestYear : val;
+    yearSelectTable.value = tableVal;
+    renderTable(tableVal);
+  }
 }
 
-function initData(){
-  if(!yearSelectChart||!yearSelectTable) return;
-  uniqueYears.forEach(y=>{
-    [yearSelectChart,yearSelectTable].forEach(sel=>{
-      const o=document.createElement('option');
-      o.value=y; o.textContent=y; sel.appendChild(o);
+// ── INITIALIZATION ──
+function initData() {
+  if (!yearSelectChart || !yearSelectTable) return;
+  
+  // Render opsi tahun ke dalam masing-masing select (tanpa menghapus opsi "All Time" bawaan HTML)
+  uniqueYears.forEach(y => {
+    [yearSelectChart, yearSelectTable].forEach(sel => {
+      // Cegah duplikasi jika "all-time" diklik berkali-kali
+      if(!sel.querySelector(`option[value="${y}"]`)) {
+        const o = document.createElement('option');
+        o.value = y; 
+        o.textContent = y; 
+        sel.appendChild(o);
+      }
     });
   });
-  yearSelectChart.value='all-time';
-  yearSelectTable.value=latestYear;
+  
+  // Pasang Event Listener
+  yearSelectChart.addEventListener('change', e => loadYear(e.target.value));
+  yearSelectTable.addEventListener('change', e => {
+    // Jika tabel diubah ke tahun tertentu, chart ikut menyesuaikan
+    loadYear(e.target.value); 
+  });
+  
+  // Set tampilan pertama kali dimuat
   loadYear('all-time');
-  yearSelectChart.addEventListener('change',e=>loadYear(e.target.value));
-  yearSelectTable.addEventListener('change',e=>loadYear(e.target.value));
 }
 
+// Jalankan ketika DOM siap
 document.addEventListener('DOMContentLoaded', initData);
 </script>
 </body>
