@@ -45,20 +45,6 @@
   --grid-dim:     rgba(0,255,136,0.05);
   --grid-mute:    rgba(0,255,136,0.03);
 
-  /* =========================================================
-   MODERN CHAT UI - Bersih, Elegan, Nyaman Dibaca
-   ========================================================= */
-
-  --chat-primary: #0066ff; /* Warna utama biru */
-  --chat-primary-hover: #0052cc;
-  --chat-bg: #ffffff;
-  --chat-surface: #f8f9fa;
-  --chat-border: #e2e8f0;
-  --chat-text-main: #1e293b;
-  --chat-text-muted: #64748b;
-  --chat-bot-bg: #f1f5f9;
-  --chat-user-bg: #0066ff;
-
 
   /* Text */
   --txt-0:        #00ff88;   /* primary: phosphor */
@@ -438,8 +424,7 @@ body::before {
 
 
 
-
-/* --- Floating Action Button (FAB) --- */
+/* --- Floating Action Button --- */
 .modern-chat-fab {
   position: fixed;
   bottom: 24px;
@@ -447,7 +432,7 @@ body::before {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: var(--chat-primary);
+  background-color: #0066ff;
   color: white;
   border: none;
   box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
@@ -455,32 +440,50 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease;
   z-index: 999;
 }
 
-.modern-chat-fab:hover {
-  transform: scale(1.05);
-  background-color: var(--chat-primary-hover);
-}
+.modern-chat-fab:hover { transform: scale(1.1); }
 
-/* --- Modal Container --- */
+/* --- Container Utama (Modal) --- */
 .modern-chat-modal {
+  /* Variabel Light Mode (Default) */
+  --chat-bg: #ffffff;
+  --chat-surface: #f8f9fa;
+  --chat-border: #e2e8f0;
+  --chat-text-main: #1e293b;
+  --chat-text-muted: #64748b;
+  --chat-bot-bg: #f1f5f9;
+  --chat-user-bg: #0066ff;
+  --chat-primary: #0066ff;
+
   position: fixed;
   bottom: 90px;
   right: 24px;
   width: 360px;
-  height: 500px; /* Lebih tinggi agar nyaman baca diskusi panjang */
+  height: 550px;
   background-color: var(--chat-bg);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  display: none;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  display: none; /* Default tertutup */
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--chat-border);
   z-index: 1000;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  /* Tambahkan display: none; di sini atau kontrol lewat JS Anda */
+  font-family: 'Inter', -apple-system, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+/* --- Dark Mode Variables --- */
+.modern-chat-modal.dark-theme {
+  --chat-bg: #0f172a;
+  --chat-surface: #1e293b;
+  --chat-border: #334155;
+  --chat-text-main: #f1f5f9;
+  --chat-text-muted: #94a3b8;
+  --chat-bot-bg: #334155;
+  --chat-user-bg: #3b82f6;
 }
 
 /* --- Header --- */
@@ -492,88 +495,45 @@ body::before {
   align-items: center;
   justify-content: space-between;
 }
-
-.header-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .header-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--chat-text-main);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
 }
-
 .online-indicator {
-  width: 8px;
-  height: 8px;
-  background-color: #22c55e; /* Hijau online */
-  border-radius: 50%;
-  display: inline-block;
+  width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
 }
+.header-subtitle { font-size: 11px; color: var(--chat-text-muted); }
 
-.header-subtitle {
-  font-size: 12px;
-  color: var(--chat-text-muted);
-}
-
-.modern-close-btn {
-  background: none;
-  border: none;
-  color: var(--chat-text-muted);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.modern-close-btn:hover {
-  background-color: var(--chat-surface);
-  color: var(--chat-text-main);
-}
-
-/* --- Body (Tempat Diskusi) --- */
+/* --- Body (Chat Bubbles) --- */
 .modern-chat-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 20px 16px;
   background-color: var(--chat-surface);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
-
 .chat-system-msg {
-  text-align: center;
-  font-size: 11px;
-  color: var(--chat-text-muted);
-  margin: 8px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-align: center; font-size: 10px; color: var(--chat-text-muted);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
 }
-
-/* Bubble style untuk JavaScript Anda nantinya */
 .chat-bubble {
   max-width: 85%;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 12px 16px;
+  border-radius: 18px;
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
 }
-
 .bot-bubble {
   background-color: var(--chat-bot-bg);
   color: var(--chat-text-main);
   align-self: flex-start;
   border-bottom-left-radius: 4px;
 }
-
-/* Gunakan class ini saat me-render pesan dari user melalui JS */
 .user-bubble {
   background-color: var(--chat-user-bg);
   color: white;
@@ -581,82 +541,31 @@ body::before {
   border-bottom-right-radius: 4px;
 }
 
-/* --- Footer (Input Area) --- */
+/* --- Footer --- */
 .modern-chat-footer {
-  padding: 12px 16px;
+  padding: 14px;
   background-color: var(--chat-bg);
   border-top: 1px solid var(--chat-border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
-
-.input-wrapper {
-  display: flex;
-  align-items: flex-end; /* Memastikan tombol sejajar saat textarea membesar */
-  gap: 10px;
-}
-
-.upload-btn {
-  color: var(--chat-text-muted);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.upload-btn:hover {
-  background-color: var(--chat-surface);
-  color: var(--chat-primary);
-}
-
+.input-wrapper { display: flex; align-items: flex-end; gap: 10px; }
 .modern-chat-input {
-  flex: 1;
-  min-height: 40px;
-  max-height: 100px;
-  border: 1px solid var(--chat-border);
-  border-radius: 20px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: none;
-  background-color: var(--chat-surface);
-  color: var(--chat-text-main);
-  outline: none;
-  transition: border-color 0.2s;
+  flex: 1; border: 1px solid var(--chat-border); border-radius: 22px;
+  padding: 10px 16px; font-size: 14px; background: var(--chat-surface);
+  color: var(--chat-text-main); outline: none; resize: none; max-height: 120px;
 }
-
-.modern-chat-input:focus {
-  border-color: var(--chat-primary);
-  background-color: var(--chat-bg);
-}
-
 .modern-send-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--chat-primary);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background-color 0.2s;
+  width: 40px; height: 40px; border-radius: 50%; background: var(--chat-primary);
+  color: white; border: none; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
 }
-
-.modern-send-btn:hover {
-  background-color: var(--chat-primary-hover);
+.upload-btn {
+  padding: 8px; color: var(--chat-text-muted); cursor: pointer;
 }
-
+.modern-close-btn {
+  background: none; border: none; color: var(--chat-text-muted); cursor: pointer;
+}
 .disclaimer-text {
-  text-align: center;
-  font-size: 10px;
-  color: var(--chat-text-muted);
+  text-align: center; font-size: 9px; color: var(--chat-text-muted); margin-top: 10px;
 }
   
   
@@ -1203,6 +1112,7 @@ body::before {
 <!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
 
 
+
 <div id="chatModal" class="modern-chat-modal">
 
   <div class="modern-chat-header">
@@ -1213,29 +1123,33 @@ body::before {
       </div>
       <div class="header-subtitle">Mode: Text & Image Analysis</div>
     </div>
-    <button id="closeChat" class="modern-close-btn" aria-label="Tutup Chat">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
+    
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button id="themeToggle" class="modern-close-btn" title="Ganti Tema">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <button id="closeChat" class="modern-close-btn" aria-label="Tutup Chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <div id="chatBody" class="modern-chat-body">
     <div class="chat-system-msg">Sesi Diskusi Dimulai</div>
     
     <div class="chat-bubble bot-bubble">
-      MarketHub AI siap membantu. Ada yang ingin didiskusikan terkait kondisi market hari ini?
+      Halo! Saya siap membantu analisis market. Ada yang ingin didiskusikan hari ini?
     </div>
-    <div class="chat-bubble bot-bubble">
-      Anda juga bisa mengunggah screenshot chart untuk analisis teknikal.
-    </div>
-    
-    </div>
+  </div>
 
   <div class="modern-chat-footer">
     <div class="input-wrapper">
-      
       <label for="imageInput" class="upload-btn" title="Unggah Chart">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -1245,7 +1159,7 @@ body::before {
       </label>
       <input id="imageInput" type="file" accept="image/*" style="display:none;">
 
-      <textarea id="messageInput" class="modern-chat-input" rows="1" placeholder="Ketik pesan Anda di sini..."></textarea>
+      <textarea id="messageInput" class="modern-chat-input" rows="1" placeholder="Ketik pesan Anda..."></textarea>
 
       <button id="sendBtn" class="modern-send-btn" aria-label="Kirim Pesan">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1259,7 +1173,6 @@ body::before {
       ⚠ AI Tool Only · Not Financial Advice
     </div>
   </div>
-
 </div>
   
 <!-- ══════════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
@@ -1384,18 +1297,44 @@ document.getElementById('applySymbol').addEventListener('click', () => {
 });
 
 // ── Chat Elements ──
+// ── Elemen UI ──
 const chatFab = document.getElementById('chatFab');
 const chatModal = document.getElementById('chatModal');
-const openChatBtn = document.getElementById('openChatBtn'); // Jika ada tombol lain untuk buka
 const closeChat = document.getElementById('closeChat');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
 const sendBtn = document.getElementById('sendBtn');
 const messageInput = document.getElementById('messageInput');
 const chatBody = document.getElementById('chatBody');
 const imageInput = document.getElementById('imageInput');
+const openChatBtn = document.getElementById('openChatBtn'); // Jika ada tombol lain
 
-// ── Logika Buka/Tutup (Fix Bug Auto-Open & Close) ──
+// ── 1. Logika Tema (Dark/Light Mode) ──
+function updateThemeIcon(isDark) {
+  if (!themeIcon) return;
+  // Ganti path SVG berdasarkan mode
+  themeIcon.innerHTML = isDark 
+    ? '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line>' // Icon Matahari
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Icon Bulan
+}
+
+// Cek simpanan tema di browser
+if (localStorage.getItem('chat-theme') === 'dark') {
+  chatModal.classList.add('dark-theme');
+  updateThemeIcon(true);
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const isDark = chatModal.classList.toggle('dark-theme');
+    localStorage.setItem('chat-theme', isDark ? 'dark' : 'light');
+    updateThemeIcon(isDark);
+  });
+}
+
+// ── 2. Logika Buka/Tutup ──
 function showChat() {
-  chatModal.style.display = 'flex'; // Pakai flex agar layout internal rapi
+  chatModal.style.display = 'flex'; // Gunakan flex agar layout header-body-footer aktif
   chatFab.style.display = 'none';
   setTimeout(() => messageInput.focus(), 250);
 }
@@ -1409,24 +1348,21 @@ chatFab.addEventListener('click', showChat);
 if (openChatBtn) openChatBtn.addEventListener('click', showChat);
 closeChat.addEventListener('click', hideChat);
 
-// ── Logika Append Message (Modern Bubble Style) ──
+// ── 3. Append Message (Modern Bubble) ──
 function appendMsg(who, content, isImage = false) {
-  // Buat element bubble
   const bubble = document.createElement('div');
   bubble.classList.add('chat-bubble');
   bubble.classList.add(who === 'user' ? 'user-bubble' : 'bot-bubble');
 
   if (who === 'user') {
     if (isImage) {
-      // Tampilan gambar untuk user
       const img = document.createElement('img');
       img.src = content.imagePreview;
-      img.style.cssText = 'display:block; max-width:100%; border-radius:8px; margin-bottom:5px;';
+      img.style.cssText = 'display:block; max-width:100%; border-radius:10px; margin-bottom:5px;';
       bubble.appendChild(img);
       
       const fileName = document.createElement('div');
-      fileName.style.fontSize = '10px';
-      fileName.style.opacity = '0.8';
+      fileName.style.cssText = 'font-size:10px; opacity:0.8;';
       fileName.textContent = `📷 ${content.fileName}`;
       bubble.appendChild(fileName);
     } else {
@@ -1434,14 +1370,13 @@ function appendMsg(who, content, isImage = false) {
       bubble.textContent = content;
     }
   } else {
-    // Logika untuk AI (Bot)
+    // Logika AI
     if (typeof content === 'string' && (content.includes('processing') || content.includes('analyzing'))) {
-      // Gaya saat AI sedang berpikir
       bubble.style.fontStyle = 'italic';
       bubble.style.opacity = '0.7';
-      bubble.textContent = content.includes('chart') ? 'Menganalisis chart...' : 'Sedang mengetik...';
+      bubble.textContent = content.includes('chart') ? 'Menganalisis chart...' : 'Sedang berpikir...';
     } else {
-      // Render teks jawaban AI (Ganti ** bold ke strong tag)
+      // Format Bold (**) dan Baris Baru
       bubble.innerHTML = content
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--chat-primary)">$1</strong>')
         .replace(/\n/g, '<br>');
@@ -1449,12 +1384,11 @@ function appendMsg(who, content, isImage = false) {
   }
 
   chatBody.appendChild(bubble);
-  // Auto scroll ke bawah
   chatBody.scrollTop = chatBody.scrollHeight;
   return bubble;
 }
 
-// ── Sistem Input & API ──
+// ── 4. Sistem Input & API ──
 function disableInputs(d) {
   messageInput.disabled = d;
   sendBtn.disabled = d;
@@ -1479,12 +1413,11 @@ async function callGemini(parts, type) {
       body: JSON.stringify({ contents, model: 'gemini-2.5-flash' })
     });
 
-    // Hapus bubble "loading" sebelum menampilkan jawaban asli
     thinkingBubble.remove();
 
     const data = await res.json();
     if (!res.ok) {
-      appendMsg('bot', `Maaf, terjadi kesalahan: ${data.error || 'unknown'}`);
+      appendMsg('bot', `Error: ${data.error || 'Terjadi gangguan server.'}`);
       return;
     }
 
@@ -1494,18 +1427,18 @@ async function callGemini(parts, type) {
       chatHistory.push(userMsg);
       chatHistory.push({ role: 'model', parts: [{ text: txt }] });
     } else {
-      appendMsg('bot', 'Maaf, saya tidak menerima respon dari server.');
+      appendMsg('bot', 'Maaf, tidak ada respon yang diterima.');
     }
   } catch (e) {
     if (thinkingBubble) thinkingBubble.remove();
-    appendMsg('bot', `Kesalahan Jaringan: ${e.message}`);
+    appendMsg('bot', `Gagal koneksi: ${e.message}`);
   } finally {
     disableInputs(false);
     messageInput.focus();
   }
 }
 
-// ── Handlers ──
+// ── 5. Handlers & Event Listeners ──
 function fileToGenerativePart(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
@@ -1536,7 +1469,7 @@ async function handleImage() {
   try {
     imgPart = await fileToGenerativePart(file);
   } catch (e) {
-    appendMsg('bot', `Gagal membaca file: ${e.message}`);
+    appendMsg('bot', `Gagal membaca file.`);
     imageInput.value = '';
     return;
   }
@@ -1547,7 +1480,6 @@ async function handleImage() {
   callGemini(parts, 'multimodal');
 }
 
-// ── Event Listeners ──
 sendBtn.addEventListener('click', handleSend);
 
 messageInput.addEventListener('keydown', e => {
@@ -1563,6 +1495,7 @@ messageInput.addEventListener('input', function() {
 });
 
 imageInput.addEventListener('change', handleImage);
+  
   // ═════════════════════════════════════════════════════════════
 // ██ SECTION 05: HISTORICAL DATA & CHART SYSTEM (FINAL REVISION) ██
 // ═════════════════════════════════════════════════════════════
