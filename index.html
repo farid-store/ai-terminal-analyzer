@@ -421,58 +421,192 @@ body::before {
   background: var(--p-ghost);
 }
 
-/* ══════════════ CHAT FAB ══════════════ */
+
+/* ════════════════════════════ FONT & BASE ════════════════════════════ */
+/* Pastikan Anda menggunakan font monospace yang nyaman dibaca */
+.chat-modal, .chat-fab {
+  font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+}
+
+/* ════════════════════════════ CHAT FAB ════════════════════════════ */
 .chat-fab {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
-  width: 44px; height: 44px;
-  border: 1px solid var(--p-dim);
-  background: var(--surface-0);
-  color: var(--p-bright);
+  right: 16px; bottom: 16px;
+  width: 48px; height: 48px; /* Sedikit diperbesar agar mudah diklik */
+  border: 1px solid var(--p-dim, #006635);
+  background: var(--surface-0, #0a0a0a);
+  color: var(--p-bright, #00ff88);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   z-index: 900;
-  transition: all 0.15s;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 15px rgba(0,255,136,0.1);
+}
+.fab-text {
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  box-shadow: 0 0 20px var(--p-ghost), inset 0 0 20px var(--p-ghost);
+  line-height: 1.2;
+  text-align: center;
 }
 .chat-fab:hover {
-  border-color: var(--p-bright);
-  box-shadow: 0 0 30px rgba(0,255,136,0.2), inset 0 0 30px rgba(0,255,136,0.05);
+  border-color: var(--p-bright, #00ff88);
+  box-shadow: 0 0 25px rgba(0,255,136,0.2);
 }
 
-/* ══════════════ CHAT MODAL ══════════════ */
+/* ════════════════════════════ CHAT MODAL ════════════════════════════ */
 .chat-modal {
   position: fixed;
-  right: 12px;
-  bottom: 12px;
-  width: 380px;
-  max-width: calc(100vw - 24px);
-  background: var(--surface-1);
-  border: 1px solid var(--p-dim);
+  right: 16px; bottom: 80px; /* Jarak dari FAB */
+  width: 420px; /* Diperlebar agar teks panjang tidak terlalu sering turun baris */
+  max-width: calc(100vw - 32px);
+  background: var(--surface-1, #111111);
+  border: 1px solid var(--p-dim, #006635);
   z-index: 901;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 0 60px rgba(0,255,136,0.1), 0 24px 80px rgba(0,0,0,0.8);
-  transform: translateY(16px);
-  opacity: 0;
-  transition: transform 0.25s cubic-bezier(0.23,1,0.32,1), opacity 0.2s ease;
-}
-.chat-modal.open {
-  transform: translateY(0);
-  opacity: 1;
   display: flex;
+  flex-direction: column;
+  border-radius: 4px; /* Sudut sedikit melengkung lebih modern */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(0,255,136,0.05);
 }
 
-/* boot sequence text */
-@keyframes typeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* ════════════════════════════ HEADER ════════════════════════════ */
+.chat-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--grid-bright, #333);
+  background: var(--surface-0, #0a0a0a);
 }
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand-area {
+  display: flex; align-items: center; gap: 8px;
+}
+.brand-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--p-bright, #00ff88);
+}
+.brand-model {
+  font-size: 11px; color: var(--txt-3, #888); letter-spacing: 0.05em;
+}
+.header-bottom {
+  margin-top: 8px; display: flex; align-items: center; gap: 8px;
+}
+.mode-label {
+  font-size: 10px; color: var(--txt-3, #888); letter-spacing: 0.1em;
+}
+.mode-value {
+  font-size: 10px; color: var(--amber, #ffb000); letter-spacing: 0.1em; font-weight: 600;
+}
+
+/* ════════════════════════════ BODY (AREA BACA) ════════════════════════════ */
+.chat-body {
+  flex: 1;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 450px; /* Sedikit lebih tinggi */
+  overflow-y: auto;
+  background: var(--void, #000000);
+}
+.session-divider {
+  color: var(--txt-3, #666);
+  font-size: 10px; letter-spacing: 0.1em;
+  text-align: center;
+  padding-bottom: 8px; margin-bottom: 8px;
+  border-bottom: 1px dashed var(--grid-dim, #222);
+}
+.message {
+  display: flex;
+  flex-direction: column; /* Mengubah flow agar nama sender di atas, pesan di bawah untuk teks panjang */
+  gap: 4px;
+  line-height: 1.6; /* Kunci kenyamanan membaca */
+}
+.sender {
+  font-size: 11px;
+  color: var(--p-dim, #009950);
+  font-weight: 700;
+}
+.text {
+  font-size: 13px; /* Ukuran ideal untuk monospace di desktop/web */
+  color: var(--txt-2, #e0e0e0); /* Abu-abu terang, jangan putih murni */
+  padding-left: 12px;
+  border-left: 2px solid var(--grid-dim, #222); /* Garis indikator pesan */
+}
+.highlight {
+  color: var(--p-bright, #00ff88);
+}
+
+/* ════════════════════════════ FOOTER (AREA INPUT) ════════════════════════════ */
+.chat-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--grid-bright, #333);
+  background: var(--surface-0, #0a0a0a);
+}
+.input-row {
+  display: flex; align-items: flex-end; gap: 10px;
+}
+.upload-btn {
+  cursor: pointer;
+  width: 36px; height: 36px;
+  border: 1px solid var(--grid-bright, #444);
+  background: var(--surface-1, #111);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--txt-3, #888);
+  font-size: 11px; font-weight: 600;
+  transition: all 0.2s;
+}
+.upload-btn:hover {
+  border-color: var(--p-bright, #00ff88); color: var(--p-bright, #00ff88);
+}
+.input-wrapper {
+  flex: 1; position: relative;
+}
+.input-icon {
+  position: absolute; left: 10px; top: 10px;
+  color: var(--p-dim, #009950); font-size: 12px; pointer-events: none;
+}
+.chat-input-field {
+  width: 100%;
+  min-height: 36px; max-height: 120px;
+  padding: 10px 10px 10px 28px;
+  background: transparent;
+  border: 1px solid var(--grid-bright, #333);
+  color: var(--txt-2, #e0e0e0);
+  font-family: inherit; font-size: 13px; line-height: 1.4;
+  outline: none; resize: none;
+}
+.chat-input-field:focus {
+  border-color: var(--p-dim, #009950);
+}
+.btn-send {
+  height: 36px; padding: 0 16px; font-size: 11px;
+}
+.disclaimer {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--grid-dim, #222);
+  font-size: 9px; color: var(--red-dim, #cc3333);
+  letter-spacing: 0.1em; text-align: center;
+}
+
+/* ════════════════════════════ KOMPONEN KECIL ════════════════════════════ */
+.t-btn {
+  background: transparent; border: 1px solid var(--p-dim, #006635);
+  color: var(--p-bright, #00ff88); cursor: pointer;
+  font-family: inherit; font-weight: 600; letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.t-btn:hover { background: var(--p-dim, #006635); color: #fff; }
+.btn-close { height: 24px; padding: 0 8px; font-size: 10px; }
+
+.dot-live {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background-color: var(--p-bright, #00ff88);
+  box-shadow: 0 0 8px var(--p-bright, #00ff88);
+}
+.cursor-line::after {
+  content: "█"; color: var(--p-bright, #00ff88); animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  
 
 /* ══════════════ LOAD ANIMATIONS ══════════════ */
 @keyframes fadeInRow {
@@ -1008,61 +1142,63 @@ body::before {
 
 <!-- ══════════════════════════════════════════ CHAT FAB ══════════════════════════════════════════ -->
 <button id="chatFab" class="chat-fab" aria-label="Open AI Terminal">
-  <span style="font-size:9px; font-weight:700; letter-spacing:0.1em; line-height:1;">AI<br>CMD</span>
+  <span class="fab-text">AI<br>CMD</span>
 </button>
 
 <!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
+
+
+
 <div id="chatModal" class="chat-modal">
 
-  <!-- Header -->
-  <div style="padding:8px 12px; border-bottom:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
-    <div style="display:flex; align-items:center; justify-content:space-between;">
-      <div style="display:flex; align-items:center; gap:8px;">
+  <div class="chat-header">
+    <div class="header-top">
+      <div class="brand-area">
         <span class="dot-live"></span>
-        <span style="font-size:11px; font-weight:700; letter-spacing:0.1em; color:var(--p-bright);">AI//COMMAND</span>
-        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">gemini-2.5-flash</span>
+        <span class="brand-title">AI//COMMAND</span>
+        <span class="brand-model">gemini-2.5-flash</span>
       </div>
-      <button id="closeChat" class="t-btn" style="height:22px; padding:0 8px; font-size:9px;"><span>✕ CLOSE</span></button>
+      <button id="closeChat" class="t-btn btn-close">✕ CLOSE</button>
     </div>
-    <div style="margin-top:6px; display:flex; align-items:center; gap:6px;">
-      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MODE:</span>
-      <span style="font-size:9px; color:var(--amber); letter-spacing:0.1em;">TEXT + IMAGE ANALYSIS</span>
-    </div>
-  </div>
-
-  <!-- Body -->
-  <div id="chatBody" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; max-height:380px; background:var(--void); font-size:11px;">
-    <div style="color:var(--txt-3); font-size:9px; letter-spacing:0.1em; text-align:center; padding:4px 0; border-bottom:1px solid var(--grid-dim);">── SESSION INIT ──</div>
-    <div>
-      <span style="color:var(--p-dim);">SYSTEM &gt;</span>
-      <span style="color:var(--txt-2);"> MarketHub AI terminal ready.</span>
-    </div>
-    <div>
-      <span style="color:var(--p-dim);">SYSTEM &gt;</span>
-      <span style="color:var(--txt-2);"> Query market conditions, or <span style="color:var(--p-bright);">upload chart screenshot</span> for technical analysis.</span>
-    </div>
-    <div class="cursor-line">
-      <span style="color:var(--p-mid);">INPUT &gt;</span>
+    <div class="header-bottom">
+      <span class="mode-label">MODE:</span>
+      <span class="mode-value">TEXT + IMAGE ANALYSIS</span>
     </div>
   </div>
 
-  <!-- Footer -->
-  <div style="padding:10px; border-top:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
-    <div style="display:flex; align-items:flex-end; gap:6px;">
-      <label for="imageInput" title="Upload Chart" style="cursor:pointer; width:32px; height:32px; border:1px solid var(--grid-bright); background:var(--surface-1); display:flex; align-items:center; justify-content:center; color:var(--txt-3); font-size:11px; flex-shrink:0; transition:all 0.15s;" onmouseover="this.style.borderColor='var(--p-dim)'; this.style.color='var(--p-bright)'" onmouseout="this.style.borderColor='var(--grid-bright)'; this.style.color='var(--txt-3)'">
-        IMG
-      </label>
+  <div id="chatBody" class="chat-body">
+    <div class="session-divider">── SESSION INIT ──</div>
+    
+    <div class="message system">
+      <span class="sender">SYSTEM &gt;</span>
+      <span class="text">MarketHub AI terminal ready.</span>
+    </div>
+    
+    <div class="message system">
+      <span class="sender">SYSTEM &gt;</span>
+      <span class="text">Query market conditions, or <span class="highlight">upload chart screenshot</span> for technical analysis.</span>
+    </div>
+    
+    <div class="message input-active">
+      <span class="sender">INPUT &gt;</span>
+      <span class="cursor-line"></span>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="input-row">
+      <label for="imageInput" class="upload-btn" title="Upload Chart">IMG</label>
       <input id="imageInput" type="file" accept="image/*" style="display:none;">
 
-      <div style="flex:1; position:relative;">
-        <span style="position:absolute; left:8px; top:50%; transform:translateY(-50%); color:var(--p-dim); font-size:11px; pointer-events:none;">▶</span>
-        <textarea id="messageInput" class="chat-input-field" rows="1" placeholder="enter query..." style="padding-left:24px;"></textarea>
+      <div class="input-wrapper">
+        <span class="input-icon">▶</span>
+        <textarea id="messageInput" class="chat-input-field" rows="1" placeholder="enter query..."></textarea>
       </div>
 
-      <button id="sendBtn" class="t-btn" style="height:32px; padding:0 12px; font-size:10px; flex-shrink:0;"><span>SEND</span></button>
+      <button id="sendBtn" class="t-btn btn-send">SEND</button>
     </div>
-    <div style="margin-top:8px; display:flex; align-items:center; gap:6px; padding-top:6px; border-top:1px solid var(--grid-dim);">
-      <span style="font-size:8px; color:var(--red-dim); letter-spacing:0.12em; text-transform:uppercase;">⚠ AI TOOL ONLY · NOT FINANCIAL ADVICE</span>
+    <div class="disclaimer">
+      ⚠ AI TOOL ONLY · NOT FINANCIAL ADVICE
     </div>
   </div>
 
