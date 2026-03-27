@@ -474,7 +474,7 @@ body::before {
   background-color: var(--chat-bg);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--chat-border);
@@ -1383,149 +1383,186 @@ document.getElementById('applySymbol').addEventListener('click', () => {
   container.appendChild(sc);
 });
 
-// ── Chat ──
+// ── Chat Elements ──
 const chatFab = document.getElementById('chatFab');
 const chatModal = document.getElementById('chatModal');
-const openChatBtn = document.getElementById('openChatBtn');
+const openChatBtn = document.getElementById('openChatBtn'); // Jika ada tombol lain untuk buka
 const closeChat = document.getElementById('closeChat');
 const sendBtn = document.getElementById('sendBtn');
 const messageInput = document.getElementById('messageInput');
 const chatBody = document.getElementById('chatBody');
 const imageInput = document.getElementById('imageInput');
 
-function showChat(){
-  chatModal.classList.add('open');
+// ── Logika Buka/Tutup (Fix Bug Auto-Open & Close) ──
+function showChat() {
+  chatModal.style.display = 'flex'; // Pakai flex agar layout internal rapi
   chatFab.style.display = 'none';
   setTimeout(() => messageInput.focus(), 250);
 }
-function hideChat(){
-  chatModal.classList.remove('open');
-  setTimeout(() => { chatFab.style.display = 'flex'; }, 280);
+
+function hideChat() {
+  chatModal.style.display = 'none';
+  chatFab.style.display = 'flex';
 }
 
 chatFab.addEventListener('click', showChat);
-openChatBtn.addEventListener('click', showChat);
+if (openChatBtn) openChatBtn.addEventListener('click', showChat);
 closeChat.addEventListener('click', hideChat);
 
-function appendMsg(who, content, isImage=false){
-  const wrap = document.createElement('div');
+// ── Logika Append Message (Modern Bubble Style) ──
+function appendMsg(who, content, isImage = false) {
+  // Buat element bubble
   const bubble = document.createElement('div');
+  bubble.classList.add('chat-bubble');
+  bubble.classList.add(who === 'user' ? 'user-bubble' : 'bot-bubble');
 
-  if(who === 'user'){
-    wrap.style.cssText = 'padding:4px 0;';
-    const prefix = document.createElement('span');
-    prefix.style.cssText = 'color:var(--amber); font-size:10px;';
-    prefix.textContent = 'USER > ';
-    bubble.style.cssText = 'display:inline; color:var(--txt-1); font-size:11px;';
-    if(isImage){
+  if (who === 'user') {
+    if (isImage) {
+      // Tampilan gambar untuk user
       const img = document.createElement('img');
       img.src = content.imagePreview;
-      img.style.cssText = 'display:block; max-width:100%; border:1px solid var(--grid-bright); margin:4px 0;';
-      wrap.appendChild(prefix);
-      wrap.appendChild(document.createTextNode('[IMAGE] '));
-      wrap.appendChild(document.createTextNode(content.fileName));
-      wrap.appendChild(img);
+      img.style.cssText = 'display:block; max-width:100%; border-radius:8px; margin-bottom:5px;';
+      bubble.appendChild(img);
+      
+      const fileName = document.createElement('div');
+      fileName.style.fontSize = '10px';
+      fileName.style.opacity = '0.8';
+      fileName.textContent = `📷 ${content.fileName}`;
+      bubble.appendChild(fileName);
     } else {
       bubble.style.whiteSpace = 'pre-wrap';
       bubble.textContent = content;
-      wrap.appendChild(prefix);
-      wrap.appendChild(bubble);
     }
   } else {
-    wrap.style.cssText = 'padding:4px 0; border-left:1px solid var(--p-ghost); padding-left:8px;';
-    const prefix = document.createElement('span');
-    if(content.includes('thinking')||content.includes('analyzing')){
-      prefix.style.cssText = 'color:var(--p-dim); font-size:10px;';
-      prefix.textContent = 'AI > ';
-      bubble.style.cssText = 'display:inline; color:var(--p-mid); font-size:11px; animation:blink-dot 0.8s steps(1) infinite;';
-      bubble.textContent = content;
+    // Logika untuk AI (Bot)
+    if (typeof content === 'string' && (content.includes('processing') || content.includes('analyzing'))) {
+      // Gaya saat AI sedang berpikir
+      bubble.style.fontStyle = 'italic';
+      bubble.style.opacity = '0.7';
+      bubble.textContent = content.includes('chart') ? 'Menganalisis chart...' : 'Sedang mengetik...';
     } else {
-      prefix.style.cssText = 'color:var(--p-dim); font-size:10px;';
-      prefix.textContent = 'AI > ';
-      bubble.style.cssText = 'display:inline; color:var(--txt-2); font-size:11px; line-height:1.6; white-space:pre-wrap;';
+      // Render teks jawaban AI (Ganti ** bold ke strong tag)
       bubble.innerHTML = content
-        .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--p-bright)">$1</strong>')
-        .replace(/\n/g,'<br>');
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--chat-primary)">$1</strong>')
+        .replace(/\n/g, '<br>');
     }
-    wrap.appendChild(prefix);
-    wrap.appendChild(bubble);
   }
 
-  chatBody.appendChild(wrap);
+  chatBody.appendChild(bubble);
+  // Auto scroll ke bawah
   chatBody.scrollTop = chatBody.scrollHeight;
   return bubble;
 }
 
-function disableInputs(d){
-  messageInput.disabled=d; sendBtn.disabled=d; imageInput.disabled=d;
-  sendBtn.style.opacity = d ? '0.3' : '1';
+// ── Sistem Input & API ──
+function disableInputs(d) {
+  messageInput.disabled = d;
+  sendBtn.disabled = d;
+  imageInput.disabled = d;
+  sendBtn.style.opacity = d ? '0.4' : '1';
 }
 
 let chatHistory = [];
 
-async function callGemini(parts, type){
+async function callGemini(parts, type) {
   disableInputs(true);
-  const loading = type==='text' ? '[ processing... ]' : '[ analyzing chart... ]';
-  let thinking = appendMsg('bot', loading);
-  const userMsg = { role:'user', parts };
+  const loadingMsg = type === 'text' ? '[ processing... ]' : '[ analyzing chart... ]';
+  let thinkingBubble = appendMsg('bot', loadingMsg);
+  
+  const userMsg = { role: 'user', parts };
   const contents = [...chatHistory, userMsg];
+
   try {
     const res = await fetch('/api/gemini', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ contents, model:'gemini-2.5-flash' })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents, model: 'gemini-2.5-flash' })
     });
-    thinking.remove();
-    thinking.parentElement && thinking.parentElement.remove();
+
+    // Hapus bubble "loading" sebelum menampilkan jawaban asli
+    thinkingBubble.remove();
+
     const data = await res.json();
-    if(!res.ok){ appendMsg('bot', `[ ERROR: ${data.error||'unknown'} ]`); return; }
+    if (!res.ok) {
+      appendMsg('bot', `Maaf, terjadi kesalahan: ${data.error || 'unknown'}`);
+      return;
+    }
+
     const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(txt){ appendMsg('bot', txt); chatHistory.push(userMsg); chatHistory.push({role:'model',parts:[{text:txt}]}); }
-    else appendMsg('bot','[ NO RESPONSE RECEIVED ]');
-  } catch(e){
-    thinking.remove();
-    appendMsg('bot', `[ NETWORK ERROR: ${e.message} ]`);
-  } finally { disableInputs(false); }
+    if (txt) {
+      appendMsg('bot', txt);
+      chatHistory.push(userMsg);
+      chatHistory.push({ role: 'model', parts: [{ text: txt }] });
+    } else {
+      appendMsg('bot', 'Maaf, saya tidak menerima respon dari server.');
+    }
+  } catch (e) {
+    if (thinkingBubble) thinkingBubble.remove();
+    appendMsg('bot', `Kesalahan Jaringan: ${e.message}`);
+  } finally {
+    disableInputs(false);
+    messageInput.focus();
+  }
 }
 
-function fileToGenerativePart(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res({inlineData:{data:r.result.split(',')[1],mimeType:file.type}});
-    r.onerror=rej; r.readAsDataURL(file);
+// ── Handlers ──
+function fileToGenerativePart(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ inlineData: { data: r.result.split(',')[1], mimeType: file.type } });
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
 }
 
-function handleSend(){
+function handleSend() {
   const msg = messageInput.value.trim();
-  if(!msg) return;
+  if (!msg) return;
   appendMsg('user', msg);
-  messageInput.value=''; messageInput.style.height='auto';
-  callGemini([{text:msg}],'text');
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  callGemini([{ text: msg }], 'text');
 }
 
-async function handleImage(){
-  const file = imageInput.files[0]; if(!file) return;
+async function handleImage() {
+  const file = imageInput.files[0];
+  if (!file) return;
   const preview = URL.createObjectURL(file);
   const msg = messageInput.value.trim();
-  appendMsg('user',{imagePreview:preview,fileName:file.name},true);
+  
+  appendMsg('user', { imagePreview: preview, fileName: file.name }, true);
+  
   let imgPart;
-  try { imgPart = await fileToGenerativePart(file); }
-  catch(e){ appendMsg('bot',`[ READ ERROR: ${e.message} ]`); imageInput.value=''; return; }
-  const parts = [imgPart, {text: msg || 'Analisis teknikal chart ini secara detail.'}];
-  messageInput.value=''; imageInput.value='';
-  callGemini(parts,'multimodal');
+  try {
+    imgPart = await fileToGenerativePart(file);
+  } catch (e) {
+    appendMsg('bot', `Gagal membaca file: ${e.message}`);
+    imageInput.value = '';
+    return;
+  }
+  
+  const parts = [imgPart, { text: msg || 'Analisis teknikal chart ini secara detail.' }];
+  messageInput.value = '';
+  imageInput.value = '';
+  callGemini(parts, 'multimodal');
 }
 
+// ── Event Listeners ──
 sendBtn.addEventListener('click', handleSend);
-messageInput.addEventListener('keydown', e => {
-  if(e.key==='Enter'&&!e.shiftKey&&!messageInput.disabled){ e.preventDefault(); handleSend(); }
-});
-messageInput.addEventListener('input', function(){
-  this.style.height='auto'; this.style.height=this.scrollHeight+'px';
-});
-imageInput.addEventListener('change', handleImage);
 
+messageInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !messageInput.disabled) {
+    e.preventDefault();
+    handleSend();
+  }
+});
+
+messageInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = this.scrollHeight + 'px';
+});
+
+imageInput.addEventListener('change', handleImage);
   // ═════════════════════════════════════════════════════════════
 // ██ SECTION 05: HISTORICAL DATA & CHART SYSTEM (FINAL REVISION) ██
 // ═════════════════════════════════════════════════════════════
