@@ -554,18 +554,14 @@ body::before {
 </head>
 
 <body>
-<!-- ══════════════════════════════════════════ HEADER ══════════════════════════════════════════ -->
 <header class="terminal-header">
 
-  <!-- Top system bar -->
   <div class="header-bar">
-    <!-- Logo/ID -->
     <div class="header-cell" style="min-width:180px;">
       <span style="color:var(--p-bright); font-size:13px; font-weight:700; letter-spacing:0.06em;">F-D<span style="color:var(--txt-3)">//</span>TERMINAL</span>
       <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">v2.0</span>
     </div>
 
-    <!-- Status cells -->
     <div class="header-cell">
       <span class="dot-live"></span>
       <span style="font-size:9px; letter-spacing:0.12em; color:var(--p-mid);">LIVE</span>
@@ -585,33 +581,46 @@ body::before {
       <span class="label-xs">SESSION</span>
       <span id="sessionInfo" style="font-size:10px; color:var(--amber); letter-spacing:0.06em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</span>
     </div>
-    <!-- Right side: symbol input -->
+
     <div class="header-cell" style="gap:6px;">
       <span class="label-xs">SYM:</span>
       <input id="symbolInput" class="t-input" value="OANDA:XAUUSD" style="width:140px; height:24px; font-size:10px;"/>
       <button id="applySymbol" class="t-btn" style="height:24px;"><span>LOAD</span></button>
     </div>
 
-    <!-- Chat button -->
     <div class="header-cell">
       <button id="openChatBtn" class="t-btn" style="height:24px; letter-spacing:0.14em;"><span>▶ AI CMD</span></button>
     </div>
   </div>
 
-  
-  <!-- Ticker tape -->
-    <div class="ticker-wrap">
-      <div class="tradingview-widget-container" style="height:40px;">
-        <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {"symbols":[{"proName":"BITSTAMP:BTCUSD","title":"BTC"},{"proName":"BITSTAMP:ETHUSD","title":"ETH"},{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"IDX:COMPOSITE","title":"IHSG"},{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ"},{"proName":"FX_IDC:EURUSD","title":"EUR/USD"},{"proName":"FX_IDC:USDIDR","title":"USD/IDR"},{"proName":"OANDA:XAGUSD","title":"Silver"},{"proName":"TVC:DXY","title":"DXY"}],"colorTheme":"dark","isTransparent":true,"locale":"en","showSymbolLogo":true,"displayMode":"adaptive"}
-        </script>
-      </div>
+  <div class="ticker-wrap">
+    <div class="tradingview-widget-container" style="height:40px;">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          {"proName":"BITSTAMP:BTCUSD","title":"BTC"},
+          {"proName":"BITSTAMP:ETHUSD","title":"ETH"},
+          {"proName":"OANDA:XAUUSD","title":"Gold"},
+          {"proName":"IDX:COMPOSITE","title":"IHSG"},
+          {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
+          {"proName":"FOREXCOM:NSXUSD","title":"NASDAQ"},
+          {"proName":"FX_IDC:EURUSD","title":"EUR/USD"},
+          {"proName":"FX_IDC:USDIDR","title":"USD/IDR"},
+          {"proName":"OANDA:XAGUSD","title":"Silver"},
+          {"proName":"CAPITALCOM:DXY","title":"DXY"}
+        ],
+        "colorTheme": "dark",
+        "isTransparent": true,
+        "locale": "en",
+        "showSymbolLogo": true,
+        "displayMode": "adaptive"
+      }
+      </script>
     </div>
   </div>
-
 </header>
-
+  
 <!-- ══════════════════════════════════════════ MAIN GRID ══════════════════════════════════════════ -->
 <main id="mainGrid" style="display:grid; grid-template-columns:1fr 320px; gap:0; max-width:1600px; margin:0 auto;">
 
@@ -1204,64 +1213,69 @@ body::before {
 <!-- ══════════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
 <script>
 // ── Clock + Session ──
-const SESSIONS = [
-  { name: 'SYDNEY',   open: 22, close: 7 },  // Jam 22:00 - 07:00 UTC
-  { name: 'TOKYO',    open: 0,  close: 9 },  // Jam 00:00 - 09:00 UTC
-  { name: 'LONDON',   open: 8,  close: 17 }, // Jam 08:00 - 17:00 UTC (Summer Time Standar)
-  { name: 'NEW YORK', open: 13, close: 22 }  // Jam 13:00 - 22:00 UTC
-];
+document.addEventListener('DOMContentLoaded', () => {
+    // ── Data Sesi (Dalam UTC) ──
+    const SESSIONS = [
+        { name: 'SYDNEY',   open: 21, close: 6 },
+        { name: 'TOKYO',    open: 0,  close: 9 },
+        { name: 'LONDON',   open: 7,  close: 16 },
+        { name: 'NEW YORK', open: 12, close: 21 },
+    ];
 
-function updateClock() {
-  const now = new Date();
-  
-  // 1. Ambil data waktu UTC murni
-  const utcH = now.getUTCHours();
-  const utcM = now.getUTCMinutes();
-  const utcS = now.getUTCSeconds();
-
-  // 2. Format jam WIB (UTC + 7) untuk tampilan CLOCK
-  // Menggunakan Intl.DateTimeFormat agar format tanggal/jam stabil dan otomatis
-  const options = { 
-    timeZone: 'Asia/Jakarta', 
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false 
-  };
-  const wibTime = new Intl.DateTimeFormat('en-GB', options).format(now);
-  
-  // Update Tampilan Clock (Format: DD/MM/YYYY HH:MM:SS)
-  const clockEl = document.getElementById('clockDisplay');
-  if (clockEl) clockEl.textContent = wibTime.replace(',', '');
-
-  // 3. Logika Session (Berdasarkan Jam UTC murni)
-  const active = SESSIONS.filter(s => {
-    if (s.open < s.close) {
-      return utcH >= s.open && utcH < s.close;
-    } else {
-      // Untuk sesi yang melewati tengah malam (seperti Sydney)
-      return utcH >= s.open || utcH < s.close;
+    function getActiveSessions(utcH) {
+        return SESSIONS.filter(s => {
+            if (s.open < s.close) {
+                // Sesi standar (misal Tokyo 0-9)
+                return utcH >= s.open && utcH < s.close;
+            } else {
+                // Sesi lewat tengah malam (misal Sydney 21-6)
+                return utcH >= s.open || utcH < s.close;
+            }
+        });
     }
-  });
 
-  // Update Tampilan Session
-  const sessionEl = document.getElementById('sessionInfo');
-  if (sessionEl) {
-    if (active.length > 0) {
-      // Gabungkan nama sesi, misal: "LONDON + NEW YORK"
-      const sessionNames = active.map(s => s.name).join(' + ');
-      sessionEl.textContent = `${sessionNames} MARKET`;
-      sessionEl.style.color = "var(--amber)"; // Pastikan warna tetap amber saat open
-    } else {
-      sessionEl.textContent = 'WEEKEND / ALL CLOSED';
-      sessionEl.style.color = "var(--txt-3)"; // Warna redup jika tutup
+    function updateClock() {
+        const now = new Date();
+        const utcH = now.getUTCHours();
+        
+        // Format waktu WIB (Asia/Jakarta)
+        const wibTime = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Jakarta',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).format(now);
+
+        // Update Clock Display (mengganti '/' dengan '-' agar lebih ala terminal)
+        const clockEl = document.getElementById('clockDisplay');
+        if (clockEl) {
+            clockEl.textContent = wibTime.replace(',', '');
+        }
+
+        // Update Session Info
+        const sessionEl = document.getElementById('sessionInfo');
+        if (sessionEl) {
+            const active = getActiveSessions(utcH);
+            if (active.length > 0) {
+                const names = active.map(s => s.name).join(' + ');
+                sessionEl.textContent = `${names} OPEN`;
+                sessionEl.style.color = "var(--amber)"; // Memberi warna jika ada yang buka
+            } else {
+                sessionEl.textContent = "WEEKEND / ALL CLOSED";
+                sessionEl.style.color = "var(--txt-3)";
+            }
+        }
     }
-  }
-}
 
-// Jalankan interval tiap detik
-setInterval(updateClock, 1000);
-updateClock();
-
+    // Jalankan tiap detik
+    setInterval(updateClock, 1000);
+    updateClock(); // Jalankan langsung saat load
+});
+  
 // ── Responsive ──
 function adjustLayout(){
   const g = document.getElementById('mainGrid');
