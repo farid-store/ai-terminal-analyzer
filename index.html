@@ -1042,16 +1042,6 @@ body::before {
       <span class="text-[#e2e8f0] font-sans font-medium">MarketHub AI terminal ready. Query market conditions, or <span class="text-[var(--amber)] font-bold">upload chart</span> for analysis.</span>
     </div>
     
-    <div class="flex gap-3 text-[14px] leading-relaxed">
-      <span class="text-[#4ade80] font-mono font-bold shrink-0 mt-0.5">USER &gt;</span>
-      <span class="text-[#e2e8f0] font-sans font-medium">Tolong buatkan ringkasan market hari ini.</span>
-    </div>
-
-    <div class="flex gap-3 text-[14px] leading-relaxed">
-      <span class="text-[var(--p-bright)] font-mono font-bold shrink-0 mt-0.5">SYS &gt;</span>
-      <span class="text-[#e2e8f0] font-sans font-medium">Tentu. Berdasarkan pergerakan harga terakhir, volatilitas sedang tinggi di sesi ini. Ada level support kuat yang patut diperhatikan.</span>
-    </div>
-    
     <div class="cursor-line flex gap-3 mt-2 text-[14px]">
       <span class="text-[#4ade80] font-mono font-bold shrink-0 mt-0.5">INPUT &gt;</span>
       <span class="inline-block w-2.5 h-[18px] bg-[#4ade80] align-middle animate-pulse mt-1"></span>
@@ -1085,6 +1075,33 @@ body::before {
   
 <!-- ══════════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
 <script>
+
+  // ==========================================
+// 1. TEMPLATE UNTUK PESAN USER (Warna Hijau)
+// ==========================================
+const pesanUserHTML = `
+<div class="flex gap-3 text-[14px] leading-relaxed" style="display:flex; gap:12px; font-size:14px; line-height:1.625;">
+  <span class="text-[#4ade80] font-mono font-bold shrink-0 mt-0.5" style="color:#4ade80; font-family:monospace; font-weight:bold; flex-shrink:0; margin-top:2px;">USER &gt;</span>
+  <span class="text-[#e2e8f0] font-sans font-medium" style="color:#e2e8f0; font-family:sans-serif; font-weight:500;">
+    ${pesanDariInputTeks}
+  </span>
+</div>
+`;
+
+
+// ==========================================
+// 2. TEMPLATE UNTUK PESAN AI (Warna Biru)
+// ==========================================
+const pesanAiHTML = `
+<div class="flex gap-3 text-[14px] leading-relaxed" style="display:flex; gap:12px; font-size:14px; line-height:1.625;">
+  <span class="text-[var(--p-bright)] font-mono font-bold shrink-0 mt-0.5" style="color:var(--p-bright); font-family:monospace; font-weight:bold; flex-shrink:0; margin-top:2px;">SYS &gt;</span>
+  <span class="text-[#e2e8f0] font-sans font-medium" style="color:#e2e8f0; font-family:sans-serif; font-weight:500;">
+    ${jawabanDariAI}
+  </span>
+</div>
+`;
+  
+  
 // ── Clock + Session ──
 document.addEventListener('DOMContentLoaded', () => {
     // ── Data Sesi (Dalam UTC) ──
