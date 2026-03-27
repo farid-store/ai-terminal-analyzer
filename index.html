@@ -706,37 +706,44 @@ body::before {
       </div>
     </div>
 
-    <div class="row-anim" style="animation-delay:0.12s;">
+    <div class="row-anim" style="animation-delay:0.15s;">
       <div class="sec-header">
         <span class="sec-id">02</span>
         <span class="sec-title">Macro Radar & Economic Calendar</span>
         <span class="sec-line"></span>
         <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">GLOBAL DRIVERS</span>
       </div>
+
+      <div style="margin-bottom:10px; padding:8px; background:rgba(255, 170, 0, 0.05); border:1px dashed var(--amber); border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--txt-1); line-height:1.5; letter-spacing:0.04em;">
+        <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY Naik / T-NOTE Turun:</strong> Suku bunga & Dolar menguat. <span style="color:var(--amber);">XAU & BTC biasanya tertekan turun.</span><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Ancaman inflasi meroket. The Fed berpotensi menahan suku bunga tinggi.<br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">SPX500 Anjlok:</strong> Pasar saham panik (Risk-Off). Uang investor biasanya lari ke Safe Haven (Emas).
+      </div>
       
       <div style="display:grid; grid-template-columns: 1fr 340px; gap:8px;">
-        <div class="panel panel-bracket" style="padding:10px; display:flex; flex-direction:column; height:450px;">
+        <div class="panel panel-bracket" style="padding:10px; display:flex; flex-direction:column; height:460px;">
           <div style="display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:6px; flex:1;">
             <div style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
-              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--p-bright); background:rgba(0,0,0,0.5); padding:1px 3px;">DXY</div>
+              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--p-bright); background:rgba(4,6,8,0.8); padding:1px 3px; font-weight:bold;">DXY (DOLLAR)</div>
               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
               {"autosize":true,"symbol":"CAPITALCOM:DXY","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
               </script>
             </div>
             <div style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
-              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(0,0,0,0.5); padding:1px 3px;">US10Y</div>
+              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(4,6,8,0.8); padding:1px 3px; font-weight:bold;">US 10Y T-NOTE</div>
               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
               {"autosize":true,"symbol":"OANDA:USB10YUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
               </script>
             </div>
             <div style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
-              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(0,0,0,0.5); padding:1px 3px;">WTI OIL</div>
+              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(4,6,8,0.8); padding:1px 3px; font-weight:bold;">WTI OIL</div>
               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
               {"autosize":true,"symbol":"OANDA:WTICOUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
               </script>
             </div>
             <div style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
-              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(0,0,0,0.5); padding:1px 3px;">S&P 500</div>
+              <div style="position:absolute; top:2px; left:5px; z-index:5; font-size:8px; color:var(--txt-2); background:rgba(4,6,8,0.8); padding:1px 3px; font-weight:bold;">S&P 500</div>
               <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
               {"autosize":true,"symbol":"OANDA:SPX500USD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
               </script>
@@ -744,9 +751,9 @@ body::before {
           </div>
         </div>
 
-        <div class="panel panel-bracket" style="height:450px;">
-          <div class="panel-header" style="padding:6px 10px;"><span class="label-sm">Economic Calendar</span></div>
-          <div style="height:calc(100% - 28px);">
+        <div class="panel panel-bracket" style="height:460px; overflow:hidden;">
+          <div class="panel-header"><span class="label-sm">Economic Calendar</span></div>
+          <div style="height:calc(100% - 30px);">
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
             {"colorTheme":"dark","isTransparent":true,"locale":"en","countryFilter":"us,eu,id,jp,gb,cn","importanceFilter":"-1,0,1","width":"100%","height":"100%"}
             </script>
@@ -755,56 +762,60 @@ body::before {
       </div>
     </div>
 
-    <div class="row-anim" style="animation-delay:0.15s;">
+    <div class="row-anim" style="animation-delay:0.2s;">
       <div class="sec-header">
         <span class="sec-id">03</span>
-        <span class="sec-title">Chart Analysis</span>
+        <span class="sec-title">Technical Chart Analysis</span>
         <span class="sec-line"></span>
       </div>
       <div class="panel panel-bracket">
+        <div class="panel-header">
+          <div style="display:flex; align-items:center; gap:10px;"><span class="dot-live"></span><span class="label-sm">Interactive Advanced Chart</span></div>
+          <div style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">INDICATORS: RSI + MACD</div>
+        </div>
         <div id="advancedChart" style="height:500px;">
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"allow_symbol_change":true,"interval":"D","locale":"en","symbol":"OANDA:XAUUSD","theme":"dark","timezone":"Asia/Jakarta","backgroundColor":"#040608","studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
+          {"allow_symbol_change":true,"calendar":false,"details":false,"hide_side_toolbar":false,"hide_top_toolbar":false,"hide_legend":false,"hide_volume":false,"interval":"D","locale":"en","save_image":true,"style":"1","symbol":"OANDA:XAUUSD","theme":"dark","timezone":"Asia/Jakarta","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
           </script>
         </div>
       </div>
     </div>
 
-    <div class="row-anim" style="animation-delay:0.2s;">
+    <div class="row-anim" style="animation-delay:0.25s;">
       <div class="sec-header">
         <span class="sec-id">04</span>
-        <span class="sec-title">Equity & Crypto Heatmaps</span>
+        <span class="sec-title">Global Equity & Crypto Heatmaps</span>
         <span class="sec-line"></span>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
         <div class="panel panel-bracket">
-          <div class="panel-header"><span class="label-sm">S&P 500</span></div>
-          <div style="height:250px;">
+          <div class="panel-header"><span class="label-sm">S&P 500 (US)</span></div>
+          <div style="height:260px;">
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-            {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","width":"100%","height":"100%"}
+            {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
             </script>
           </div>
         </div>
         <div class="panel panel-bracket">
-          <div class="panel-header"><span class="label-sm" style="color:var(--p-bright);">Crypto</span></div>
-          <div style="height:250px;">
+          <div class="panel-header"><span class="label-sm" style="color:var(--p-bright);">Crypto Assets</span></div>
+          <div style="height:260px;">
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-            {"dataSource":"Crypto","blockSize":"market_cap_calc","blockColor":"24h_close_change|5","locale":"en","colorTheme":"dark","width":"100%","height":"100%"}
+            {"dataSource":"Crypto","blockSize":"market_cap_calc","blockColor":"24h_close_change|5","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
             </script>
           </div>
         </div>
         <div class="panel panel-bracket">
-          <div class="panel-header"><span class="label-sm" style="color:var(--cyan);">IDX IHSG</span></div>
-          <div style="height:250px;">
+          <div class="panel-header"><span class="label-sm" style="color:var(--cyan);">IDX IHSG (ID)</span></div>
+          <div style="height:260px;">
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-            {"dataSource":"AllID","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","width":"100%","height":"100%"}
+            {"dataSource":"AllID","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
             </script>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row-anim" style="animation-delay:0.25s;">
+    <div class="row-anim" style="animation-delay:0.3s;">
       <div class="sec-header">
         <span class="sec-id">05</span>
         <span class="sec-title">Global Forex Heatmap</span>
@@ -812,7 +823,7 @@ body::before {
         <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">CURRENCY RELATIVE STRENGTH</span>
       </div>
       <div class="panel panel-bracket">
-        <div style="height:350px;">
+        <div style="height:380px;">
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
           {"colorTheme":"dark","isTransparent":true,"locale":"en","currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","NZD","CNY","IDR"],"backgroundColor":"transparent","width":"100%","height":"100%"}
           </script>
@@ -820,25 +831,50 @@ body::before {
       </div>
     </div>
 
-    <div class="row-anim" style="animation-delay:0.3s;">
+    <div class="row-anim" style="animation-delay:0.35s;">
       <div class="sec-header">
         <span class="sec-id">06</span>
         <span class="sec-title">Historical Gold Data</span>
         <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">XAU/USD 2015–2025</span>
       </div>
+
       <div class="panel panel-bracket">
         <div class="panel-header">
-          <span class="label-sm">Price History Chart</span>
-          <select id="year-select-chart" class="t-select"><option value="all-time">ALL TIME</option></select>
+          <span class="label-sm">Monthly Price Chart</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="label-xs">FILTER:</span>
+            <select id="year-select-chart" class="t-select"><option value="all-time" selected>ALL TIME</option></select>
+          </div>
         </div>
         <div style="padding:12px; background:var(--surface-0);">
-          <div style="height:300px;"><canvas id="priceLineChart"></canvas></div>
+          <div style="height:300px; position:relative;"><canvas id="priceLineChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;" class="panel panel-bracket">
+        <div class="panel-header">
+          <span class="label-sm">Trend Log — Narrative & Drivers</span>
+          <select id="year-select-table" class="t-select"></select>
+        </div>
+        <div style="overflow:auto; max-height:360px;">
+          <table class="t-table" id="trend-data-table">
+            <thead>
+              <tr>
+                <th>PERIOD</th>
+                <th>TREND</th>
+                <th>NARRATIVE</th>
+                <th>KEY DRIVER</th>
+              </tr>
+            </thead>
+            <tbody>
+              </tbody>
+          </table>
         </div>
       </div>
     </div>
 
   </div>
-
   <!-- ═══════════ RIGHT SIDEBAR ═══════════ -->
   <div style="padding:12px; display:flex; flex-direction:column; gap:12px; position:sticky; top:76px; max-height:calc(100vh - 76px); overflow-y:auto;">
 
