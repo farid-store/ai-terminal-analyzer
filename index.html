@@ -1,0 +1,1606 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MKT//TERMINAL v2 — XAU·BTC·IHSG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+/* ══════════════ TERMINAL DESIGN SYSTEM ══════════════ */
+:root {
+  /* Core palette — phosphor green on void black */
+  --void:         #020304;
+  --surface-0:    #040608;
+  --surface-1:    #070c0f;
+  --surface-2:    #0a1014;
+  --surface-3:    #0e1519;
+
+  /* Phosphor green spectrum */
+  --p-bright:     #00ff88;
+  --p-mid:        #00cc6a;
+  --p-dim:        #009950;
+  --p-mute:       #005c30;
+  --p-ghost:      #002a18;
+
+  /* Amber accent (alerts/warnings) */
+  --amber:        #ffaa00;
+  --amber-dim:    #cc8800;
+  --amber-ghost:  #2a1e00;
+
+  /* Red accent (bearish/danger) */
+  --red:          #ff3355;
+  --red-dim:      #cc1f3d;
+  --red-ghost:    #2a0010;
+
+  /* Cyan accent (IHSG/special) */
+  --cyan:         #00d4ff;
+  --cyan-dim:     #009dbf;
+  --cyan-ghost:   #002a33;
+
+  /* Grid / borders */
+  --grid-bright:  rgba(0,255,136,0.12);
+  --grid-dim:     rgba(0,255,136,0.05);
+  --grid-mute:    rgba(0,255,136,0.03);
+
+  /* Text */
+  --txt-0:        #00ff88;   /* primary: phosphor */
+  --txt-1:        #7dffcc;   /* secondary: bright tint */
+  --txt-2:        #3d8f6a;   /* tertiary: mid green */
+  --txt-3:        #1a4d35;   /* dim: ghost */
+
+  /* Scanline */
+  --scanline-opacity: 0.015;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--txt-0);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── Scanline effect ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 136, var(--scanline-opacity)) 2px,
+    rgba(0, 255, 136, var(--scanline-opacity)) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── CRT vignette ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--surface-1); }
+::-webkit-scrollbar-thumb { background: var(--p-mute); }
+::-webkit-scrollbar-thumb:hover { background: var(--p-dim); }
+
+/* ══════════════ LAYOUT ══════════════ */
+.terminal-header {
+  background: var(--surface-0);
+  border-bottom: 1px solid var(--grid-bright);
+  position: sticky;
+  top: 0;
+  z-index: 500;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 36px;
+  border-bottom: 1px solid var(--grid-dim);
+}
+
+.header-cell {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  height: 100%;
+  border-right: 1px solid var(--grid-dim);
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-cell.grow { flex: 1; }
+
+/* ══════════════ TYPOGRAPHY ══════════════ */
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.sans { font-family: 'IBM Plex Sans', sans-serif; }
+
+.label-xs {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+
+.label-sm {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+
+.label-asset {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ══════════════ GRID PANELS ══════════════ */
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--grid-bright);
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,255,136,0.015) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Corner brackets — terminal aesthetic */
+.panel-bracket::after,
+.panel-bracket::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--p-mid);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+.panel-bracket::before { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+.panel-bracket::after  { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--grid-dim);
+  background: var(--surface-0);
+}
+
+/* ══════════════ ASSET CARDS ══════════════ */
+.asset-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.asset-card.xau  { border-color: rgba(255,170,0,0.3); }
+.asset-card.btc  { border-color: rgba(0,255,136,0.35); }
+.asset-card.ihsg { border-color: rgba(0,212,255,0.3); }
+
+.asset-card.xau::after  { background: linear-gradient(180deg, rgba(255,170,0,0.04) 0%, transparent 50%); }
+.asset-card.btc::after  { background: linear-gradient(180deg, rgba(0,255,136,0.04) 0%, transparent 50%); }
+.asset-card.ihsg::after { background: linear-gradient(180deg, rgba(0,212,255,0.04) 0%, transparent 50%); }
+
+.asset-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.status-bar {
+  height: 2px;
+  width: 100%;
+}
+.status-bar.xau  { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-bar.btc  { background: var(--p-bright); box-shadow: 0 0 8px var(--p-bright); }
+.status-bar.ihsg { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+/* ══════════════ LIVE DOT ══════════════ */
+.dot-live {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--p-bright);
+  box-shadow: 0 0 6px var(--p-bright);
+  display: inline-block;
+  animation: blink-dot 1.2s steps(1) infinite;
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ══════════════ TERMINAL DIVIDER ══════════════ */
+.t-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 8px;
+}
+.t-divider::before,
+.t-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--grid-bright);
+}
+.t-divider-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  white-space: nowrap;
+}
+
+/* ══════════════ SECTION HEADER ══════════════ */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 6px;
+}
+.sec-id {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--p-mute);
+  font-style: italic;
+}
+.sec-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.sec-line {
+  flex: 1;
+  height: 1px;
+  background: var(--grid-bright);
+}
+
+/* ══════════════ INPUTS ══════════════ */
+.t-input {
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.t-input:focus {
+  border-color: var(--p-bright);
+  box-shadow: 0 0 0 1px var(--p-ghost);
+}
+.t-input::placeholder { color: var(--txt-3); }
+
+.t-btn {
+  background: transparent;
+  border: 1px solid var(--p-dim);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.t-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--p-ghost);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s;
+}
+.t-btn:hover { border-color: var(--p-bright); }
+.t-btn:hover::before { transform: scaleX(1); }
+.t-btn span { position: relative; z-index: 1; }
+
+/* ══════════════ TAB SYSTEM ══════════════ */
+.t-tab {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--txt-3);
+  background: transparent;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.t-tab:hover { color: var(--txt-2); }
+.t-tab.active {
+  border-color: var(--p-dim);
+  color: var(--p-bright);
+  background: var(--p-ghost);
+}
+
+/* ══════════════ TABLE ══════════════ */
+.t-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.t-table thead tr { background: var(--surface-0); border-bottom: 1px solid var(--grid-bright); }
+.t-table thead th {
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 5;
+  background: var(--surface-0);
+}
+.t-table tbody tr {
+  border-bottom: 1px solid var(--grid-mute);
+  transition: background 0.1s;
+}
+.t-table tbody tr:hover { background: rgba(0,255,136,0.02); }
+.t-table tbody td { padding: 7px 10px; color: var(--txt-2); vertical-align: top; line-height: 1.5; }
+.t-table tbody td:first-child { color: var(--txt-1); white-space: nowrap; }
+
+/* ══════════════ TREND BADGES ══════════════ */
+.up   { color: var(--p-bright); font-weight: 600; }
+.down { color: var(--red); font-weight: 600; }
+.side { color: var(--amber); font-weight: 500; }
+
+/* ══════════════ SELECT ══════════════ */
+.t-select {
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.t-select:focus { border-color: var(--p-bright); }
+
+/* ══════════════ QUICK LINK ══════════════ */
+.q-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--txt-2);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.q-link:hover {
+  border-color: var(--p-dim);
+  color: var(--p-bright);
+  background: var(--p-ghost);
+}
+
+/* ══════════════ CHAT FAB ══════════════ */
+.chat-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 44px; height: 44px;
+  border: 1px solid var(--p-dim);
+  background: var(--surface-0);
+  color: var(--p-bright);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 900;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 20px var(--p-ghost), inset 0 0 20px var(--p-ghost);
+}
+.chat-fab:hover {
+  border-color: var(--p-bright);
+  box-shadow: 0 0 30px rgba(0,255,136,0.2), inset 0 0 30px rgba(0,255,136,0.05);
+}
+
+/* ══════════════ CHAT MODAL ══════════════ */
+.chat-modal {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface-1);
+  border: 1px solid var(--p-dim);
+  z-index: 901;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0,255,136,0.1), 0 24px 80px rgba(0,0,0,0.8);
+  transform: translateY(16px);
+  opacity: 0;
+  transition: transform 0.25s cubic-bezier(0.23,1,0.32,1), opacity 0.2s ease;
+}
+.chat-modal.open {
+  transform: translateY(0);
+  opacity: 1;
+  display: flex;
+}
+
+/* boot sequence text */
+@keyframes typeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ══════════════ LOAD ANIMATIONS ══════════════ */
+@keyframes fadeInRow {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.row-anim { animation: fadeInRow 0.4s ease forwards; opacity: 0; }
+
+/* ══════════════ CHART CONTAINER ══════════════ */
+.chart-wrap {
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  overflow: hidden;
+}
+
+/* ══════════════ STATUS INDICATOR ROW ══════════════ */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 10px;
+  border-bottom: 1px solid var(--grid-dim);
+  background: var(--surface-0);
+  height: 28px;
+  overflow: hidden;
+}
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  border-right: 1px solid var(--grid-mute);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ══════════════ RESPONSIVE ══════════════ */
+@media (max-width: 1100px) {
+  #mainGrid { grid-template-columns: 1fr !important; }
+}
+
+/* chat input */
+.chat-input-field {
+  flex: 1;
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  resize: none;
+  outline: none;
+  min-height: 34px;
+  max-height: 90px;
+  transition: border-color 0.15s;
+}
+.chat-input-field:focus { border-color: var(--p-bright); }
+.chat-input-field::placeholder { color: var(--txt-3); }
+
+/* blinking cursor line */
+.cursor-line::after {
+  content: '█';
+  animation: blink-dot 0.8s steps(1) infinite;
+  color: var(--p-bright);
+  margin-left: 2px;
+  font-size: 11px;
+}
+
+/* ══ TOOLTIP watermark ══ */
+.wm-text {
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--txt-3);
+  text-transform: uppercase;
+}
+</style>
+</head>
+
+<body>
+<!-- ══════════════════════════════════════════ HEADER ══════════════════════════════════════════ -->
+<header class="terminal-header">
+
+  <!-- Top system bar -->
+  <div class="header-bar">
+    <!-- Logo/ID -->
+    <div class="header-cell" style="min-width:180px;">
+      <span style="color:var(--p-bright); font-size:13px; font-weight:700; letter-spacing:0.06em;">MKT<span style="color:var(--txt-3)">//</span>TERMINAL</span>
+      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">v2.0</span>
+    </div>
+
+    <!-- Status cells -->
+    <div class="header-cell">
+      <span class="dot-live"></span>
+      <span style="font-size:9px; letter-spacing:0.12em; color:var(--p-mid);">LIVE</span>
+    </div>
+
+    <div class="header-cell">
+      <span class="label-xs">CLOCK</span>
+      <span id="clockDisplay" style="font-size:10px; color:var(--p-bright); letter-spacing:0.06em;"></span>
+    </div>
+
+    <div class="header-cell">
+      <span class="label-xs">ZONE</span>
+      <span style="font-size:10px; color:var(--txt-2); letter-spacing:0.08em;">UTC+07 WIB</span>
+    </div>
+
+    <div class="header-cell grow">
+      <span class="label-xs">SESSION</span>
+      <span id="sessionInfo" style="font-size:10px; color:var(--amber); letter-spacing:0.06em;">—</span>
+    </div>
+
+    <!-- Right side: symbol input -->
+    <div class="header-cell" style="gap:6px;">
+      <span class="label-xs">SYM:</span>
+      <input id="symbolInput" class="t-input" value="OANDA:XAUUSD" style="width:140px; height:24px; font-size:10px;"/>
+      <button id="applySymbol" class="t-btn" style="height:24px;"><span>LOAD</span></button>
+    </div>
+
+    <!-- Chat button -->
+    <div class="header-cell">
+      <button id="openChatBtn" class="t-btn" style="height:24px; letter-spacing:0.14em;"><span>▶ AI CMD</span></button>
+    </div>
+  </div>
+
+  <!-- Ticker tape -->
+  <div style="height:38px; overflow:hidden; border-bottom:1px solid var(--grid-dim);">
+    <div class="tradingview-widget-container" style="height:38px;">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {"symbols":[{"proName":"BITSTAMP:BTCUSD","title":"BTC/USD"},{"proName":"OANDA:XAUUSD","title":"XAU/USD"},{"proName":"IDX:COMPOSITE","title":"IHSG"},{"proName":"FOREXCOM:SPXUSD","title":"SPX"},{"proName":"FOREXCOM:NSXUSD","title":"NDX"},{"proName":"FX_IDC:USDIDR","title":"USD/IDR"},{"proName":"FX_IDC:EURUSD","title":"EUR/USD"},{"proName":"TVC:DXY","title":"DXY"},{"proName":"OANDA:XAGUSD","title":"XAG/USD"},{"proName":"BITSTAMP:ETHUSD","title":"ETH/USD"}],"colorTheme":"dark","isTransparent":true,"locale":"en","showSymbolLogo":false,"displayMode":"adaptive"}
+      </script>
+    </div>
+  </div>
+
+</header>
+
+<!-- ══════════════════════════════════════════ MAIN GRID ══════════════════════════════════════════ -->
+<main id="mainGrid" style="display:grid; grid-template-columns:1fr 320px; gap:0; max-width:1600px; margin:0 auto;">
+
+  <!-- ═══════════ LEFT COLUMN ═══════════ -->
+  <div style="border-right:1px solid var(--grid-bright); padding:12px 14px; display:flex; flex-direction:column; gap:14px;">
+
+    <!-- ██ SECTION 01: PRIMARY WATCHLIST ██ -->
+    <div>
+      <div class="sec-header row-anim" style="animation-delay:0.05s;">
+        <span class="sec-id">01</span>
+        <span class="sec-title">Primary Watchlist</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">XAU · BTC · IHSG</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;" class="row-anim" style="animation-delay:0.1s;">
+
+        <!-- XAU -->
+        <div class="panel asset-card xau panel-bracket">
+          <div class="status-bar xau"></div>
+          <div style="padding:8px 10px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div>
+                <div class="label-asset" style="color:var(--amber);">XAU/USD</div>
+                <div class="label-xs" style="margin-top:2px;">SPOT GOLD · OANDA</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2); letter-spacing:0.06em;">COMMODITIES</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border-left:none; border-right:none; border-bottom:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"OANDA:XAUUSD","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- BTC -->
+        <div class="panel asset-card btc panel-bracket">
+          <div class="status-bar btc"></div>
+          <div style="padding:8px 10px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div>
+                <div class="label-asset" style="color:var(--p-bright);">BTC/USD</div>
+                <div class="label-xs" style="margin-top:2px;">BITCOIN · BITSTAMP</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2); letter-spacing:0.06em;">CRYPTO</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border-left:none; border-right:none; border-bottom:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"BITSTAMP:BTCUSD","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- IHSG -->
+        <div class="panel asset-card ihsg panel-bracket">
+          <div class="status-bar ihsg"></div>
+          <div style="padding:8px 10px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div>
+                <div class="label-asset" style="color:var(--cyan);">IDX:COMP</div>
+                <div class="label-xs" style="margin-top:2px;">IHSG · INDONESIA</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2); letter-spacing:0.06em;">EQUITY</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border-left:none; border-right:none; border-bottom:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"IDX:COMPOSITE","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ██ SECTION 02: ADVANCED CHART ██ -->
+    <div class="row-anim" style="animation-delay:0.15s;">
+      <div class="sec-header">
+        <span class="sec-id">02</span>
+        <span class="sec-title">Chart Analysis</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">RSI · MACD · LIVE</span>
+      </div>
+      <div class="panel panel-bracket">
+        <div class="panel-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="dot-live"></span>
+            <span class="label-sm">Advanced Chart</span>
+          </div>
+          <div style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">SYMBOL SELECTOR → HEADER</div>
+        </div>
+        <div id="advancedChart" style="height:490px;">
+          <div class="tradingview-widget-container" style="height:100%;width:100%;">
+            <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+            <script type="text/javascript" id="tv-advanced-script" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"allow_symbol_change":true,"calendar":false,"details":false,"hide_side_toolbar":false,"hide_top_toolbar":false,"hide_legend":false,"hide_volume":false,"hotlist":false,"interval":"D","locale":"en","save_image":true,"style":"1","symbol":"OANDA:XAUUSD","theme":"dark","timezone":"Asia/Jakarta","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","watchlist":[],"withdateranges":true,"compareSymbols":[],"studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ██ SECTION 03: HEATMAPS ██ -->
+    <div class="row-anim" style="animation-delay:0.2s;">
+      <div class="sec-header">
+        <span class="sec-id">03</span>
+        <span class="sec-title">Market Heatmaps</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">SPX · CRYPTO · IDX</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+
+        <!-- SPX -->
+        <div class="panel panel-bracket">
+          <div class="panel-header">
+            <span class="label-sm">S&amp;P 500</span>
+            <span class="label-xs">US EQUITIES</span>
+          </div>
+          <div style="height:270px;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+              {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRYPTO -->
+        <div class="panel panel-bracket">
+          <div class="panel-header">
+            <span class="label-sm" style="color:var(--p-bright);">Crypto</span>
+            <span class="label-xs">24H CHANGE</span>
+          </div>
+          <div style="height:270px;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+              {"dataSource":"Crypto","blockSize":"market_cap_calc","blockColor":"24h_close_change|5","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- IDX -->
+        <div class="panel panel-bracket">
+          <div class="panel-header">
+            <span class="label-sm" style="color:var(--cyan);">IDX IHSG</span>
+            <span class="label-xs">INDONESIA</span>
+          </div>
+          <div style="height:270px;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+              {"dataSource":"AllID","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ██ SECTION 04: FOREX + CALENDAR ██ -->
+    <div class="row-anim" style="animation-delay:0.25s;">
+      <div class="sec-header">
+        <span class="sec-id">04</span>
+        <span class="sec-title">FX Heatmap &amp; Economic Events</span>
+        <span class="sec-line"></span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+
+        <!-- Forex Heatmap -->
+        <div class="panel panel-bracket">
+          <div class="panel-header">
+            <span class="label-sm">Forex Heatmap</span>
+            <span class="label-xs">CURRENCY STRENGTH</span>
+          </div>
+          <div style="height:310px;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
+              {"colorTheme":"dark","isTransparent":true,"locale":"en","currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","NZD","CNY","IDR"],"backgroundColor":"transparent","width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- Economic Calendar -->
+        <div class="panel panel-bracket">
+          <div class="panel-header">
+            <span class="label-sm">Economic Calendar</span>
+            <span class="label-xs">MACRO EVENTS</span>
+          </div>
+          <div style="height:310px;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+              {"colorTheme":"dark","isTransparent":true,"locale":"en","countryFilter":"ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu","importanceFilter":"-1,0,1","width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ██ SECTION 05: HISTORICAL DATA ██ -->
+    <div class="row-anim" style="animation-delay:0.3s;">
+      <div class="sec-header">
+        <span class="sec-id">05</span>
+        <span class="sec-title">Historical Gold Data</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">XAU/USD 2015–2025</span>
+      </div>
+
+      <div class="panel panel-bracket">
+        <div class="panel-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="label-sm">Price Chart — Monthly High/Low</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="label-xs">YEAR:</span>
+            <select id="year-select-chart" class="t-select">
+              <option value="all-time" selected>ALL TIME</option>
+            </select>
+          </div>
+        </div>
+        <div style="padding:12px; background:var(--surface-0);">
+          <div style="height:300px; position:relative;">
+            <canvas id="priceLineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;" class="panel panel-bracket">
+        <div class="panel-header">
+          <span class="label-sm">Trend Log — Faktor &amp; Narasi</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="label-xs">FILTER:</span>
+            <select id="year-select-table" class="t-select"></select>
+          </div>
+        </div>
+        <div style="overflow:auto; max-height:360px;">
+          <table class="t-table" id="trend-data-table">
+            <thead>
+              <tr>
+                <th>PERIOD</th>
+                <th>TREND</th>
+                <th>NARRATIVE</th>
+                <th>KEY DRIVER</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end left -->
+
+  <!-- ═══════════ RIGHT SIDEBAR ═══════════ -->
+  <div style="padding:12px; display:flex; flex-direction:column; gap:12px; position:sticky; top:76px; max-height:calc(100vh - 76px); overflow-y:auto;">
+
+    <!-- Market Feed -->
+    <div class="panel panel-bracket" style="height:480px; display:flex; flex-direction:column;">
+      <div class="panel-header" style="flex-shrink:0;">
+        <span class="label-sm">Market Feed</span>
+        <div style="display:flex; gap:4px;">
+          <button class="t-tab active" id="tabNewsBtn">NEWS</button>
+          <button class="t-tab" id="tabAnalysisBtn">TA</button>
+        </div>
+      </div>
+      <div style="flex:1; position:relative; overflow:hidden;">
+        <div id="tabNews" style="position:absolute; inset:0;">
+          <div class="tradingview-widget-container" style="height:100%; width:100%;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+            {"feedMode":"all_symbols","isTransparent":true,"displayMode":"adaptive","width":"100%","height":"100%","colorTheme":"dark","locale":"en","noSuggest":true,"dateRange":"12m"}
+            </script>
+          </div>
+        </div>
+        <div id="tabAnalysis" style="position:absolute; inset:0; display:none; overflow-y:auto; background:var(--void); padding:6px; display:flex; flex-direction:column; gap:8px;">
+          <!-- XAU TA -->
+          <div style="border:1px solid var(--grid-bright); height:200px; flex-shrink:0;">
+            <div style="padding:5px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0);">
+              <span class="label-xs" style="color:var(--amber);">XAU/USD — 4H</span>
+            </div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 26px); width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+              {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"4h","symbol":"OANDA:XAUUSD","showIntervalTabs":true,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+          <!-- BTC TA -->
+          <div style="border:1px solid var(--grid-bright); height:200px; flex-shrink:0;">
+            <div style="padding:5px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0);">
+              <span class="label-xs" style="color:var(--p-bright);">BTC/USDT — 4H</span>
+            </div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 26px); width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+              {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"4h","symbol":"BINANCE:BTCUSDT.P","showIntervalTabs":true,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+          <!-- IHSG TA -->
+          <div style="border:1px solid var(--grid-bright); height:200px; flex-shrink:0;">
+            <div style="padding:5px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0);">
+              <span class="label-xs" style="color:var(--cyan);">IHSG — 1D</span>
+            </div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 26px); width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+              {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"1D","symbol":"IDX:COMPOSITE","showIntervalTabs":true,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FX Cross Rates -->
+    <div class="panel panel-bracket" style="height:260px; display:flex; flex-direction:column;">
+      <div class="panel-header" style="flex-shrink:0;">
+        <span class="label-sm">FX Cross Rates</span>
+        <span class="label-xs">MAJOR PAIRS</span>
+      </div>
+      <div style="flex:1; overflow:hidden;">
+        <div class="tradingview-widget-container" style="height:100%; width:100%;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+          {"colorTheme":"dark","isTransparent":true,"locale":"en","currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","IDR"],"backgroundColor":"transparent","width":"100%","height":"100%"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- BTC Technical Block -->
+    <div class="panel panel-bracket" style="height:260px; display:flex; flex-direction:column;">
+      <div class="panel-header" style="flex-shrink:0; border-left:2px solid var(--p-bright);">
+        <span class="label-sm" style="color:var(--p-bright);">BTC Technicals</span>
+        <span class="label-xs">4H INTERVAL</span>
+      </div>
+      <div style="flex:1; overflow:hidden;">
+        <div class="tradingview-widget-container" style="height:100%; width:100%;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+          {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"4h","symbol":"BINANCE:BTCUSDT.P","showIntervalTabs":true,"width":"100%","height":"100%"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- System / Links -->
+    <div class="panel panel-bracket" style="padding:12px;">
+      <div style="font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--txt-3); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--grid-dim);">SYS LINKS</div>
+      <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:12px;">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="q-link">
+          <span style="color:var(--p-dim);">↑</span> SCROLL TO TOP
+        </button>
+        <a href="https://www.tradingview.com/" target="_blank" class="q-link">
+          <span style="color:var(--p-dim);">→</span> TRADINGVIEW.COM
+        </a>
+        <a href="https://coinmarketcap.com/" target="_blank" class="q-link">
+          <span style="color:var(--p-dim);">→</span> COINMARKETCAP
+        </a>
+        <a href="https://www.idx.co.id/" target="_blank" class="q-link">
+          <span style="color:var(--p-dim);">→</span> IDX.CO.ID
+        </a>
+        <a href="https://finance.yahoo.com/" target="_blank" class="q-link">
+          <span style="color:var(--p-dim);">→</span> YAHOO FINANCE
+        </a>
+      </div>
+
+      <!-- Dev info -->
+      <div style="padding-top:10px; border-top:1px solid var(--grid-dim);">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <div class="label-xs" style="margin-bottom:3px;">DEVELOPED BY</div>
+            <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:var(--p-bright);">FARID SIDDIQ</div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <a href="https://twitter.com/farid04siddiq" target="_blank" class="q-link" style="width:28px; height:28px; padding:0; justify-content:center; font-size:9px;">X</a>
+            <a href="https://instagram.com/scv.farid1717_" target="_blank" class="q-link" style="width:28px; height:28px; padding:0; justify-content:center; font-size:9px;">IG</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="padding:8px; border:1px solid var(--grid-dim); text-align:center;">
+      <div class="wm-text">⚠ FOR EDUCATIONAL &amp; INFORMATIONAL USE ONLY<br>NOT FINANCIAL OR INVESTMENT ADVICE</div>
+    </div>
+
+  </div><!-- end sidebar -->
+
+</main>
+
+<!-- ══════════════════════════════════════════ CHAT FAB ══════════════════════════════════════════ -->
+<button id="chatFab" class="chat-fab" aria-label="Open AI Terminal">
+  <span style="font-size:9px; font-weight:700; letter-spacing:0.1em; line-height:1;">AI<br>CMD</span>
+</button>
+
+<!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
+<div id="chatModal" class="chat-modal">
+
+  <!-- Header -->
+  <div style="padding:8px 12px; border-bottom:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="dot-live"></span>
+        <span style="font-size:11px; font-weight:700; letter-spacing:0.1em; color:var(--p-bright);">AI//COMMAND</span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">gemini-2.5-flash</span>
+      </div>
+      <button id="closeChat" class="t-btn" style="height:22px; padding:0 8px; font-size:9px;"><span>✕ CLOSE</span></button>
+    </div>
+    <div style="margin-top:6px; display:flex; align-items:center; gap:6px;">
+      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MODE:</span>
+      <span style="font-size:9px; color:var(--amber); letter-spacing:0.1em;">TEXT + IMAGE ANALYSIS</span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div id="chatBody" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; max-height:380px; background:var(--void); font-size:11px;">
+    <div style="color:var(--txt-3); font-size:9px; letter-spacing:0.1em; text-align:center; padding:4px 0; border-bottom:1px solid var(--grid-dim);">── SESSION INIT ──</div>
+    <div>
+      <span style="color:var(--p-dim);">SYSTEM &gt;</span>
+      <span style="color:var(--txt-2);"> MarketHub AI terminal ready.</span>
+    </div>
+    <div>
+      <span style="color:var(--p-dim);">SYSTEM &gt;</span>
+      <span style="color:var(--txt-2);"> Query market conditions, or <span style="color:var(--p-bright);">upload chart screenshot</span> for technical analysis.</span>
+    </div>
+    <div class="cursor-line">
+      <span style="color:var(--p-mid);">INPUT &gt;</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:10px; border-top:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
+    <div style="display:flex; align-items:flex-end; gap:6px;">
+      <label for="imageInput" title="Upload Chart" style="cursor:pointer; width:32px; height:32px; border:1px solid var(--grid-bright); background:var(--surface-1); display:flex; align-items:center; justify-content:center; color:var(--txt-3); font-size:11px; flex-shrink:0; transition:all 0.15s;" onmouseover="this.style.borderColor='var(--p-dim)'; this.style.color='var(--p-bright)'" onmouseout="this.style.borderColor='var(--grid-bright)'; this.style.color='var(--txt-3)'">
+        IMG
+      </label>
+      <input id="imageInput" type="file" accept="image/*" style="display:none;">
+
+      <div style="flex:1; position:relative;">
+        <span style="position:absolute; left:8px; top:50%; transform:translateY(-50%); color:var(--p-dim); font-size:11px; pointer-events:none;">▶</span>
+        <textarea id="messageInput" class="chat-input-field" rows="1" placeholder="enter query..." style="padding-left:24px;"></textarea>
+      </div>
+
+      <button id="sendBtn" class="t-btn" style="height:32px; padding:0 12px; font-size:10px; flex-shrink:0;"><span>SEND</span></button>
+    </div>
+    <div style="margin-top:8px; display:flex; align-items:center; gap:6px; padding-top:6px; border-top:1px solid var(--grid-dim);">
+      <span style="font-size:8px; color:var(--red-dim); letter-spacing:0.12em; text-transform:uppercase;">⚠ AI TOOL ONLY · NOT FINANCIAL ADVICE</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
+<script>
+// ── Clock + Session ──
+const SESSIONS = [
+  { name:'SYDNEY',  open:21, close:6,  tz:'UTC' },
+  { name:'TOKYO',   open:0,  close:9,  tz:'UTC' },
+  { name:'LONDON',  open:7,  close:16, tz:'UTC' },
+  { name:'NEW YORK',open:12, close:21, tz:'UTC' },
+];
+
+function getActiveSessions(utcH) {
+  return SESSIONS.filter(s => {
+    if(s.open < s.close) return utcH >= s.open && utcH < s.close;
+    return utcH >= s.open || utcH < s.close;
+  });
+}
+
+function updateClock() {
+  const now = new Date();
+  const utcH = now.getUTCHours();
+  const wib = new Date(now.getTime() + 7*3600*1000);
+  const p = n => String(n).padStart(2,'0');
+  const clockEl = document.getElementById('clockDisplay');
+  const sessionEl = document.getElementById('sessionInfo');
+  if(clockEl) clockEl.textContent = `${p(wib.getUTCDate())}/${p(wib.getUTCMonth()+1)}/${wib.getUTCFullYear()} ${p(wib.getUTCHours())}:${p(wib.getUTCMinutes())}:${p(wib.getUTCSeconds())}`;
+  const active = getActiveSessions(utcH);
+  if(sessionEl) sessionEl.textContent = active.length ? active.map(s=>s.name).join(' + ') + ' OPEN' : 'ALL CLOSED';
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── Responsive ──
+function adjustLayout(){
+  const g = document.getElementById('mainGrid');
+  if(!g) return;
+  g.style.gridTemplateColumns = window.innerWidth < 1100 ? '1fr' : '1fr 320px';
+}
+window.addEventListener('resize', adjustLayout); adjustLayout();
+
+// ── Tabs ──
+const tabNewsBtn = document.getElementById('tabNewsBtn');
+const tabAnalysisBtn = document.getElementById('tabAnalysisBtn');
+const tabNews = document.getElementById('tabNews');
+const tabAnalysis = document.getElementById('tabAnalysis');
+
+tabNewsBtn.addEventListener('click', () => {
+  tabNews.style.display = 'block'; tabAnalysis.style.display = 'none';
+  tabNewsBtn.classList.add('active'); tabAnalysisBtn.classList.remove('active');
+});
+tabAnalysisBtn.addEventListener('click', () => {
+  tabAnalysis.style.display = 'flex'; tabAnalysis.style.flexDirection = 'column';
+  tabNews.style.display = 'none';
+  tabAnalysisBtn.classList.add('active'); tabNewsBtn.classList.remove('active');
+});
+
+// ── Apply Symbol ──
+document.getElementById('applySymbol').addEventListener('click', () => {
+  const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
+  const container = document.querySelector('#advancedChart .tradingview-widget-container');
+  let old = document.getElementById('tv-advanced-script');
+  if(old) old.remove();
+  Array.from(container.children).forEach(c => c.remove());
+  const wp = document.createElement('div');
+  wp.className='tradingview-widget-container__widget';
+  wp.style.cssText='height:100%;width:100%';
+  container.appendChild(wp);
+  const sc = document.createElement('script');
+  sc.type='text/javascript'; sc.async=true; sc.id='tv-advanced-script';
+  sc.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.textContent = JSON.stringify({
+    "allow_symbol_change":true,"interval":"D","locale":"en","save_image":true,
+    "style":"1","symbol":sym,"theme":"dark","timezone":"Asia/Jakarta",
+    "backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)",
+    "studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true,
+    "hide_side_toolbar":false,"withdateranges":true
+  });
+  container.appendChild(sc);
+});
+
+// ── Chat ──
+const chatFab = document.getElementById('chatFab');
+const chatModal = document.getElementById('chatModal');
+const openChatBtn = document.getElementById('openChatBtn');
+const closeChat = document.getElementById('closeChat');
+const sendBtn = document.getElementById('sendBtn');
+const messageInput = document.getElementById('messageInput');
+const chatBody = document.getElementById('chatBody');
+const imageInput = document.getElementById('imageInput');
+
+function showChat(){
+  chatModal.classList.add('open');
+  chatFab.style.display = 'none';
+  setTimeout(() => messageInput.focus(), 250);
+}
+function hideChat(){
+  chatModal.classList.remove('open');
+  setTimeout(() => { chatFab.style.display = 'flex'; }, 280);
+}
+
+chatFab.addEventListener('click', showChat);
+openChatBtn.addEventListener('click', showChat);
+closeChat.addEventListener('click', hideChat);
+
+function appendMsg(who, content, isImage=false){
+  const wrap = document.createElement('div');
+  const bubble = document.createElement('div');
+
+  if(who === 'user'){
+    wrap.style.cssText = 'padding:4px 0;';
+    const prefix = document.createElement('span');
+    prefix.style.cssText = 'color:var(--amber); font-size:10px;';
+    prefix.textContent = 'USER > ';
+    bubble.style.cssText = 'display:inline; color:var(--txt-1); font-size:11px;';
+    if(isImage){
+      const img = document.createElement('img');
+      img.src = content.imagePreview;
+      img.style.cssText = 'display:block; max-width:100%; border:1px solid var(--grid-bright); margin:4px 0;';
+      wrap.appendChild(prefix);
+      wrap.appendChild(document.createTextNode('[IMAGE] '));
+      wrap.appendChild(document.createTextNode(content.fileName));
+      wrap.appendChild(img);
+    } else {
+      bubble.style.whiteSpace = 'pre-wrap';
+      bubble.textContent = content;
+      wrap.appendChild(prefix);
+      wrap.appendChild(bubble);
+    }
+  } else {
+    wrap.style.cssText = 'padding:4px 0; border-left:1px solid var(--p-ghost); padding-left:8px;';
+    const prefix = document.createElement('span');
+    if(content.includes('thinking')||content.includes('analyzing')){
+      prefix.style.cssText = 'color:var(--p-dim); font-size:10px;';
+      prefix.textContent = 'AI > ';
+      bubble.style.cssText = 'display:inline; color:var(--p-mid); font-size:11px; animation:blink-dot 0.8s steps(1) infinite;';
+      bubble.textContent = content;
+    } else {
+      prefix.style.cssText = 'color:var(--p-dim); font-size:10px;';
+      prefix.textContent = 'AI > ';
+      bubble.style.cssText = 'display:inline; color:var(--txt-2); font-size:11px; line-height:1.6; white-space:pre-wrap;';
+      bubble.innerHTML = content
+        .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--p-bright)">$1</strong>')
+        .replace(/\n/g,'<br>');
+    }
+    wrap.appendChild(prefix);
+    wrap.appendChild(bubble);
+  }
+
+  chatBody.appendChild(wrap);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  return bubble;
+}
+
+function disableInputs(d){
+  messageInput.disabled=d; sendBtn.disabled=d; imageInput.disabled=d;
+  sendBtn.style.opacity = d ? '0.3' : '1';
+}
+
+let chatHistory = [];
+
+async function callGemini(parts, type){
+  disableInputs(true);
+  const loading = type==='text' ? '[ processing... ]' : '[ analyzing chart... ]';
+  let thinking = appendMsg('bot', loading);
+  const userMsg = { role:'user', parts };
+  const contents = [...chatHistory, userMsg];
+  try {
+    const res = await fetch('/api/gemini', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ contents, model:'gemini-2.5-flash' })
+    });
+    thinking.remove();
+    thinking.parentElement && thinking.parentElement.remove();
+    const data = await res.json();
+    if(!res.ok){ appendMsg('bot', `[ ERROR: ${data.error||'unknown'} ]`); return; }
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(txt){ appendMsg('bot', txt); chatHistory.push(userMsg); chatHistory.push({role:'model',parts:[{text:txt}]}); }
+    else appendMsg('bot','[ NO RESPONSE RECEIVED ]');
+  } catch(e){
+    thinking.remove();
+    appendMsg('bot', `[ NETWORK ERROR: ${e.message} ]`);
+  } finally { disableInputs(false); }
+}
+
+function fileToGenerativePart(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res({inlineData:{data:r.result.split(',')[1],mimeType:file.type}});
+    r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+
+function handleSend(){
+  const msg = messageInput.value.trim();
+  if(!msg) return;
+  appendMsg('user', msg);
+  messageInput.value=''; messageInput.style.height='auto';
+  callGemini([{text:msg}],'text');
+}
+
+async function handleImage(){
+  const file = imageInput.files[0]; if(!file) return;
+  const preview = URL.createObjectURL(file);
+  const msg = messageInput.value.trim();
+  appendMsg('user',{imagePreview:preview,fileName:file.name},true);
+  let imgPart;
+  try { imgPart = await fileToGenerativePart(file); }
+  catch(e){ appendMsg('bot',`[ READ ERROR: ${e.message} ]`); imageInput.value=''; return; }
+  const parts = [imgPart, {text: msg || 'Analisis teknikal chart ini secara detail.'}];
+  messageInput.value=''; imageInput.value='';
+  callGemini(parts,'multimodal');
+}
+
+sendBtn.addEventListener('click', handleSend);
+messageInput.addEventListener('keydown', e => {
+  if(e.key==='Enter'&&!e.shiftKey&&!messageInput.disabled){ e.preventDefault(); handleSend(); }
+});
+messageInput.addEventListener('input', function(){
+  this.style.height='auto'; this.style.height=this.scrollHeight+'px';
+});
+imageInput.addEventListener('change', handleImage);
+
+// ═══════════════════════════════════════
+// HISTORICAL DATA
+// ═══════════════════════════════════════
+const rawData=[
+  {monthYear:"Jan 2015",trend:"Ranging",desc:"Konsolidasi di tengah penguatan Dolar AS.",factor:"Kekuatan Dolar AS pasca berakhirnya QE The Fed."},
+  {monthYear:"Feb 2015",trend:"Downtrend",desc:"Penurunan tajam, momentum bearish kuat.",factor:"Ekspektasi kenaikan suku bunga AS."},
+  {monthYear:"Mar 2015",trend:"Ranging",desc:"Sideways di area support.",factor:"Pasar mencerna data ekonomi AS yang beragam."},
+  {monthYear:"Apr 2015",trend:"Uptrend",desc:"Rebound teknikal yang kuat.",factor:"Kelemahan sementara pada DXY."},
+  {monthYear:"Mei 2015",trend:"Downtrend",desc:"Tren bearish dominan.",factor:"Pemulihan ekonomi AS & inflasi rendah."},
+  {monthYear:"Jun 2015",trend:"Downtrend",desc:"Penurunan berkelanjutan.",factor:"Krisis utang Yunani memicu ketidakpastian Eurozone."},
+  {monthYear:"Jul 2015",trend:"Downtrend tajam",desc:"Penurunan drastis, terendah multi-tahun.",factor:"Kepastian kenaikan suku bunga Fed mendekat."},
+  {monthYear:"Agu 2015",trend:"Ranging",desc:"Rebound & konsolidasi dari level rendah.",factor:"Devaluasi Yuan Tiongkok memicu volatilitas pasar."},
+  {monthYear:"Sep 2015",trend:"Downtrend",desc:"Tekanan jual kembali dominan.",factor:"The Fed menunda kenaikan suku bunga pertamanya."},
+  {monthYear:"Okt 2015",trend:"Uptrend",desc:"Kenaikan moderat dari bottom.",factor:"Data non-farm payroll AS yang lemah."},
+  {monthYear:"Nov 2015",trend:"Downtrend",desc:"Turun tajam, tembus support krusial.",factor:"Dolar menguat tajam, Fed bersiap rate hike."},
+  {monthYear:"Des 2015",trend:"Ranging",desc:"Sideways menunggu Rate Hike.",factor:"The Fed naikkan suku bunga pertama kali (Des 2015)."},
+  {monthYear:"Jan 2016",trend:"Uptrend kuat",desc:"Rebound masif dari level terendah.",factor:"Kekacauan pasar saham global & harga minyak jatuh."},
+  {monthYear:"Feb 2016",trend:"Uptrend",desc:"Momentum bullish berlanjut.",factor:"Peningkatan permintaan safe haven."},
+  {monthYear:"Mar 2016",trend:"Ranging",desc:"Konsolidasi di area tinggi.",factor:"The Fed bersikap dovish."},
+  {monthYear:"Apr 2016",trend:"Downtrend",desc:"Koreksi setelah kenaikan panjang.",factor:"Kekuatan Dolar AS sementara."},
+  {monthYear:"Mei 2016",trend:"Downtrend",desc:"Penurunan harga stabil.",factor:"Ekspektasi rate hike kedua."},
+  {monthYear:"Jun 2016",trend:"Uptrend tajam",desc:"Lonjakan harga sangat kuat.",factor:"Keputusan Brexit — Inggris keluar dari Uni Eropa."},
+  {monthYear:"Jul 2016",trend:"Ranging",desc:"Konsolidasi pasca Brexit.",factor:"Intervensi bank sentral pasca Brexit."},
+  {monthYear:"Agu 2016",trend:"Downtrend",desc:"Koreksi setelah lonjakan Juni.",factor:"Data ekonomi AS membaik."},
+  {monthYear:"Sep 2016",trend:"Ranging",desc:"Pergerakan mendatar.",factor:"The Fed menahan suku bunga."},
+  {monthYear:"Okt 2016",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Penguatan DXY jelang pemilu AS."},
+  {monthYear:"Nov 2016",trend:"Downtrend tajam",desc:"Penjualan besar-besaran pasca pemilu.",factor:"Kemenangan Donald Trump."},
+  {monthYear:"Des 2016",trend:"Downtrend",desc:"Tekanan jual berlanjut.",factor:"The Fed naikkan suku bunga (Rate Hike kedua)."},
+  {monthYear:"Jan 2017",trend:"Uptrend",desc:"Rebound awal tahun.",factor:"Melemahnya USD pasca kenaikan suku bunga."},
+  {monthYear:"Feb 2017",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Ketidakpastian kebijakan Trump."},
+  {monthYear:"Mar 2017",trend:"Uptrend",desc:"Puncak kuartalan.",factor:"The Fed naikkan suku bunga (Rate Hike ketiga)."},
+  {monthYear:"Apr 2017",trend:"Ranging",desc:"Konsolidasi di area atas.",factor:"Ketegangan geopolitik AS-Korea Utara."},
+  {monthYear:"Mei 2017",trend:"Downtrend",desc:"Koreksi wajar.",factor:"Penguatan Dolar AS."},
+  {monthYear:"Jun 2017",trend:"Ranging",desc:"Sideways di area support.",factor:"The Fed naikkan suku bunga (Rate Hike keempat)."},
+  {monthYear:"Jul 2017",trend:"Uptrend",desc:"Rebound kuat.",factor:"Melemahnya USD secara umum."},
+  {monthYear:"Agu 2017",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Ketegangan geopolitik Korea Utara & Venezuela."},
+  {monthYear:"Sep 2017",trend:"Downtrend",desc:"Koreksi signifikan.",factor:"Fed umumkan pengurangan neraca."},
+  {monthYear:"Okt 2017",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Menunggu kebijakan Fed berikutnya."},
+  {monthYear:"Nov 2017",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Penguatan Dolar AS."},
+  {monthYear:"Des 2017",trend:"Uptrend",desc:"Rally mini akhir tahun.",factor:"The Fed naikkan suku bunga (Rate Hike kelima)."},
+  {monthYear:"Jan 2018",trend:"Uptrend",desc:"Bullish awal tahun.",factor:"Kelemahan DXY & awal ketegangan perdagangan."},
+  {monthYear:"Feb 2018",trend:"Downtrend",desc:"Koreksi tajam.",factor:"Kekuatan Dolar AS kembali."},
+  {monthYear:"Mar 2018",trend:"Ranging",desc:"Sideways.",factor:"The Fed naikkan suku bunga (Rate Hike keenam)."},
+  {monthYear:"Apr 2018",trend:"Downtrend",desc:"Tekanan jual dominan.",factor:"Imbal hasil obligasi AS naik."},
+  {monthYear:"Mei 2018",trend:"Downtrend",desc:"Bearish berkelanjutan.",factor:"Perang Dagang AS-Tiongkok."},
+  {monthYear:"Jun 2018",trend:"Downtrend",desc:"Level terendah.",factor:"The Fed naikkan suku bunga (Rate Hike ketujuh)."},
+  {monthYear:"Jul 2018",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Dolar AS sebagai safe haven."},
+  {monthYear:"Agu 2018",trend:"Ranging",desc:"Base terbentuk di area bawah.",factor:"Investor mencerna kebijakan perdagangan."},
+  {monthYear:"Sep 2018",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Tidak ada katalis besar."},
+  {monthYear:"Okt 2018",trend:"Uptrend",desc:"Rebound besar dari support.",factor:"Koreksi pasar saham global."},
+  {monthYear:"Nov 2018",trend:"Ranging",desc:"Sideways di level tengah.",factor:"Menunggu pertemuan Fed berikutnya."},
+  {monthYear:"Des 2018",trend:"Uptrend kuat",desc:"Rally masif akhir tahun.",factor:"The Fed naikkan suku bunga & pasar saham AS anjlok."},
+  {monthYear:"Jan 2019",trend:"Ranging",desc:"Konsolidasi pasca rally.",factor:"Fed bersikap dovish & isyaratkan pause rate hike."},
+  {monthYear:"Feb 2019",trend:"Downtrend",desc:"Koreksi tajam.",factor:"Kekuatan Dolar AS sementara."},
+  {monthYear:"Mar 2019",trend:"Ranging",desc:"Sideways mencari arah.",factor:"Tidak ada data besar."},
+  {monthYear:"Apr 2019",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Ketidakpastian negosiasi Brexit."},
+  {monthYear:"Mei 2019",trend:"Ranging",desc:"Konsolidasi di support.",factor:"Peningkatan ketegangan AS-Tiongkok."},
+  {monthYear:"Jun 2019",trend:"Uptrend tajam",desc:"Breakout kuat.",factor:"The Fed mengisyaratkan Rate Cut."},
+  {monthYear:"Jul 2019",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"The Fed memangkas suku bunga (Rate Cut pertama)."},
+  {monthYear:"Agu 2019",trend:"Uptrend kuat",desc:"Lonjakan besar ke area 1550.",factor:"Ketegangan perdagangan meningkat tajam."},
+  {monthYear:"Sep 2019",trend:"Downtrend",desc:"Koreksi wajar pasca puncak.",factor:"The Fed memangkas suku bunga (Rate Cut kedua)."},
+  {monthYear:"Okt 2019",trend:"Ranging",desc:"Sideways di level tinggi.",factor:"Harapan damai dagang AS-Tiongkok."},
+  {monthYear:"Nov 2019",trend:"Downtrend",desc:"Penurunan dari level tinggi.",factor:"The Fed memangkas suku bunga (Rate Cut ketiga)."},
+  {monthYear:"Des 2019",trend:"Uptrend",desc:"Rally mini akhir tahun.",factor:"Perjanjian damai dagang fase 1."},
+  {monthYear:"Jan 2020",trend:"Uptrend moderat",desc:"Emas menguat stabil.",factor:"Ketegangan AS-Iran & penyebaran awal COVID-19."},
+  {monthYear:"Feb 2020",trend:"Uptrend kuat",desc:"Lonjakan tajam ke 1680-1700.",factor:"COVID-19 mulai menyebar global."},
+  {monthYear:"Mar 2020",trend:"Volatil",desc:"Turun drastis lalu rebound.",factor:"Crash likuiditas global & intervensi The Fed."},
+  {monthYear:"Apr 2020",trend:"Uptrend tajam",desc:"Rebound kuat ke area 1750.",factor:"Stimulus masif & suku bunga mendekati 0%."},
+  {monthYear:"Mei 2020",trend:"Uptrend stabil",desc:"Permintaan investasi naik.",factor:"The Fed lanjutkan QE."},
+  {monthYear:"Jun 2020",trend:"Uptrend kuat",desc:"Breakout ke area 1800.",factor:"DXY melemah, ekspektasi stimulus."},
+  {monthYear:"Jul 2020",trend:"Uptrend kuat",desc:"Lonjakan besar akibat stimulus.",factor:"Stimulus masif dari The Fed & bantuan COVID-19."},
+  {monthYear:"Agu 2020",trend:"Uptrend → Koreksi",desc:"Puncak historis, lalu koreksi tajam.",factor:"Euforia safe haven puncak, profit taking."},
+  {monthYear:"Sep 2020",trend:"Downtrend",desc:"Tekanan jual pasca puncak.",factor:"Penguatan USD & ekspektasi pemulihan ekonomi."},
+  {monthYear:"Okt 2020",trend:"Ranging",desc:"Konsolidasi 1880-1920.",factor:"Menunggu hasil pemilu AS 2020."},
+  {monthYear:"Nov 2020",trend:"Downtrend",desc:"Penurunan akibat optimisme vaksin.",factor:"Pengumuman vaksin Pfizer-BioNTech."},
+  {monthYear:"Des 2020",trend:"Ranging → Uptrend",desc:"Mulai pulih.",factor:"Paket stimulus tambahan AS disetujui."},
+  {monthYear:"Jan 2021",trend:"Uptrend → Downtrend",desc:"Lonjakan lalu terkoreksi.",factor:"Harapan stimulus Biden, lalu yield naik."},
+  {monthYear:"Feb 2021",trend:"Downtrend",desc:"Yield naik, tekanan jual tinggi.",factor:"Lonjakan yield Treasury 10 tahun."},
+  {monthYear:"Mar 2021",trend:"Ranging → Downtrend",desc:"Gagal rebound.",factor:"Dolar menguat, ekspektasi tapering."},
+  {monthYear:"Apr 2021",trend:"Ranging",desc:"Pasar stabil di area bawah.",factor:"Konsolidasi."},
+  {monthYear:"Mei 2021",trend:"Uptrend kuat",desc:"Rebound besar dari support.",factor:"Inflasi AS naik tajam."},
+  {monthYear:"Jun 2021",trend:"Downtrend tajam",desc:"Penurunan cepat pasca FOMC.",factor:"FOMC sinyalkan kenaikan suku bunga lebih cepat."},
+  {monthYear:"Jul 2021",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Menunggu sinyal Fed."},
+  {monthYear:"Agu 2021",trend:"Ranging",desc:"Tidak ada arah jelas.",factor:"Data ekonomi campuran."},
+  {monthYear:"Sep 2021",trend:"Downtrend",desc:"Tekanan jual dominan.",factor:"Dolar menguat, ekspektasi tapering tinggi."},
+  {monthYear:"Okt 2021",trend:"Uptrend",desc:"Reversal dari support.",factor:"Inflasi tinggi picu safe haven."},
+  {monthYear:"Nov 2021",trend:"Ranging",desc:"Konsolidasi.",factor:"Menanti kepastian tapering Fed."},
+  {monthYear:"Des 2021",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Volume pasar rendah."},
+  {monthYear:"Jan 2022",trend:"Ranging → Uptrend",desc:"Tekanan beli muncul.",factor:"Ketegangan Rusia-Ukraina meningkat."},
+  {monthYear:"Feb 2022",trend:"Uptrend kuat",desc:"Lonjakan akibat geopolitik.",factor:"Invasi Rusia ke Ukraina (24 Feb)."},
+  {monthYear:"Mar 2022",trend:"Downtrend tajam",desc:"Koreksi kuat pasca lonjakan.",factor:"Ekspektasi kenaikan suku bunga Fed."},
+  {monthYear:"Apr 2022",trend:"Ranging → Downtrend",desc:"Gagal tembus resistance.",factor:"The Fed mulai agresif."},
+  {monthYear:"Mei 2022",trend:"Downtrend",desc:"Bearish stabil.",factor:"Inflasi tinggi, Fed naikkan suku bunga."},
+  {monthYear:"Jun 2022",trend:"Downtrend",desc:"Tekanan jual kuat.",factor:"USD terus menguat, DXY tembus 105."},
+  {monthYear:"Jul 2022",trend:"Ranging",desc:"Konsolidasi membentuk base.",factor:"Ekspektasi inflasi mulai turun."},
+  {monthYear:"Agu 2022",trend:"Uptrend singkat",desc:"Rebound teknikal.",factor:"DXY melemah sementara."},
+  {monthYear:"Sep 2022",trend:"Downtrend",desc:"Turun setelah rally pendek.",factor:"Fed naikkan suku bunga 75 bps lagi."},
+  {monthYear:"Okt 2022",trend:"Ranging",desc:"Area bottom terbentuk.",factor:"Investor mulai akumulasi kembali."},
+  {monthYear:"Nov 2022",trend:"Uptrend",desc:"Breakout resistance besar.",factor:"CPI AS turun, ekspektasi Fed melunak."},
+  {monthYear:"Des 2022",trend:"Uptrend",desc:"Tren naik stabil.",factor:"Optimisme soft landing."},
+  {monthYear:"Jan 2023",trend:"Uptrend",desc:"Higher high konsisten.",factor:"DXY melemah, ekspektasi Fed akan pivot."},
+  {monthYear:"Feb 2023",trend:"Downtrend",desc:"Koreksi dari puncak.",factor:"Data inflasi AS kembali tinggi."},
+  {monthYear:"Mar 2023",trend:"Uptrend",desc:"Rebound kuat.",factor:"Krisis perbankan AS (Silicon Valley Bank)."},
+  {monthYear:"Apr 2023",trend:"Uptrend → Ranging",desc:"Melambat di resistance.",factor:"Fed jaga suku bunga tetap tinggi."},
+  {monthYear:"Mei 2023",trend:"Downtrend",desc:"Tekanan jual meningkat.",factor:"Debt ceiling AS & profit taking."},
+  {monthYear:"Jun 2023",trend:"Ranging",desc:"Harga mendatar.",factor:"Tidak ada katalis besar."},
+  {monthYear:"Jul 2023",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Libur musim panas, volume tipis."},
+  {monthYear:"Agu 2023",trend:"Ranging → Uptrend awal",desc:"Mulai muncul higher low.",factor:"Data inflasi melunak."},
+  {monthYear:"Sep 2023",trend:"Uptrend",desc:"Tren bullish stabil.",factor:"Fed sinyalkan akhir siklus rate hike."},
+  {monthYear:"Okt 2023",trend:"Uptrend kuat",desc:"Breakout resistance utama.",factor:"Konflik Hamas-Israel (7 Okt)."},
+  {monthYear:"Nov 2023",trend:"Uptrend",desc:"Momentum bullish masih dominan.",factor:"Ketegangan Timur Tengah berlanjut."},
+  {monthYear:"Des 2023",trend:"Ranging",desc:"Konsolidasi di area puncak.",factor:"Pasar tenang jelang akhir tahun."},
+  {monthYear:"Jan 2024",trend:"Ranging → Downtrend",desc:"Koreksi awal tahun.",factor:"DXY rebound & data tenaga kerja kuat."},
+  {monthYear:"Feb 2024",trend:"Downtrend",desc:"Penurunan konsisten.",factor:"CPI tinggi, Fed hawkish kembali."},
+  {monthYear:"Mar 2024",trend:"Ranging",desc:"Pasar tenang.",factor:"Tidak ada data besar."},
+  {monthYear:"Apr 2024",trend:"Uptrend kuat",desc:"Breakout signifikan.",factor:"Dolar melemah, data inflasi turun."},
+  {monthYear:"Mei 2024",trend:"Uptrend",desc:"Tren naik terjaga.",factor:"Spekulasi pemotongan suku bunga Fed."},
+  {monthYear:"Jun 2024",trend:"Ranging",desc:"Mendatar di level tinggi.",factor:"Investor tunggu keputusan FOMC."},
+  {monthYear:"Jul 2024",trend:"Downtrend",desc:"Koreksi dari area atas.",factor:"DXY menguat kembali."},
+  {monthYear:"Agu 2024",trend:"Downtrend",desc:"Lanjutan tekanan jual.",factor:"PMI dan CPI positif di AS."},
+  {monthYear:"Sep 2024",trend:"Ranging → Uptrend",desc:"Reversal terbentuk.",factor:"Ekspektasi dovish Fed."},
+  {monthYear:"Okt 2024",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Inflasi global menurun."},
+  {monthYear:"Nov 2024",trend:"Ranging",desc:"Konsolidasi.",factor:"Menunggu hasil pemilu AS."},
+  {monthYear:"Dec 2024",trend:"Uptrend",desc:"Bullish continuation.",factor:"Euforia pasca pemilu AS."},
+  {monthYear:"Jan 2025",trend:"Uptrend",desc:"Tembus resistance lama.",factor:"Fed mulai potong suku bunga."},
+  {monthYear:"Feb 2025",trend:"Ranging",desc:"Sideways di puncak.",factor:"Tidak ada katalis besar."},
+  {monthYear:"Mar 2025",trend:"Downtrend",desc:"Koreksi wajar.",factor:"USD rebound teknikal."},
+  {monthYear:"Apr 2025",trend:"Downtrend",desc:"Tekanan jual meningkat.",factor:"Data inflasi naik kembali."},
+  {monthYear:"Mei 2025",trend:"Ranging",desc:"Konsolidasi setelah drop.",factor:"Menunggu arah kebijakan baru Fed."},
+  {monthYear:"Jun 2025",trend:"Ranging → Uptrend",desc:"Tanda reversal bullish.",factor:"Data CPI menurun lagi."},
+  {monthYear:"Jul 2025",trend:"Uptrend",desc:"Momentum naik kuat.",factor:"Spekulasi pemotongan lanjutan suku bunga."},
+  {monthYear:"Agu 2025",trend:"Uptrend",desc:"Bullish stabil dengan higher low.",factor:"USD melemah, risk-off meningkat."},
+  {monthYear:"Sep 2025",trend:"Ranging",desc:"Datar menjelang Q4.",factor:"Tidak ada event besar."},
+  {monthYear:"Okt 2025",trend:"Ranging → Uptrend",desc:"Potensi kenaikan ke akhir tahun.",factor:"Ketegangan geopolitik baru di Timur Tengah."}
+];
+
+const priceData=[
+  {month:'Jan',year:2015,high:1307.387,low:1201.766},{month:'Feb',year:2015,high:1295.277,low:1195.424},{month:'Mar',year:2015,high:1224.239,low:1142.345},{month:'Apr',year:2015,high:1224.591,low:1178.614},{month:'Mei',year:2015,high:1232.067,low:1170.925},{month:'Jun',year:2015,high:1204.31,low:1172.935},{month:'Jul',year:2015,high:1165.738,low:1076.62},{month:'Agu',year:2015,high:1131.742,low:1079.176},{month:'Sep',year:2015,high:1156.401,low:1104.997},{month:'Okt',year:2015,high:1184.225,low:1100.868},{month:'Nov',year:2015,high:1150.311,low:1064.954},{month:'Des',year:2015,high:1087.97,low:1046.208},
+  {month:'Jan',year:2016,high:1127.915,low:1070.781},{month:'Feb',year:2016,high:1263.951,low:1092.793},{month:'Mar',year:2016,high:1284.156,low:1206.197},{month:'Apr',year:2016,high:1297.042,low:1210.027},{month:'Mei',year:2016,high:1300.732,low:1209.615},{month:'Jun',year:2016,high:1358.97,low:1201.037},{month:'Jul',year:2016,high:1375.02,low:1308.205},{month:'Agu',year:2016,high:1367.62,low:1310.875},{month:'Sep',year:2016,high:1343.344,low:1302.26},{month:'Okt',year:2016,high:1337.894,low:1241.055},{month:'Nov',year:2016,high:1304.538,low:1170.999},{month:'Des',year:2016,high:1180.767,low:1121.282},
+  {month:'Jan',year:2017,high:1221.782,low:1139.75},{month:'Feb',year:2017,high:1263.268,low:1209.083},{month:'Mar',year:2017,high:1269.467,low:1205.578},{month:'Apr',year:2017,high:1295.631,low:1239.544},{month:'Mei',year:2017,high:1272.76,low:1214.39},{month:'Jun',year:2017,high:1295.731,low:1230.134},{month:'Jul',year:2017,high:1264.44,low:1204.654},{month:'Agu',year:2017,high:1317.02,low:1251.107},{month:'Sep',year:2017,high:1357.755,low:1260.675},{month:'Okt',year:2017,high:1306.075,low:1260.368},{month:'Nov',year:2017,high:1296.38,low:1263.743},{month:'Des',year:2017,high:1299.165,low:1236.787},
+  {month:'Jan',year:2018,high:1366.195,low:1308.267},{month:'Feb',year:2018,high:1361.642,low:1307.747},{month:'Mar',year:2018,high:1357.877,low:1305.105},{month:'Apr',year:2018,high:1365.17,low:1304.57},{month:'Mei',year:2018,high:1324.966,low:1284.116},{month:'Jun',year:2018,high:1309.847,low:1243.618},{month:'Jul',year:2018,high:1265.918,low:1211.961},{month:'Agu',year:2018,high:1220.738,low:1160.038},{month:'Sep',year:2018,high:1215.111,low:1184.148},{month:'Okt',year:2018,high:1243.518,low:1183.05},{month:'Nov',year:2018,high:1249.773,low:1200.738},{month:'Des',year:2018,high:1285.498,low:1219.866},
+  {month:'Jan',year:2019,high:1317.844,low:1276.104},{month:'Feb',year:2019,high:1346.746,low:1280.975},{month:'Mar',year:2019,high:1324.464,low:1281.332},{month:'Apr',year:2019,high:1310.279,low:1266.386},{month:'Mei',year:2019,high:1303.407,low:1266.696},{month:'Jun',year:2019,high:1441.761,low:1270.751},{month:'Jul',year:2019,high:1453.076,low:1381.821},{month:'Agu',year:2019,high:1555.708,low:1451.916},{month:'Sep',year:2019,high:1557.067,low:1459.186},{month:'Okt',year:2019,high:1519.814,low:1457.551},{month:'Nov',year:2019,high:1514.88,low:1445.672},{month:'Des',year:2019,high:1525.185,low:1458.556},
+  {month:'Jan',year:2020,high:1611.365,low:1517.172},{month:'Feb',year:2020,high:1689.213,low:1547.479},{month:'Mar',year:2020,high:1703.179,low:1451.281},{month:'Apr',year:2020,high:1746.579,low:1571.348},{month:'Mei',year:2020,high:1764.715,low:1670.131},{month:'Jun',year:2020,high:1785.729,low:1670.51},{month:'Jul',year:2020,high:1982.318,low:1757.464},{month:'Agu',year:2020,high:2073.682,low:1863.593},{month:'Sep',year:2020,high:1992.297,low:1848.076},{month:'Okt',year:2020,high:1933.178,low:1859.815},{month:'Nov',year:2020,high:1965.419,low:1764.16},{month:'Des',year:2020,high:1906.667,low:1776.74},
+  {month:'Jan',year:2021,high:1959.29,low:1802.438},{month:'Feb',year:2021,high:1871.716,low:1717.03},{month:'Mar',year:2021,high:1759.715,low:1676.627},{month:'Apr',year:2021,high:1797.756,low:1705.761},{month:'Mei',year:2021,high:1912.616,low:1766.046},{month:'Jun',year:2021,high:1916.446,low:1750.621},{month:'Jul',year:2021,high:1834.039,low:1765.633},{month:'Agu',year:2021,high:1831.657,low:1686.784},{month:'Sep',year:2021,high:1833.859,low:1721.571},{month:'Okt',year:2021,high:1813.56,low:1745.822},{month:'Nov',year:2021,high:1877.067,low:1758.534},{month:'Des',year:2021,high:1828.722,low:1753.053},
+  {month:'Jan',year:2022,high:1853.785,low:1779.895},{month:'Feb',year:2022,high:1974.331,low:1788.521},{month:'Mar',year:2022,high:2070.292,low:1889.783},{month:'Apr',year:2022,high:1998.024,low:1871.981},{month:'Mei',year:2022,high:1909.551,low:1786.381},{month:'Jun',year:2022,high:1878.832,low:1802.627},{month:'Jul',year:2022,high:1814.091,low:1680.811},{month:'Agu',year:2022,high:1807.831,low:1705.48},{month:'Sep',year:2022,high:1735.081,low:1614.427},{month:'Okt',year:2022,high:1729.469,low:1616.886},{month:'Nov',year:2022,high:1786.472,low:1616.624},{month:'Des',year:2022,high:1832.979,low:1765.756},
+  {month:'Jan',year:2023,high:1949.116,low:1823.998},{month:'Feb',year:2023,high:1959.639,low:1804.362},{month:'Mar',year:2023,high:2009.668,low:1809.372},{month:'Apr',year:2023,high:2048.597,low:1949.542},{month:'Mei',year:2023,high:2079.817,low:1932.042},{month:'Jun',year:2023,high:1983.332,low:1892.839},{month:'Jul',year:2023,high:1987.421,low:1902.568},{month:'Agu',year:2023,high:1964.628,low:1884.547},{month:'Sep',year:2023,high:1952.331,low:1846.282},{month:'Okt',year:2023,high:2009.327,low:1810.402},{month:'Nov',year:2023,high:2052.03,low:1921.394},{month:'Des',year:2023,high:2144.46,low:1973.033},
+  {month:'Jan',year:2024,high:2078.877,low:2001.742},{month:'Feb',year:2024,high:2065.458,low:1984.121},{month:'Mar',year:2024,high:2247.34,low:2039.039},{month:'Apr',year:2024,high:2431.527,low:2228.472},{month:'Mei',year:2024,high:2450.026,low:2277.089},{month:'Jun',year:2024,high:2387.702,low:2286.723},{month:'Jul',year:2024,high:2483.739,low:2318.438},{month:'Agu',year:2024,high:2531.668,low:2364.267},{month:'Sep',year:2024,high:2685.611,low:2471.826},{month:'Okt',year:2024,high:2790.075,low:2602.178},{month:'Nov',year:2024,high:2762.254,low:2536.755},{month:'Dec',year:2024,high:2726.206,low:2583.389},
+  {month:'Jan',year:2025,high:2817.244,low:2614.419},{month:'Feb',year:2025,high:2956.229,low:2772.151},{month:'Mar',year:2025,high:3128.165,low:2858.83},{month:'Apr',year:2025,high:3500.033,low:2956.374},{month:'Mei',year:2025,high:3435.016,low:3120.65},{month:'Jun',year:2025,high:3451.251,low:3247.921},{month:'Jul',year:2025,high:3438.98,low:3268.034},{month:'Agu',year:2025,high:3453.924,low:3281.566},{month:'Sep',year:2025,high:3871.7,low:3437.028},{month:'Okt',year:2025,high:4380.074,low:3819.335}
+];
+
+const uniqueYears = [...new Set(priceData.map(d=>d.year))].sort((a,b)=>b-a);
+const latestYear = uniqueYears[0];
+const trendTbody = document.querySelector('#trend-data-table tbody');
+const yearSelectChart = document.getElementById('year-select-chart');
+const yearSelectTable = document.getElementById('year-select-table');
+const priceCanvas = document.getElementById('priceLineChart');
+let priceChart;
+
+function getTrendClass(t){
+  const l=t.toLowerCase();
+  if(l.includes('uptrend')||l.includes('rebound')||l.includes('rally')) return 'up';
+  if(l.includes('downtrend')||l.includes('koreksi')||l.includes('crash')||l.includes('volatil')) return 'down';
+  return 'side';
+}
+
+function renderChart(yr){
+  let data, labels, pointSz;
+  if(yr==='all-time'){
+    data=priceData; labels=data.map(d=>`${d.month.substring(0,3)}'${String(d.year).slice(2)}`); pointSz=0;
+  } else {
+    data=priceData.filter(d=>d.year===parseInt(yr)); labels=data.map(d=>d.month); pointSz=3;
+  }
+  if(priceChart) priceChart.destroy();
+  priceChart = new Chart(priceCanvas,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'HIGH',
+          data:data.map(d=>d.high),
+          borderColor:'rgba(0,255,136,0.8)',
+          backgroundColor:'rgba(0,255,136,0.03)',
+          fill:true, tension:0.25,
+          pointRadius:pointSz,
+          pointHoverRadius:pointSz+2,
+          borderWidth:1.5,
+          pointBackgroundColor:'rgba(0,255,136,0.8)'
+        },
+        {
+          label:'LOW',
+          data:data.map(d=>d.low),
+          borderColor:'rgba(0,153,80,0.5)',
+          backgroundColor:'rgba(0,0,0,0)',
+          fill:false, tension:0.25,
+          pointRadius:pointSz,
+          pointHoverRadius:pointSz+2,
+          borderWidth:1,
+          borderDash:[4,4]
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      scales:{
+        y:{
+          grid:{color:'rgba(0,255,136,0.05)', borderColor:'rgba(0,255,136,0.1)'},
+          ticks:{color:'rgba(0,153,80,0.8)', font:{family:"'IBM Plex Mono', monospace", size:9}, maxTicksLimit:8}
+        },
+        x:{
+          grid:{display:false, borderColor:'rgba(0,255,136,0.1)'},
+          ticks:{color:'rgba(0,153,80,0.6)', font:{family:"'IBM Plex Mono', monospace", size:9}, autoSkip:yr==='all-time', maxTicksLimit:yr==='all-time'?20:12}
+        }
+      },
+      plugins:{
+        legend:{
+          labels:{
+            color:'rgba(0,204,106,0.8)',
+            usePointStyle:true,
+            boxWidth:6,
+            font:{family:"'IBM Plex Mono', monospace", size:9},
+            padding:16
+          }
+        },
+        tooltip:{
+          backgroundColor:'#040608',
+          titleColor:'#00ff88',
+          bodyColor:'rgba(0,204,106,0.8)',
+          borderColor:'rgba(0,255,136,0.2)',
+          borderWidth:1,
+          padding:10,
+          titleFont:{family:"'IBM Plex Mono', monospace", size:10},
+          bodyFont:{family:"'IBM Plex Mono', monospace", size:10},
+          callbacks:{
+            label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderTable(yr){
+  trendTbody.innerHTML='';
+  const items = rawData.filter(d=>d.monthYear.includes(yr.toString()));
+  if(!items.length){
+    trendTbody.innerHTML=`<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txt-3); letter-spacing:0.1em;">[ NO DATA FOR ${yr} ]</td></tr>`;
+    return;
+  }
+  items.forEach((item,i)=>{
+    const tr=trendTbody.insertRow();
+    tr.style.animationDelay = (i*0.02)+'s';
+    tr.insertCell().innerHTML=`<span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.08em;">${item.monthYear}</span>`;
+    tr.insertCell().innerHTML=`<span class="${getTrendClass(item.trend)}" style="font-size:10px; white-space:nowrap; letter-spacing:0.04em;">${item.trend}</span>`;
+    tr.cells[2].style.cssText='font-size:10px; color:rgba(0,153,80,0.8); line-height:1.5;';
+    tr.cells[2].textContent=item.desc;
+    const fc=tr.insertCell();
+    fc.style.cssText='font-size:10px; color:rgba(0,153,80,0.7); line-height:1.5;';
+    fc.innerHTML=item.factor.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--p-bright)">$1</strong>');
+  });
+}
+
+function loadYear(val){
+  const isAll=val==='all-time';
+  if(yearSelectChart) yearSelectChart.value=val;
+  renderChart(isAll?'all-time':val);
+  if(!isAll){ if(yearSelectTable) yearSelectTable.value=val; renderTable(val); }
+  else { if(yearSelectTable) yearSelectTable.value=latestYear; renderTable(latestYear); }
+}
+
+function initData(){
+  if(!yearSelectChart||!yearSelectTable) return;
+  uniqueYears.forEach(y=>{
+    [yearSelectChart,yearSelectTable].forEach(sel=>{
+      const o=document.createElement('option');
+      o.value=y; o.textContent=y; sel.appendChild(o);
+    });
+  });
+  yearSelectChart.value='all-time';
+  yearSelectTable.value=latestYear;
+  loadYear('all-time');
+  yearSelectChart.addEventListener('change',e=>loadYear(e.target.value));
+  yearSelectTable.addEventListener('change',e=>loadYear(e.target.value));
+}
+
+document.addEventListener('DOMContentLoaded', initData);
+</script>
+</body>
+</html>
