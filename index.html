@@ -424,7 +424,11 @@ body::before {
 
 
 
-/* --- Floating Action Button --- */
+/* =========================================================
+   MODERN CHAT UI - Optimized for Farid Store
+   ========================================================= */
+
+/* --- Floating Action Button (FAB) --- */
 .modern-chat-fab {
   position: fixed;
   bottom: 24px;
@@ -440,11 +444,13 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 999;
 }
 
-.modern-chat-fab:hover { transform: scale(1.1); }
+.modern-chat-fab:hover { 
+  transform: scale(1.1); 
+}
 
 /* --- Container Utama (Modal) --- */
 .modern-chat-modal {
@@ -462,17 +468,17 @@ body::before {
   bottom: 90px;
   right: 24px;
   width: 360px;
-  height: 550px;
+  height: 550px; /* Ukuran ideal untuk diskusi panjang */
   background-color: var(--chat-bg);
   border-radius: 16px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  display: none; /* Default tertutup */
+  display: none; /* Dikontrol via JS */
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--chat-border);
   z-index: 1000;
-  font-family: 'Inter', -apple-system, sans-serif;
-  transition: background-color 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* --- Dark Mode Variables --- */
@@ -495,18 +501,30 @@ body::before {
   align-items: center;
   justify-content: space-between;
 }
+
 .header-title {
   font-size: 15px;
   font-weight: 700;
   color: var(--chat-text-main);
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.online-indicator {
-  width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
-}
-.header-subtitle { font-size: 11px; color: var(--chat-text-muted); }
 
-/* --- Body (Chat Bubbles) --- */
+.online-indicator {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--chat-bg);
+}
+
+.header-subtitle { 
+  font-size: 11px; 
+  color: var(--chat-text-muted); 
+}
+
+/* --- Body (Diskusi Area) --- */
 .modern-chat-body {
   flex: 1;
   overflow-y: auto;
@@ -515,11 +533,29 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  scroll-behavior: smooth;
 }
+
+/* Kustomisasi Scrollbar Body (Penting untuk kenyamanan) */
+.modern-chat-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modern-chat-body::-webkit-scrollbar-thumb {
+  background: var(--chat-border);
+  border-radius: 10px;
+}
+
 .chat-system-msg {
-  text-align: center; font-size: 10px; color: var(--chat-text-muted);
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--chat-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
+
+/* Chat Bubbles */
 .chat-bubble {
   max-width: 85%;
   padding: 12px 16px;
@@ -527,13 +563,16 @@ body::before {
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
+  transition: all 0.2s ease;
 }
+
 .bot-bubble {
   background-color: var(--chat-bot-bg);
   color: var(--chat-text-main);
   align-self: flex-start;
   border-bottom-left-radius: 4px;
 }
+
 .user-bubble {
   background-color: var(--chat-user-bg);
   color: white;
@@ -541,31 +580,97 @@ body::before {
   border-bottom-right-radius: 4px;
 }
 
-/* --- Footer --- */
+/* --- Footer (Input Area) --- */
 .modern-chat-footer {
   padding: 14px;
   background-color: var(--chat-bg);
   border-top: 1px solid var(--chat-border);
 }
-.input-wrapper { display: flex; align-items: flex-end; gap: 10px; }
+
+.input-wrapper { 
+  display: flex; 
+  align-items: flex-end; 
+  gap: 10px; 
+}
+
 .modern-chat-input {
-  flex: 1; border: 1px solid var(--chat-border); border-radius: 22px;
-  padding: 10px 16px; font-size: 14px; background: var(--chat-surface);
-  color: var(--chat-text-main); outline: none; resize: none; max-height: 120px;
+  flex: 1;
+  border: 1px solid var(--chat-border);
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 14px;
+  background: var(--chat-surface);
+  color: var(--chat-text-main);
+  outline: none;
+  resize: none;
+  max-height: 120px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
 }
+
+.modern-chat-input:focus {
+  border-color: var(--chat-primary);
+}
+
 .modern-send-btn {
-  width: 40px; height: 40px; border-radius: 50%; background: var(--chat-primary);
-  color: white; border: none; cursor: pointer; display: flex;
-  align-items: center; justify-content: center; flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--chat-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, transform 0.1s active;
 }
+
+.modern-send-btn:hover {
+  filter: brightness(1.1);
+}
+
+.modern-send-btn:active {
+  transform: scale(0.95);
+}
+
 .upload-btn {
-  padding: 8px; color: var(--chat-text-muted); cursor: pointer;
+  padding: 8px;
+  color: var(--chat-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
 }
+
+.upload-btn:hover {
+  color: var(--chat-primary);
+}
+
 .modern-close-btn {
-  background: none; border: none; color: var(--chat-text-muted); cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--chat-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s, color 0.2s;
 }
+
+.modern-close-btn:hover {
+  background: var(--chat-surface);
+  color: var(--chat-text-main);
+}
+
 .disclaimer-text {
-  text-align: center; font-size: 9px; color: var(--chat-text-muted); margin-top: 10px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--chat-text-muted);
+  margin-top: 10px;
+  letter-spacing: 0.3px;
 }
   
   
