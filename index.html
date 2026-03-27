@@ -975,60 +975,46 @@ body::before {
       </div>
     </div>
 
+    <!-- Global Macro -->
 <div class="panel panel-bracket" style="height:260px; display:flex; flex-direction:column;">
-      <div class="panel-header" style="flex-shrink:0; border-left:2px solid #00ff00;">
-        <span class="label-sm" style="color:#00ff00;">Market Radar</span>
-        <span class="label-xs">TOP MOVERS (1D)</span>
+      <div class="panel-header" style="flex-shrink:0; border-left:2px solid var(--txt-2);">
+        <span class="label-sm" style="color:var(--txt-1);">Global Macro Radar</span>
+        <span class="label-xs">DXY & YIELDS</span>
       </div>
       
-      <div style="flex:1; padding:6px; display:flex; flex-direction:row; gap:8px; overflow:hidden;">
-        
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); display:flex; flex-direction:column;">
-          <div style="padding:4px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0);">
-            <span class="label-xs" style="color:var(--p-bright);">CRYPTO (BINANCE)</span>
-          </div>
-          <div class="tradingview-widget-container" style="flex:1; width:100%;">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js" async>
-            {
-            "colorTheme": "dark",
-            "dateRange": "1D",
-            "exchange": "BINANCE",
-            "showChart": false,
-            "locale": "en",
-            "width": "100%",
-            "height": "100%",
-            "isTransparent": true,
-            "showSymbolLogo": true,
-            "showFloatingTooltip": false
-            }
-            </script>
-          </div>
+      <div style="flex:1; overflow:hidden;">
+        <div class="tradingview-widget-container" style="height:100%; width:100%;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+          {
+          "symbols": [
+            [
+              "US Dollar Index",
+              "TVC:DXY|1D"
+            ],
+            [
+              "US 10-Year Yield",
+              "TVC:US10Y|1D"
+            ],
+            [
+              "Crude Oil (WTI)",
+              "NYMEX:CL1!|1D"
+            ],
+            [
+              "S&P 500 VIX (Fear Index)",
+              "TVC:VIX|1D"
+            ]
+          ],
+          "colorTheme": "dark",
+          "isTransparent": true,
+          "autosize": true,
+          "largeChartUrl": "",
+          "displayMode": "adaptive",
+          "chartOnly": false,
+          "locale": "en"
+          }
+          </script>
         </div>
-
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); display:flex; flex-direction:column;">
-          <div style="padding:4px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0);">
-            <span class="label-xs" style="color:var(--cyan);">SAHAM (IDX)</span>
-          </div>
-          <div class="tradingview-widget-container" style="flex:1; width:100%;">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js" async>
-            {
-            "colorTheme": "dark",
-            "dateRange": "1D",
-            "exchange": "IDX",
-            "showChart": false,
-            "locale": "en",
-            "width": "100%",
-            "height": "100%",
-            "isTransparent": true,
-            "showSymbolLogo": true,
-            "showFloatingTooltip": false
-            }
-            </script>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -1364,8 +1350,9 @@ messageInput.addEventListener('input', function(){
   this.style.height='auto'; this.style.height=this.scrollHeight+'px';
 });
 imageInput.addEventListener('change', handleImage);
-// ═════════════════════════════════════════════════════════════
-// ██ SECTION 05: HISTORICAL DATA & CHART SYSTEM (REVISED) ██
+
+  // ═════════════════════════════════════════════════════════════
+// ██ SECTION 05: HISTORICAL DATA & CHART SYSTEM (FINAL REVISION) ██
 // ═════════════════════════════════════════════════════════════
 
 const rawData = [
@@ -1533,26 +1520,25 @@ const priceCanvas = document.getElementById('priceLineChart');
 let priceChart;
 
 // ── WARNA DINAMIS BERDASARKAN TEMA CSS ──
-// Daripada memakai class HTML manual, kita inject variabel CSS langsung agar lebih konsisten
 function getTrendColor(t) {
   const l = t.toLowerCase();
   if (l.includes('uptrend') || l.includes('breakout') || l.includes('puncak') || l.includes('rally') || l.includes('rebound')) {
-    return 'var(--p-bright, #00ff88)'; // Hijau/Sesuai tema
+    return 'var(--p-bright, #00ff88)'; 
   }
   if (l.includes('downtrend') || l.includes('crash') || l.includes('koreksi')) {
-    return 'var(--amber, #ffaa00)'; // Peringatan/Merah/Oranye
+    return 'var(--amber, #ffaa00)'; 
   }
-  return 'var(--txt-1, #cccccc)'; // Netral/Sideways
+  return 'var(--txt-1, #cccccc)'; 
 }
 
-// ── CHART RENDERER ──
+// ── CHART RENDERER (REVISI KETEBALAN & TOOLTIP) ──
 function renderChart(yr) {
   let data, labels, pointSz;
   
   if (yr === 'all-time') {
     data = priceData; 
     labels = data.map(d => `${d.month.substring(0,3)}'${String(d.year).slice(2)}`); 
-    pointSz = 0; // Hilangkan titik jika 'all-time' agar garis tidak bertumpuk berantakan
+    pointSz = 0; 
   } else {
     data = priceData.filter(d => d.year === parseInt(yr)); 
     labels = data.map(d => d.month); 
@@ -1561,10 +1547,10 @@ function renderChart(yr) {
   
   if (priceChart) priceChart.destroy();
   
-  // Menggunakan style terminal (Hijau Neon + Transparansi)
-  const colorHigh = 'rgba(0, 255, 136, 0.8)';
-  const colorHighBg = 'rgba(0, 255, 136, 0.05)';
-  const colorLow = 'rgba(100, 100, 100, 0.6)'; // Warna Low dibuat lebih redup (abu-abu/biru redup) agar kontras
+  // PERBAIKAN WARNA & KETEBALAN (Garis 2px semua, Low diubah ke Biru/Cyan terang)
+  const colorHigh = 'rgba(0, 255, 136, 1)'; 
+  const colorHighBg = 'rgba(0, 255, 136, 0.1)'; 
+  const colorLow = 'rgba(0, 200, 255, 0.9)'; 
 
   priceChart = new Chart(priceCanvas, {
     type: 'line',
@@ -1577,10 +1563,10 @@ function renderChart(yr) {
           borderColor: colorHigh,
           backgroundColor: colorHighBg,
           fill: true, 
-          tension: 0.25,
+          tension: 0.3,
           pointRadius: pointSz,
           pointHoverRadius: pointSz + 2,
-          borderWidth: 1.5,
+          borderWidth: 2, 
           pointBackgroundColor: colorHigh
         },
         {
@@ -1589,11 +1575,11 @@ function renderChart(yr) {
           borderColor: colorLow,
           backgroundColor: 'transparent',
           fill: false, 
-          tension: 0.25,
+          tension: 0.3,
           pointRadius: pointSz,
           pointHoverRadius: pointSz + 2,
-          borderWidth: 1,
-          borderDash: [4, 4] // Garis putus-putus untuk Support/Low
+          borderWidth: 2, 
+          borderDash: [5, 5] 
         }
       ]
     },
@@ -1604,17 +1590,17 @@ function renderChart(yr) {
       scales: {
         y: {
           grid: { color: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' },
-          ticks: { color: 'var(--txt-2, #888)', font: { family: "'IBM Plex Mono', monospace", size: 9 }, maxTicksLimit: 8 }
+          ticks: { color: '#888888', font: { family: "'IBM Plex Mono', monospace", size: 9 }, maxTicksLimit: 8 }
         },
         x: {
           grid: { display: false },
-          ticks: { color: 'var(--txt-2, #888)', font: { family: "'IBM Plex Mono', monospace", size: 9 }, autoSkip: yr === 'all-time', maxTicksLimit: yr === 'all-time' ? 20 : 12 }
+          ticks: { color: '#888888', font: { family: "'IBM Plex Mono', monospace", size: 9 }, autoSkip: yr === 'all-time', maxTicksLimit: yr === 'all-time' ? 20 : 12 }
         }
       },
       plugins: {
         legend: {
           labels: {
-            color: 'var(--txt-1, #ccc)',
+            color: '#cccccc', 
             usePointStyle: true,
             boxWidth: 6,
             font: { family: "'IBM Plex Mono', monospace", size: 9 },
@@ -1622,15 +1608,18 @@ function renderChart(yr) {
           }
         },
         tooltip: {
-          backgroundColor: '#040608', // Background gelap terminal
-          titleColor: colorHigh,
-          bodyColor: 'var(--txt-1)',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: 'rgba(10, 15, 20, 0.95)', 
+          titleColor: '#ffffff',
+          borderColor: 'rgba(0, 255, 136, 0.3)',
           borderWidth: 1,
-          padding: 10,
-          titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
-          bodyFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+          padding: 12,
+          titleFont: { family: "'IBM Plex Mono', monospace", size: 11, weight: 'bold' },
+          bodyFont: { family: "'IBM Plex Mono', monospace", size: 11 },
           callbacks: {
+            // Mewarnai teks nilai High jadi Hijau, dan Low jadi Biru/Cyan
+            labelTextColor: function(context) {
+                return context.dataset.label === 'HIGH' ? '#00ff88' : '#00c8ff';
+            },
             label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`
           }
         }
@@ -1653,7 +1642,6 @@ function renderTable(yr) {
     const tr = trendTbody.insertRow();
     tr.style.animationDelay = (i * 0.02) + 's';
     
-    // Terapkan pewarnaan spesifik dan tipografi ala terminal
     const trendColor = getTrendColor(item.trend);
     
     tr.innerHTML = `
@@ -1669,11 +1657,9 @@ function renderTable(yr) {
 function loadYear(val) {
   const isAll = val === 'all-time';
   
-  // Update Chart
   if (yearSelectChart) yearSelectChart.value = val;
   renderChart(isAll ? 'all-time' : val);
   
-  // Update Table (Jika Chart "All Time", Tabel di-set ke tahun terbaru saja agar tidak kepanjangan)
   if (yearSelectTable) {
     const tableVal = isAll ? latestYear : val;
     yearSelectTable.value = tableVal;
@@ -1685,10 +1671,8 @@ function loadYear(val) {
 function initData() {
   if (!yearSelectChart || !yearSelectTable) return;
   
-  // Render opsi tahun ke dalam masing-masing select (tanpa menghapus opsi "All Time" bawaan HTML)
   uniqueYears.forEach(y => {
     [yearSelectChart, yearSelectTable].forEach(sel => {
-      // Cegah duplikasi jika "all-time" diklik berkali-kali
       if(!sel.querySelector(`option[value="${y}"]`)) {
         const o = document.createElement('option');
         o.value = y; 
@@ -1698,19 +1682,14 @@ function initData() {
     });
   });
   
-  // Pasang Event Listener
   yearSelectChart.addEventListener('change', e => loadYear(e.target.value));
-  yearSelectTable.addEventListener('change', e => {
-    // Jika tabel diubah ke tahun tertentu, chart ikut menyesuaikan
-    loadYear(e.target.value); 
-  });
+  yearSelectTable.addEventListener('change', e => loadYear(e.target.value)); 
   
-  // Set tampilan pertama kali dimuat
   loadYear('all-time');
 }
 
-// Jalankan ketika DOM siap
 document.addEventListener('DOMContentLoaded', initData);
+  
 </script>
 </body>
 </html>
