@@ -1006,10 +1006,15 @@ body::before {
 
 
 
-<!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════ CHAT FAB ══════════════════════════════════════════ -->
+<button id="chatFab" class="chat-fab" aria-label="Open AI Terminal">
+  <span style="font-size:9px; font-weight:700; letter-spacing:0.1em; line-height:1;">AI<br>CMD</span>
+</button>
 
+<!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
 <div id="chatModal" class="chat-modal">
 
+  <!-- Header -->
   <div style="padding:8px 12px; border-bottom:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
     <div style="display:flex; align-items:center; justify-content:space-between;">
       <div style="display:flex; align-items:center; gap:8px;">
@@ -1025,6 +1030,7 @@ body::before {
     </div>
   </div>
 
+  <!-- Body -->
   <div id="chatBody" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px; max-height:380px; background:var(--void); font-size:11px;">
     <div style="color:var(--txt-3); font-size:9px; letter-spacing:0.1em; text-align:center; padding:4px 0; border-bottom:1px solid var(--grid-dim);">── SESSION INIT ──</div>
     <div>
@@ -1040,6 +1046,7 @@ body::before {
     </div>
   </div>
 
+  <!-- Footer -->
   <div style="padding:10px; border-top:1px solid var(--grid-bright); background:var(--surface-0); flex-shrink:0;">
     <div style="display:flex; align-items:flex-end; gap:6px;">
       <label for="imageInput" title="Upload Chart" style="cursor:pointer; width:32px; height:32px; border:1px solid var(--grid-bright); background:var(--surface-1); display:flex; align-items:center; justify-content:center; color:var(--txt-3); font-size:11px; flex-shrink:0; transition:all 0.15s;" onmouseover="this.style.borderColor='var(--p-dim)'; this.style.color='var(--p-bright)'" onmouseout="this.style.borderColor='var(--grid-bright)'; this.style.color='var(--txt-3)'">
@@ -1060,6 +1067,7 @@ body::before {
   </div>
 
 </div>
+
   
 <!-- ══════════════════════════════════════════ SCRIPTS ══════════════════════════════════════════ -->
 <script>
