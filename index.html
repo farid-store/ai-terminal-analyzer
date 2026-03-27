@@ -422,25 +422,27 @@ body::before {
 }
 
 
+
 /* ════════════════════════════ FONT & BASE ════════════════════════════ */
-/* Pastikan Anda menggunakan font monospace yang nyaman dibaca */
+/* Tetap monospace, tapi dengan fallback font yang lebih bersih jika tersedia */
 .chat-modal, .chat-fab {
-  font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+  font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
 }
 
 /* ════════════════════════════ CHAT FAB ════════════════════════════ */
 .chat-fab {
   position: fixed;
   right: 16px; bottom: 16px;
-  width: 48px; height: 48px; /* Sedikit diperbesar agar mudah diklik */
-  border: 1px solid var(--p-dim, #006635);
-  background: var(--surface-0, #0a0a0a);
-  color: var(--p-bright, #00ff88);
+  width: 48px; height: 48px; 
+  border: 1px solid var(--p-dim, #2d6a4f); /* Warna border hijau lebih kalem */
+  background: var(--surface-0, #1b1b1b); /* Soft dark background */
+  color: var(--p-bright, #4ade80); /* Soft neon green, tidak menyilaukan */
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   z-index: 900;
   transition: all 0.2s ease;
-  box-shadow: 0 0 15px rgba(0,255,136,0.1);
+  box-shadow: 0 0 15px rgba(74,222,128,0.1);
+  border-radius: 4px;
 }
 .fab-text {
   font-size: 11px;
@@ -450,30 +452,30 @@ body::before {
   text-align: center;
 }
 .chat-fab:hover {
-  border-color: var(--p-bright, #00ff88);
-  box-shadow: 0 0 25px rgba(0,255,136,0.2);
+  border-color: var(--p-bright, #4ade80);
+  box-shadow: 0 0 25px rgba(74,222,128,0.2);
 }
 
 /* ════════════════════════════ CHAT MODAL ════════════════════════════ */
 .chat-modal {
   position: fixed;
-  right: 16px; bottom: 80px; /* Jarak dari FAB */
-  width: 420px; /* Diperlebar agar teks panjang tidak terlalu sering turun baris */
+  right: 16px; bottom: 80px; 
+  width: 420px; 
   max-width: calc(100vw - 32px);
-  background: var(--surface-1, #111111);
-  border: 1px solid var(--p-dim, #006635);
+  background: var(--surface-1, #222222); /* Latar abu-abu gelap, anti silau */
+  border: 1px solid var(--p-dim, #2d6a4f);
   z-index: 901;
   display: flex;
   flex-direction: column;
-  border-radius: 4px; /* Sudut sedikit melengkung lebih modern */
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(0,255,136,0.05);
+  border-radius: 6px; /* Sudut dihaluskan sedikit agar nyaman dilihat */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(74,222,128,0.05);
 }
 
 /* ════════════════════════════ HEADER ════════════════════════════ */
 .chat-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--grid-bright, #333);
-  background: var(--surface-0, #0a0a0a);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--grid-bright, #333333);
+  background: var(--surface-0, #1b1b1b);
 }
 .header-top {
   display: flex; align-items: center; justify-content: space-between;
@@ -483,129 +485,135 @@ body::before {
 }
 .brand-title {
   font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
-  color: var(--p-bright, #00ff88);
+  color: var(--p-bright, #4ade80);
 }
 .brand-model {
-  font-size: 11px; color: var(--txt-3, #888); letter-spacing: 0.05em;
+  font-size: 11px; color: var(--txt-3, #999999); letter-spacing: 0.05em;
 }
 .header-bottom {
   margin-top: 8px; display: flex; align-items: center; gap: 8px;
 }
 .mode-label {
-  font-size: 10px; color: var(--txt-3, #888); letter-spacing: 0.1em;
+  font-size: 10px; color: var(--txt-3, #999999); letter-spacing: 0.1em;
 }
 .mode-value {
-  font-size: 10px; color: var(--amber, #ffb000); letter-spacing: 0.1em; font-weight: 600;
+  font-size: 10px; color: var(--amber, #f59e0b); letter-spacing: 0.1em; font-weight: 600;
 }
 
 /* ════════════════════════════ BODY (AREA BACA) ════════════════════════════ */
 .chat-body {
   flex: 1;
-  padding: 16px;
-  display: flex; flex-direction: column; gap: 12px;
-  max-height: 450px; /* Sedikit lebih tinggi */
+  padding: 18px 16px;
+  display: flex; flex-direction: column; gap: 16px; /* Spasi antar chat lebih lega */
+  max-height: 480px; 
   overflow-y: auto;
-  background: var(--void, #000000);
+  background: var(--void, #121212); /* Latar area baca paling gelap tapi bukan hitam murni */
 }
 .session-divider {
-  color: var(--txt-3, #666);
+  color: var(--txt-3, #777777);
   font-size: 10px; letter-spacing: 0.1em;
   text-align: center;
   padding-bottom: 8px; margin-bottom: 8px;
-  border-bottom: 1px dashed var(--grid-dim, #222);
+  border-bottom: 1px dashed var(--grid-dim, #2a2a2a);
 }
 .message {
   display: flex;
-  flex-direction: column; /* Mengubah flow agar nama sender di atas, pesan di bawah untuk teks panjang */
-  gap: 4px;
-  line-height: 1.6; /* Kunci kenyamanan membaca */
+  flex-direction: column; 
+  gap: 6px; /* Jarak antara nama pengirim dan isi teks */
 }
 .sender {
   font-size: 11px;
-  color: var(--p-dim, #009950);
+  color: var(--p-dim, #52b788);
   font-weight: 700;
 }
 .text {
-  font-size: 13px; /* Ukuran ideal untuk monospace di desktop/web */
-  color: var(--txt-2, #e0e0e0); /* Abu-abu terang, jangan putih murni */
-  padding-left: 12px;
-  border-left: 2px solid var(--grid-dim, #222); /* Garis indikator pesan */
+  font-size: 14px; /* Naik menjadi 14px, ideal untuk monospace */
+  line-height: 1.6; /* Kunci kenyamanan membaca teks paragraf */
+  color: var(--txt-2, #e0e0e0); /* Putih gading, hindari #FFF di latar gelap */
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03); /* Blok highlight transparan untuk area pesan */
+  border-radius: 4px;
+  border-left: 2px solid var(--grid-dim, #333333); 
 }
 .highlight {
-  color: var(--p-bright, #00ff88);
+  color: var(--p-bright, #4ade80);
 }
 
 /* ════════════════════════════ FOOTER (AREA INPUT) ════════════════════════════ */
 .chat-footer {
-  padding: 12px 16px;
-  border-top: 1px solid var(--grid-bright, #333);
-  background: var(--surface-0, #0a0a0a);
+  padding: 14px 16px;
+  border-top: 1px solid var(--grid-bright, #333333);
+  background: var(--surface-0, #1b1b1b);
 }
 .input-row {
   display: flex; align-items: flex-end; gap: 10px;
 }
 .upload-btn {
   cursor: pointer;
-  width: 36px; height: 36px;
-  border: 1px solid var(--grid-bright, #444);
-  background: var(--surface-1, #111);
+  width: 38px; height: 38px;
+  border: 1px solid var(--grid-bright, #444444);
+  background: var(--surface-1, #222222);
   display: flex; align-items: center; justify-content: center;
-  color: var(--txt-3, #888);
+  color: var(--txt-3, #999999);
   font-size: 11px; font-weight: 600;
   transition: all 0.2s;
+  border-radius: 4px;
 }
 .upload-btn:hover {
-  border-color: var(--p-bright, #00ff88); color: var(--p-bright, #00ff88);
+  border-color: var(--p-bright, #4ade80); color: var(--p-bright, #4ade80);
 }
 .input-wrapper {
   flex: 1; position: relative;
 }
 .input-icon {
-  position: absolute; left: 10px; top: 10px;
-  color: var(--p-dim, #009950); font-size: 12px; pointer-events: none;
+  position: absolute; left: 10px; top: 12px;
+  color: var(--p-dim, #52b788); font-size: 12px; pointer-events: none;
 }
 .chat-input-field {
   width: 100%;
-  min-height: 36px; max-height: 120px;
+  min-height: 38px; max-height: 120px;
   padding: 10px 10px 10px 28px;
-  background: transparent;
-  border: 1px solid var(--grid-bright, #333);
+  background: var(--surface-1, #222222); /* Input box sewarna dengan modal */
+  border: 1px solid var(--grid-bright, #333333);
+  border-radius: 4px;
   color: var(--txt-2, #e0e0e0);
-  font-family: inherit; font-size: 13px; line-height: 1.4;
+  font-family: inherit; font-size: 13px; line-height: 1.5;
   outline: none; resize: none;
 }
 .chat-input-field:focus {
-  border-color: var(--p-dim, #009950);
+  border-color: var(--p-dim, #52b788);
 }
 .btn-send {
-  height: 36px; padding: 0 16px; font-size: 11px;
+  height: 38px; padding: 0 16px; font-size: 11px; border-radius: 4px;
 }
 .disclaimer {
   margin-top: 10px; padding-top: 10px;
-  border-top: 1px solid var(--grid-dim, #222);
-  font-size: 9px; color: var(--red-dim, #cc3333);
+  border-top: 1px solid var(--grid-dim, #2a2a2a);
+  font-size: 9px; color: var(--red-dim, #e06666); /* Merah yang tidak tajam */
   letter-spacing: 0.1em; text-align: center;
 }
 
 /* ════════════════════════════ KOMPONEN KECIL ════════════════════════════ */
 .t-btn {
-  background: transparent; border: 1px solid var(--p-dim, #006635);
-  color: var(--p-bright, #00ff88); cursor: pointer;
+  background: transparent; border: 1px solid var(--p-dim, #2d6a4f);
+  color: var(--p-bright, #4ade80); cursor: pointer;
   font-family: inherit; font-weight: 600; letter-spacing: 0.05em;
   transition: all 0.2s;
+  border-radius: 4px;
 }
-.t-btn:hover { background: var(--p-dim, #006635); color: #fff; }
-.btn-close { height: 24px; padding: 0 8px; font-size: 10px; }
+.t-btn:hover { background: var(--p-dim, #2d6a4f); color: #fff; }
+.btn-close { height: 26px; padding: 0 10px; font-size: 10px; }
 
 .dot-live {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background-color: var(--p-bright, #00ff88);
-  box-shadow: 0 0 8px var(--p-bright, #00ff88);
+  background-color: var(--p-bright, #4ade80);
+  box-shadow: 0 0 8px var(--p-bright, #4ade80);
 }
 .cursor-line::after {
-  content: "█"; color: var(--p-bright, #00ff88); animation: blink 1s step-end infinite;
+  content: "█"; color: var(--p-bright, #4ade80); animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  
   
 
 /* ══════════════ LOAD ANIMATIONS ══════════════ */
@@ -1148,7 +1156,6 @@ body::before {
 <!-- ══════════════════════════════════════════ CHAT MODAL ══════════════════════════════════════════ -->
 
 
-
 <div id="chatModal" class="chat-modal">
 
   <div class="chat-header">
@@ -1169,17 +1176,17 @@ body::before {
   <div id="chatBody" class="chat-body">
     <div class="session-divider">── SESSION INIT ──</div>
     
-    <div class="message system">
+    <div class="message">
       <span class="sender">SYSTEM &gt;</span>
       <span class="text">MarketHub AI terminal ready.</span>
     </div>
     
-    <div class="message system">
+    <div class="message">
       <span class="sender">SYSTEM &gt;</span>
       <span class="text">Query market conditions, or <span class="highlight">upload chart screenshot</span> for technical analysis.</span>
     </div>
     
-    <div class="message input-active">
+    <div class="message">
       <span class="sender">INPUT &gt;</span>
       <span class="cursor-line"></span>
     </div>
@@ -1187,7 +1194,7 @@ body::before {
 
   <div class="chat-footer">
     <div class="input-row">
-      <label for="imageInput" class="upload-btn" title="Upload Chart">IMG</label>
+      <label for="imageInput" title="Upload Chart" class="upload-btn">IMG</label>
       <input id="imageInput" type="file" accept="image/*" style="display:none;">
 
       <div class="input-wrapper">
