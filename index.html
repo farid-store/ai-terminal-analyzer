@@ -976,59 +976,85 @@ body::before {
     </div>
 
     <!-- Global Macro -->
-<div class="panel panel-bracket" style="padding:12px;">
-      <div style="font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--txt-3); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--grid-dim);">GLOBAL MACRO RADAR</div>
-      
-      <div style="display:flex; flex-direction:column; gap:6px;">
+<div class="panel panel-bracket" style="display:flex; flex-direction:column; min-height:280px;">
+      <div class="panel-header" style="flex-shrink:0; border-left:2px solid var(--amber);">
+        <span class="label-sm" style="color:var(--amber);">Global Macro Radar</span>
+        <span class="label-xs">1D LIVE CHARTS</span>
+      </div>
 
-        <div class="tradingview-widget-container" style="width:100%; border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; transition:border 0.2s;" onmouseover="this.style.borderColor='var(--txt-2)'" onmouseout="this.style.borderColor='var(--grid-dim)'">
+      <div style="margin:8px; padding:8px; background:rgba(255, 170, 0, 0.05); border:1px dashed var(--amber); border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--txt-1); line-height:1.5; letter-spacing:0.04em;">
+        <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY & US10Y Naik:</strong> Gravitasi pasar kuat. <span style="color:var(--amber);">XAU/BTC tertekan turun.</span><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Inflasi meroket. The Fed berpotensi tahan suku bunga tinggi.<br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">VIX > 30:</strong> Pasar panik (Risk-Off). Hati-hati anjloknya saham & crypto.
+      </div>
+      
+      <div style="flex:1; padding:0 8px 8px 8px; display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; overflow:hidden;">
+
+        <div class="tradingview-widget-container" style="border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; background:var(--surface-0);">
           <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
           {
           "symbol": "CAPITALCOM:DXY",
           "width": "100%",
-          "isTransparent": true,
+          "height": "100%",
+          "locale": "en",
+          "dateRange": "1M",
           "colorTheme": "dark",
-          "locale": "en"
+          "isTransparent": true,
+          "autosize": true,
+          "largeChartUrl": ""
           }
           </script>
         </div>
 
-        <div class="tradingview-widget-container" style="width:100%; border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; transition:border 0.2s;" onmouseover="this.style.borderColor='var(--txt-2)'" onmouseout="this.style.borderColor='var(--grid-dim)'">
+        <div class="tradingview-widget-container" style="border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; background:var(--surface-0);">
           <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
           {
-          "symbol": "CAPITALCOM:US10Y",
+          "symbol": "TVC:US10Y",
           "width": "100%",
-          "isTransparent": true,
+          "height": "100%",
+          "locale": "en",
+          "dateRange": "1M",
           "colorTheme": "dark",
-          "locale": "en"
+          "isTransparent": true,
+          "autosize": true,
+          "largeChartUrl": ""
           }
           </script>
         </div>
 
-        <div class="tradingview-widget-container" style="width:100%; border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; transition:border 0.2s;" onmouseover="this.style.borderColor='var(--txt-2)'" onmouseout="this.style.borderColor='var(--grid-dim)'">
+        <div class="tradingview-widget-container" style="border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; background:var(--surface-0);">
           <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
           {
           "symbol": "OANDA:WTICOUSD",
           "width": "100%",
-          "isTransparent": true,
+          "height": "100%",
+          "locale": "en",
+          "dateRange": "1M",
           "colorTheme": "dark",
-          "locale": "en"
+          "isTransparent": true,
+          "autosize": true,
+          "largeChartUrl": ""
           }
           </script>
         </div>
 
-        <div class="tradingview-widget-container" style="width:100%; border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; transition:border 0.2s;" onmouseover="this.style.borderColor='var(--txt-2)'" onmouseout="this.style.borderColor='var(--grid-dim)'">
+        <div class="tradingview-widget-container" style="border:1px solid var(--grid-dim); border-radius:4px; overflow:hidden; background:var(--surface-0);">
           <div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
           {
           "symbol": "CAPITALCOM:VIX",
           "width": "100%",
-          "isTransparent": true,
+          "height": "100%",
+          "locale": "en",
+          "dateRange": "1M",
           "colorTheme": "dark",
-          "locale": "en"
+          "isTransparent": true,
+          "autosize": true,
+          "largeChartUrl": ""
           }
           </script>
         </div>
