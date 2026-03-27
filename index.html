@@ -1205,31 +1205,62 @@ body::before {
 <script>
 // ── Clock + Session ──
 const SESSIONS = [
-  { name:'SYDNEY',  open:21, close:6,  tz:'UTC' },
-  { name:'TOKYO',   open:0,  close:9,  tz:'UTC' },
-  { name:'LONDON',  open:7,  close:16, tz:'UTC' },
-  { name:'NEW YORK',open:12, close:21, tz:'UTC' },
+  { name: 'SYDNEY',   open: 22, close: 7 },  // Jam 22:00 - 07:00 UTC
+  { name: 'TOKYO',    open: 0,  close: 9 },  // Jam 00:00 - 09:00 UTC
+  { name: 'LONDON',   open: 8,  close: 17 }, // Jam 08:00 - 17:00 UTC (Summer Time Standar)
+  { name: 'NEW YORK', open: 13, close: 22 }  // Jam 13:00 - 22:00 UTC
 ];
-
-function getActiveSessions(utcH) {
-  return SESSIONS.filter(s => {
-    if(s.open < s.close) return utcH >= s.open && utcH < s.close;
-    return utcH >= s.open || utcH < s.close;
-  });
-}
 
 function updateClock() {
   const now = new Date();
+  
+  // 1. Ambil data waktu UTC murni
   const utcH = now.getUTCHours();
-  const wib = new Date(now.getTime() + 7*3600*1000);
-  const p = n => String(n).padStart(2,'0');
+  const utcM = now.getUTCMinutes();
+  const utcS = now.getUTCSeconds();
+
+  // 2. Format jam WIB (UTC + 7) untuk tampilan CLOCK
+  // Menggunakan Intl.DateTimeFormat agar format tanggal/jam stabil dan otomatis
+  const options = { 
+    timeZone: 'Asia/Jakarta', 
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false 
+  };
+  const wibTime = new Intl.DateTimeFormat('en-GB', options).format(now);
+  
+  // Update Tampilan Clock (Format: DD/MM/YYYY HH:MM:SS)
   const clockEl = document.getElementById('clockDisplay');
+  if (clockEl) clockEl.textContent = wibTime.replace(',', '');
+
+  // 3. Logika Session (Berdasarkan Jam UTC murni)
+  const active = SESSIONS.filter(s => {
+    if (s.open < s.close) {
+      return utcH >= s.open && utcH < s.close;
+    } else {
+      // Untuk sesi yang melewati tengah malam (seperti Sydney)
+      return utcH >= s.open || utcH < s.close;
+    }
+  });
+
+  // Update Tampilan Session
   const sessionEl = document.getElementById('sessionInfo');
-  if(clockEl) clockEl.textContent = `${p(wib.getUTCDate())}/${p(wib.getUTCMonth()+1)}/${wib.getUTCFullYear()} ${p(wib.getUTCHours())}:${p(wib.getUTCMinutes())}:${p(wib.getUTCSeconds())}`;
-  const active = getActiveSessions(utcH);
-  if(sessionEl) sessionEl.textContent = active.length ? active.map(s=>s.name).join(' + ') + ' OPEN' : 'ALL CLOSED';
+  if (sessionEl) {
+    if (active.length > 0) {
+      // Gabungkan nama sesi, misal: "LONDON + NEW YORK"
+      const sessionNames = active.map(s => s.name).join(' + ');
+      sessionEl.textContent = `${sessionNames} MARKET`;
+      sessionEl.style.color = "var(--amber)"; // Pastikan warna tetap amber saat open
+    } else {
+      sessionEl.textContent = 'WEEKEND / ALL CLOSED';
+      sessionEl.style.color = "var(--txt-3)"; // Warna redup jika tutup
+    }
+  }
 }
-setInterval(updateClock, 1000); updateClock();
+
+// Jalankan interval tiap detik
+setInterval(updateClock, 1000);
+updateClock();
 
 // ── Responsive ──
 function adjustLayout(){
