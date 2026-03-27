@@ -624,10 +624,8 @@ body::before {
 <!-- ══════════════════════════════════════════ MAIN GRID ══════════════════════════════════════════ -->
 <main id="mainGrid" style="display:grid; grid-template-columns:1fr 320px; gap:0; max-width:1600px; margin:0 auto;">
 
-  <!-- ═══════════ LEFT COLUMN ═══════════ -->
   <div style="border-right:1px solid var(--grid-bright); padding:12px 14px; display:flex; flex-direction:column; gap:14px;">
 
-    <!-- ██ SECTION 01: PRIMARY WATCHLIST ██ -->
     <div>
       <div class="sec-header row-anim" style="animation-delay:0.05s;">
         <span class="sec-id">01</span>
@@ -637,8 +635,6 @@ body::before {
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;" class="row-anim" style="animation-delay:0.1s;">
-
-        <!-- XAU -->
         <div class="panel asset-card xau panel-bracket">
           <div class="status-bar xau"></div>
           <div style="padding:8px 10px 0;">
@@ -663,7 +659,6 @@ body::before {
           </div>
         </div>
 
-        <!-- BTC -->
         <div class="panel asset-card btc panel-bracket">
           <div class="status-bar btc"></div>
           <div style="padding:8px 10px 0;">
@@ -688,7 +683,6 @@ body::before {
           </div>
         </div>
 
-        <!-- IHSG -->
         <div class="panel asset-card ihsg panel-bracket">
           <div class="status-bar ihsg"></div>
           <div style="padding:8px 10px 0;">
@@ -712,14 +706,72 @@ body::before {
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ██ SECTION 02: ADVANCED CHART ██ -->
-    <div class="row-anim" style="animation-delay:0.15s;">
+    <div class="row-anim" style="animation-delay:0.12s;">
       <div class="sec-header">
         <span class="sec-id">02</span>
+        <span class="sec-title">Global Macro Radar</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">DXY · US10Y · OIL · SPX</span>
+      </div>
+      <div class="panel panel-bracket" style="padding:12px; display:flex; flex-direction:column; height:480px;">
+        <div style="font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--txt-3); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--grid-dim); flex-shrink:0;">
+          GLOBAL MACRO RADAR
+        </div>
+
+        <div style="margin-bottom:10px; padding:8px; background:rgba(255, 170, 0, 0.05); border:1px dashed var(--amber); border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--txt-1); line-height:1.5; letter-spacing:0.04em; flex-shrink:0;">
+          <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
+          <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY Naik / T-NOTE Turun:</strong> Suku bunga & Dolar menguat. <span style="color:var(--amber);">XAU & BTC biasanya tertekan turun.</span><br>
+          <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Ancaman inflasi meroket. The Fed berpotensi menahan suku bunga tinggi.<br>
+          <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">SPX500 Anjlok:</strong> Pasar saham panik (Risk-Off). Uang investor biasanya lari ke Safe Haven (Emas).
+        </div>
+        
+        <div style="flex:1; display:flex; flex-direction:row; gap:8px; overflow:hidden;">
+          <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--p-bright); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">DXY (DOLLAR)</div>
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"CAPITALCOM:DXY","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+          </div>
+          <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">US 10Y T-NOTE</div>
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:USB10YUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+          </div>
+          <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">OIL (WTI)</div>
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:WTICOUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+          </div>
+          <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">S&P 500</div>
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:SPX500USD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-anim" style="animation-delay:0.15s;">
+      <div class="sec-header">
+        <span class="sec-id">03</span>
         <span class="sec-title">Chart Analysis</span>
         <span class="sec-line"></span>
         <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">RSI · MACD · LIVE</span>
@@ -743,17 +795,14 @@ body::before {
       </div>
     </div>
 
-    <!-- ██ SECTION 03: HEATMAPS ██ -->
     <div class="row-anim" style="animation-delay:0.2s;">
       <div class="sec-header">
-        <span class="sec-id">03</span>
+        <span class="sec-id">04</span>
         <span class="sec-title">Market Heatmaps</span>
         <span class="sec-line"></span>
         <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">SPX · CRYPTO · IDX</span>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-
-        <!-- SPX -->
         <div class="panel panel-bracket">
           <div class="panel-header">
             <span class="label-sm">S&amp;P 500</span>
@@ -768,8 +817,6 @@ body::before {
             </div>
           </div>
         </div>
-
-        <!-- CRYPTO -->
         <div class="panel panel-bracket">
           <div class="panel-header">
             <span class="label-sm" style="color:var(--p-bright);">Crypto</span>
@@ -784,8 +831,6 @@ body::before {
             </div>
           </div>
         </div>
-
-        <!-- IDX -->
         <div class="panel panel-bracket">
           <div class="panel-header">
             <span class="label-sm" style="color:var(--cyan);">IDX IHSG</span>
@@ -800,20 +845,16 @@ body::before {
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ██ SECTION 04: FOREX + CALENDAR ██ -->
     <div class="row-anim" style="animation-delay:0.25s;">
       <div class="sec-header">
-        <span class="sec-id">04</span>
+        <span class="sec-id">05</span>
         <span class="sec-title">FX Heatmap &amp; Economic Events</span>
         <span class="sec-line"></span>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-
-        <!-- Forex Heatmap -->
         <div class="panel panel-bracket">
           <div class="panel-header">
             <span class="label-sm">Forex Heatmap</span>
@@ -828,8 +869,6 @@ body::before {
             </div>
           </div>
         </div>
-
-        <!-- Economic Calendar -->
         <div class="panel panel-bracket">
           <div class="panel-header">
             <span class="label-sm">Economic Calendar</span>
@@ -844,19 +883,16 @@ body::before {
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ██ SECTION 05: HISTORICAL DATA ██ -->
     <div class="row-anim" style="animation-delay:0.3s;">
       <div class="sec-header">
-        <span class="sec-id">05</span>
+        <span class="sec-id">06</span>
         <span class="sec-title">Historical Gold Data</span>
         <span class="sec-line"></span>
         <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">XAU/USD 2015–2025</span>
       </div>
-
       <div class="panel panel-bracket">
         <div class="panel-header">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -875,7 +911,6 @@ body::before {
           </div>
         </div>
       </div>
-
       <div style="margin-top:8px;" class="panel panel-bracket">
         <div class="panel-header">
           <span class="label-sm">Trend Log — Faktor &amp; Narasi</span>
@@ -900,7 +935,7 @@ body::before {
       </div>
     </div>
 
-  </div><!-- end left -->
+  </div> <!-- end left -->
 
   <!-- ═══════════ RIGHT SIDEBAR ═══════════ -->
   <div style="padding:12px; display:flex; flex-direction:column; gap:12px; position:sticky; top:76px; max-height:calc(100vh - 76px); overflow-y:auto;">
@@ -984,124 +1019,7 @@ body::before {
       </div>
     </div>
 
-    <!-- Global Macro -->
-<div class="panel panel-bracket" style="padding:12px; display:flex; flex-direction:column; height:480px;">
-      
-      <div style="font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--txt-3); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--grid-dim); flex-shrink:0;">
-        GLOBAL MACRO RADAR
-      </div>
 
-      <div style="margin-bottom:10px; padding:8px; background:rgba(255, 170, 0, 0.05); border:1px dashed var(--amber); border-radius:4px; font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--txt-1); line-height:1.5; letter-spacing:0.04em; flex-shrink:0;">
-        <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY Naik / T-NOTE Turun:</strong> Suku bunga & Dolar menguat. <span style="color:var(--amber);">XAU & BTC biasanya tertekan turun.</span><br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Ancaman inflasi meroket. The Fed berpotensi menahan suku bunga tinggi.<br>
-        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">SPX500 Anjlok:</strong> Pasar saham panik (Risk-Off). Uang investor biasanya lari ke Safe Haven (Emas).
-      </div>
-      
-      <div style="flex:1; display:flex; flex-direction:row; gap:8px; overflow:hidden;">
-
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--p-bright); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">DXY (DOLLAR)</div>
-          <div class="tradingview-widget-container" style="height:100%; width:100%;">
-            <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            {
-            "autosize": true,
-            "symbol": "CAPITALCOM:DXY",
-            "interval": "D",
-            "timezone": "Asia/Jakarta",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "backgroundColor": "#040608",
-            "gridColor": "rgba(0,255,136,0.04)",
-            "hide_top_toolbar": true,
-            "hide_legend": true,
-            "hide_side_toolbar": true,
-            "save_image": false,
-            "hide_volume": true
-            }
-            </script>
-          </div>
-        </div>
-
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">US 10Y T-NOTE</div>
-          <div class="tradingview-widget-container" style="height:100%; width:100%;">
-            <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            {
-            "autosize": true,
-            "symbol": "OANDA:USB10YUSD",
-            "interval": "D",
-            "timezone": "Asia/Jakarta",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "backgroundColor": "#040608",
-            "gridColor": "rgba(0,255,136,0.04)",
-            "hide_top_toolbar": true,
-            "hide_legend": true,
-            "hide_side_toolbar": true,
-            "save_image": false,
-            "hide_volume": true
-            }
-            </script>
-          </div>
-        </div>
-
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">OIL (WTI)</div>
-          <div class="tradingview-widget-container" style="height:100%; width:100%;">
-            <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            {
-            "autosize": true,
-            "symbol": "OANDA:WTICOUSD",
-            "interval": "D",
-            "timezone": "Asia/Jakarta",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "backgroundColor": "#040608",
-            "gridColor": "rgba(0,255,136,0.04)",
-            "hide_top_toolbar": true,
-            "hide_legend": true,
-            "hide_side_toolbar": true,
-            "save_image": false,
-            "hide_volume": true
-            }
-            </script>
-          </div>
-        </div>
-
-        <div style="flex:1; min-width:0; border:1px solid var(--grid-dim); border-radius:4px; position:relative; overflow:hidden;">
-          <div style="position:absolute; top:4px; left:8px; z-index:10; font-size:9px; color:var(--txt-2); font-weight:bold; letter-spacing:1px; pointer-events:none; background:rgba(4,6,8,0.7); padding:2px 4px;">S&P 500</div>
-          <div class="tradingview-widget-container" style="height:100%; width:100%;">
-            <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-            {
-            "autosize": true,
-            "symbol": "OANDA:SPX500USD",
-            "interval": "D",
-            "timezone": "Asia/Jakarta",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "backgroundColor": "#040608",
-            "gridColor": "rgba(0,255,136,0.04)",
-            "hide_top_toolbar": true,
-            "hide_legend": true,
-            "hide_side_toolbar": true,
-            "save_image": false,
-            "hide_volume": true
-            }
-            </script>
-          </div>
-        </div>
-
-      </div>
-    </div>
 
     <!-- System / Links -->
     <div class="panel panel-bracket" style="padding:12px;">
