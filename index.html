@@ -599,13 +599,15 @@ body::before {
     </div>
   </div>
 
+  
   <!-- Ticker tape -->
-  <div style="height:38px; overflow:hidden; border-bottom:1px solid var(--grid-dim);">
-    <div class="tradingview-widget-container" style="height:38px;">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-      {"symbols":[{"proName":"BITSTAMP:BTCUSD","title":"BTC/USD"},{"proName":"OANDA:XAUUSD","title":"XAU/USD"},{"proName":"IDX:COMPOSITE","title":"IHSG"},{"proName":"FOREXCOM:SPXUSD","title":"SPX"},{"proName":"FOREXCOM:NSXUSD","title":"NDX"},{"proName":"FX_IDC:USDIDR","title":"USD/IDR"},{"proName":"FX_IDC:EURUSD","title":"EUR/USD"},{"proName":"TVC:DXY","title":"DXY"},{"proName":"OANDA:XAGUSD","title":"XAG/USD"},{"proName":"BITSTAMP:ETHUSD","title":"ETH/USD"}],"colorTheme":"dark","isTransparent":true,"locale":"en","showSymbolLogo":false,"displayMode":"adaptive"}
-      </script>
+    <div class="ticker-wrap">
+      <div class="tradingview-widget-container" style="height:40px;">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {"symbols":[{"proName":"BITSTAMP:BTCUSD","title":"BTC"},{"proName":"BITSTAMP:ETHUSD","title":"ETH"},{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"IDX:COMPOSITE","title":"IHSG"},{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ"},{"proName":"FX_IDC:EURUSD","title":"EUR/USD"},{"proName":"FX_IDC:USDIDR","title":"USD/IDR"},{"proName":"OANDA:XAGUSD","title":"Silver"},{"proName":"TVC:DXY","title":"DXY"}],"colorTheme":"dark","isTransparent":true,"locale":"en","showSymbolLogo":true,"displayMode":"adaptive"}
+        </script>
+      </div>
     </div>
   </div>
 
