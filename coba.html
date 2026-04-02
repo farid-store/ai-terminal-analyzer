@@ -2141,20 +2141,29 @@ function toggleMTF() {
 }
 
 // ═════════════════════════════════════════════════════════════
-// ██ FEATURE 3: PRICE ALERTS SYSTEM (VIA BINANCE API)
+// ██ FEATURE 3: PRICE ALERTS SYSTEM (REVISI AUTO-ALIAS GOLD)
 // ═════════════════════════════════════════════════════════════
 let activeAlerts = [];
-const alertAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); // Suara beep terminal
+const alertAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
 document.getElementById('addAlertBtn').addEventListener('click', () => {
-  const sym = document.getElementById('alertSymbol').value.toUpperCase().trim();
+  let sym = document.getElementById('alertSymbol').value.toUpperCase().trim();
   const cond = document.getElementById('alertCondition').value;
   const price = parseFloat(document.getElementById('alertPrice').value);
   
   if(!sym || !price) return;
 
+  // 🔥 UX MAGIC: Auto-Alias XAUUSD ke PAXGUSDT (Emas Kripto)
+  let displaySym = sym; 
+  let apiSym = sym;
+  
+  if (sym === 'XAUUSD' || sym === 'XAU' || sym === 'GOLD') {
+    apiSym = 'PAXGUSDT';         // Ini yang dicari ke Binance
+    displaySym = 'XAUUSD (PAXG)'; // Ini yang ditampilkan ke UI
+  }
+
   const id = Date.now();
-  activeAlerts.push({ id, sym, cond, price, triggered: false });
+  activeAlerts.push({ id, displaySym, apiSym, cond, price, triggered: false });
   renderAlerts();
   document.getElementById('alertPrice').value = '';
 });
@@ -2172,7 +2181,7 @@ function renderAlerts() {
     const item = document.createElement('div');
     item.className = `alert-item ${a.triggered ? 'triggered' : ''}`;
     item.innerHTML = `
-      <span><strong style="color:var(--p-bright);">${a.sym}</strong> ${a.cond} $${a.price}</span>
+      <span><strong style="color:var(--p-bright);">${a.displaySym}</strong> ${a.cond} $${a.price}</span>
       <button onclick="removeAlert(${a.id})" style="color:var(--red); background:none; border:none; cursor:pointer; font-weight:bold;">✕</button>
     `;
     list.appendChild(item);
@@ -2184,19 +2193,20 @@ function removeAlert(id) {
   renderAlerts();
 }
 
-// Background Checker (Setiap 5 detik)
+// Background Checker (Dipercepat: Setiap 3 detik)
 setInterval(async () => {
   const pendingAlerts = activeAlerts.filter(a => !a.triggered);
   if(pendingAlerts.length === 0) return;
 
   try {
-    // Sebagai simulasi real-time, kita pakai Public API Binance (Cocok untuk BTCUSDT/ETHUSDT)
-    // Catatan: Untuk XAUUSD biasanya butuh API berbayar, jadi difokuskan ke Crypto disini.
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT"]');
+    // Trik: Langsung tembak endpoint global Binance. 
+    // Bebas error URL parsing & otomatis support semua koin (BTCUSDT, ETHUSDT, SOLUSDT, dll)
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price');
     const data = await res.json();
     
     pendingAlerts.forEach(alert => {
-      const marketData = data.find(d => d.symbol === alert.sym);
+      // Cari harga berdasarkan API Symbol (misal: PAXGUSDT)
+      const marketData = data.find(d => d.symbol === alert.apiSym);
       if(marketData) {
         const currentPrice = parseFloat(marketData.price);
         let isHit = false;
@@ -2206,10 +2216,12 @@ setInterval(async () => {
 
         if(isHit) {
           alert.triggered = true;
-          alertAudio.play(); // Bunyi alarm
+          
+          // Tangani policy browser yang kadang nge-block audio jika tidak ada klik
+          alertAudio.play().catch(e => console.log("Audio di-block oleh browser, klik layar sekali."));
           renderAlerts();
           
-          // Efek visual layar kedip merah
+          // Efek visual layar kedip merah ala terminal darurat
           const header = document.querySelector('.terminal-header');
           header.style.background = 'rgba(255, 51, 85, 0.3)';
           setTimeout(() => header.style.background = 'var(--surface-0)', 500);
@@ -2221,9 +2233,9 @@ setInterval(async () => {
   } catch(e) {
     console.error("Alert feed error:", e);
   }
-}, 5000);
-renderAlerts(); // Init list kosong
+}, 3000);
 
+renderAlerts(); // Init list kosong saat pertama load
 
 // ═════════════════════════════════════════════════════════════
 // ██ FEATURE 4: AI QUICK PROMPTS & AUTO-CAPTURE
