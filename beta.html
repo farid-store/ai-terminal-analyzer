@@ -1013,47 +1013,28 @@ body::before {
     </div>
 
 <div class="row-anim" style="animation-delay:0.2s;">
-<div class="sec-header">
-  <span class="sec-id">03</span>
-  <span class="sec-title">Technical Chart Analysis</span>
-  <span class="sec-line"></span>
-  
-  <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+  <div class="sec-header">
+    <span class="sec-id">03</span>
+    <span class="sec-title">Technical Chart Analysis</span>
+    <span class="sec-line"></span>
     
-    <div style="display:flex; align-items:center; gap:6px;">
-      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MULTI-TF XAU</span>
-      <button id="mtfToggle" onclick="switchViewMode('mtf')" style="
-        position:relative; width:36px; height:18px; border:1px solid var(--p-mute);
-        background:var(--surface-0); border-radius:10px; cursor:pointer;
-        transition:all 0.2s; padding:0;
-      ">
-        <span id="mtfThumb" style="
-          position:absolute; top:2px; left:2px; width:12px; height:12px;
-          border-radius:50%; background:var(--txt-3);
-          transition:all 0.2s; display:block;
-        "></span>
-      </button>
-    </div>
+    <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MULTI-TF XAU</span>
+        <button id="mtfToggle" onclick="switchViewMode('mtf')" style="position:relative; width:36px; height:18px; border:1px solid var(--p-mute); background:var(--surface-0); border-radius:10px; cursor:pointer; transition:all 0.2s; padding:0;">
+          <span id="mtfThumb" style="position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--txt-3); transition:all 0.2s; display:block;"></span>
+        </button>
+      </div>
 
-    <div style="display:flex; align-items:center; gap:6px;">
-      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MULTI-PAIR</span>
-      <button id="mpToggle" onclick="switchViewMode('mp')" style="
-        position:relative; width:36px; height:18px; border:1px solid var(--p-mute);
-        background:var(--surface-0); border-radius:10px; cursor:pointer;
-        transition:all 0.2s; padding:0;
-      ">
-        <span id="mpThumb" style="
-          position:absolute; top:2px; left:2px; width:12px; height:12px;
-          border-radius:50%; background:var(--txt-3);
-          transition:all 0.2s; display:block;
-        "></span>
-      </button>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">MULTI-PAIR</span>
+        <button id="mpToggle" onclick="switchViewMode('mp')" style="position:relative; width:36px; height:18px; border:1px solid var(--p-mute); background:var(--surface-0); border-radius:10px; cursor:pointer; transition:all 0.2s; padding:0;">
+          <span id="mpThumb" style="position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--txt-3); transition:all 0.2s; display:block;"></span>
+        </button>
+      </div>
     </div>
-
   </div>
-</div>
 
-  <!-- SINGLE CHART (default) -->
   <div id="singleChartWrap" class="panel panel-bracket">
     <div class="panel-header">
       <div style="display:flex; align-items:center; gap:10px;">
@@ -1063,117 +1044,112 @@ body::before {
       <div style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">INDICATORS: RSI + MACD</div>
     </div>
     <div id="advancedChart" style="height:500px;">
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-      {"allow_symbol_change":true,"calendar":false,"details":false,"hide_side_toolbar":false,"hide_top_toolbar":false,"hide_legend":false,"hide_volume":false,"interval":"D","locale":"en","save_image":true,"style":"1","symbol":"OANDA:XAUUSD","theme":"dark","timezone":"Asia/Jakarta","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
-      </script>
+      <div class="tradingview-widget-container" style="height:100%; width:100%;">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+        {"allow_symbol_change":true,"interval":"D","locale":"en","symbol":"OANDA:XAUUSD","theme":"dark","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
+        </script>
+      </div>
     </div>
   </div>
 
-  <!-- MULTI TIMEFRAME GRID (hidden default) -->
   <div id="multiTFWrap" style="display:none;">
     <div class="panel panel-bracket" style="margin-bottom:4px;">
       <div class="panel-header">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span class="dot-live"></span>
-          <span class="label-sm" style="color:var(--amber);">XAU/USD — Multi Timeframe View</span>
-        </div>
-        <div style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">M1 · M5 · M15 · M30 · H1 · H4</div>
+        <span class="label-sm" style="color:var(--amber);">XAU/USD — Multi Timeframe View</span>
+        <div style="font-size:9px; color:var(--txt-3);">M1 · M5 · M15 · M30 · H1 · H4</div>
       </div>
     </div>
-
-    <div id="multiPairWrap" style="display:none;">
-  <div class="panel panel-bracket" style="margin-bottom:6px; padding:6px 10px;">
-    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-      <span class="label-xs" style="color:var(--cyan);">PAIR CONFIG:</span>
-      <input id="mpSym1" class="t-input" value="BINANCE:BTCUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
-      <input id="mpSym2" class="t-input" value="BINANCE:ETHUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
-      <input id="mpSym3" class="t-input" value="BINANCE:SOLUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
-      <input id="mpSym4" class="t-input" value="OANDA:XAUUSD" style="width:105px; padding:2px 6px; font-size:10px;">
-      <input id="mpSym5" class="t-input" value="CAPITALCOM:DXY" style="width:105px; padding:2px 6px; font-size:10px;">
-      <input id="mpSym6" class="t-input" value="IDX:COMPOSITE" style="width:105px; padding:2px 6px; font-size:10px;">
-      <button onclick="loadMultiPairCharts()" class="t-btn" style="padding:2px 10px; margin-left:auto;"><span>APPLY CONFIG</span></button>
-    </div>
-  </div>
-
-  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader1" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 1</div>
-      <div id="mpChart1" style="height:100%; width:100%;"></div>
-    </div>
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader2" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 2</div>
-      <div id="mpChart2" style="height:100%; width:100%;"></div>
-    </div>
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader3" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 3</div>
-      <div id="mpChart3" style="height:100%; width:100%;"></div>
-    </div>
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader4" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 4</div>
-      <div id="mpChart4" style="height:100%; width:100%;"></div>
-    </div>
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader5" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 5</div>
-      <div id="mpChart5" style="height:100%; width:100%;"></div>
-    </div>
-    <div style="border:1px solid rgba(0,212,255,0.2); position:relative; overflow:hidden; height:240px;">
-      <div id="mpHeader6" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 6</div>
-      <div id="mpChart6" style="height:100%; width:100%;"></div>
-    </div>
-  </div>
-</div>
-
-    
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-
-      <!-- M1 -->
-      <div style="border:1px solid rgba(255,170,0,0.25); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — M1</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"1","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M1</div>
+        <div id="mtf1" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"1","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
-
-      <!-- M5 -->
-      <div style="border:1px solid rgba(255,170,0,0.25); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — M5</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"5","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M5</div>
+        <div id="mtf2" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"5","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
-
-      <!-- M15 -->
-      <div style="border:1px solid rgba(255,170,0,0.25); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — M15</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"15","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M15</div>
+        <div id="mtf3" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"15","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
-
-      <!-- M30 -->
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — M30</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"30","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M30</div>
+        <div id="mtf4" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"30","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
-
-      <!-- H1 -->
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — H1</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"60","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H1</div>
+        <div id="mtf5" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"60","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
-
-      <!-- H4 -->
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; overflow:hidden; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;letter-spacing:0.1em;">XAU/USD — H4</div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-        {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"240","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true,"gridColor":"rgba(0,255,136,0.03)"}
-        </script>
+      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H4</div>
+        <div id="mtf6" style="height:100%;">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"240","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
+          </script>
+        </div>
       </div>
+    </div>
+  </div>
 
+  <div id="multiPairWrap" style="display:none;">
+    <div class="panel panel-bracket" style="margin-bottom:6px; padding:6px 10px;">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="label-xs" style="color:var(--cyan);">PAIR CONFIG:</span>
+        <input id="mpSym1" class="t-input" value="BINANCE:BTCUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
+        <input id="mpSym2" class="t-input" value="BINANCE:ETHUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
+        <input id="mpSym3" class="t-input" value="BINANCE:SOLUSDT" style="width:105px; padding:2px 6px; font-size:10px;">
+        <input id="mpSym4" class="t-input" value="OANDA:XAUUSD" style="width:105px; padding:2px 6px; font-size:10px;">
+        <input id="mpSym5" class="t-input" value="CAPITALCOM:DXY" style="width:105px; padding:2px 6px; font-size:10px;">
+        <input id="mpSym6" class="t-input" value="IDX:COMPOSITE" style="width:105px; padding:2px 6px; font-size:10px;">
+        <button onclick="loadMultiPairCharts()" class="t-btn" style="padding:2px 10px; margin-left:auto;"><span>APPLY CONFIG</span></button>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader1" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 1</div>
+        <div id="mpChart1" style="height:100%;"></div>
+      </div>
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader2" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 2</div>
+        <div id="mpChart2" style="height:100%;"></div>
+      </div>
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader3" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 3</div>
+        <div id="mpChart3" style="height:100%;"></div>
+      </div>
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader4" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 4</div>
+        <div id="mpChart4" style="height:100%;"></div>
+      </div>
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader5" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 5</div>
+        <div id="mpChart5" style="height:100%;"></div>
+      </div>
+      <div style="border:1px solid rgba(0,212,255,0.2); position:relative; height:240px;">
+        <div id="mpHeader6" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 6</div>
+        <div id="mpChart6" style="height:100%;"></div>
+      </div>
     </div>
   </div>
 </div>
