@@ -1054,63 +1054,59 @@ body::before {
   </div>
 
   <div id="multiTFWrap" style="display:none;">
-    <div class="panel panel-bracket" style="margin-bottom:4px;">
-      <div class="panel-header">
-        <span class="label-sm" style="color:var(--amber);">XAU/USD — Multi Timeframe View</span>
-        <div style="font-size:9px; color:var(--txt-3);">M1 · M5 · M15 · M30 · H1 · H4</div>
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M1</div>
-        <div id="mtf1" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"1","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
-      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M5</div>
-        <div id="mtf2" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"5","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
-      <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M15</div>
-        <div id="mtf3" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"15","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M30</div>
-        <div id="mtf4" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"30","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H1</div>
-        <div id="mtf5" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"60","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
-      <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
-        <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H4</div>
-        <div id="mtf6" style="height:100%;">
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-          {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"240","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"backgroundColor":"#040608"}
-          </script>
-        </div>
-      </div>
+    <div id="multiTFWrap" style="display:none;">
+  <div class="panel panel-bracket" style="margin-bottom:4px;">
+    <div class="panel-header">
+      <span class="label-sm" style="color:var(--amber);">XAU/USD — Multi Timeframe View</span>
+      <div style="font-size:9px; color:var(--txt-3);">M1 · M5 · M15 · M30 · H1 · H4</div>
     </div>
   </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+    
+    <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M1</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"1","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+    <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M5</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"5","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+    <div style="border:1px solid rgba(255,170,0,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M15</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"15","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+    <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M30</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"30","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+    <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H1</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"60","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+    <div style="border:1px solid rgba(0,255,136,0.2); position:relative; height:240px;">
+      <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H4</div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+      {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"240","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+      </script>
+    </div>
+
+  </div>
+</div>
 
   <div id="multiPairWrap" style="display:none;">
     <div class="panel panel-bracket" style="margin-bottom:6px; padding:6px 10px;">
