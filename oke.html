@@ -1,0 +1,2306 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>F-Terminal v2 — XAU·BTC·IHSG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+/* ══════════════ TERMINAL DESIGN SYSTEM ══════════════ */
+:root {
+  --void:         #020304;
+  --surface-0:    #040608;
+  --surface-1:    #070c0f;
+  --surface-2:    #0a1014;
+  --surface-3:    #0e1519;
+  --p-bright:     #00ff88;
+  --p-mid:        #00cc6a;
+  --p-dim:        #009950;
+  --p-mute:       #005c30;
+  --p-ghost:      #002a18;
+  --amber:        #ffaa00;
+  --amber-dim:    #cc8800;
+  --amber-ghost:  #2a1e00;
+  --red:          #ff3355;
+  --red-dim:      #cc1f3d;
+  --red-ghost:    #2a0010;
+  --cyan:         #00d4ff;
+  --cyan-dim:     #009dbf;
+  --cyan-ghost:   #002a33;
+  --grid-bright:  rgba(0,255,136,0.12);
+  --grid-dim:     rgba(0,255,136,0.05);
+  --grid-mute:    rgba(0,255,136,0.03);
+  --txt-0:        #00ff88;
+  --txt-1:        #7dffcc;
+  --txt-2:        #3d8f6a;
+  --txt-3:        #1a4d35;
+  --scanline-opacity: 0.015;
+
+  /* Responsive spacing */
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 14px;
+  --space-lg: 20px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--txt-0);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,var(--scanline-opacity)) 2px, rgba(0,255,136,var(--scanline-opacity)) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--surface-1); }
+::-webkit-scrollbar-thumb { background: var(--p-mute); }
+::-webkit-scrollbar-thumb:hover { background: var(--p-dim); }
+
+/* ══════════════ HEADER ══════════════ */
+.terminal-header {
+  background: var(--surface-0);
+  border-bottom: 1px solid var(--grid-bright);
+  position: sticky;
+  top: 0;
+  z-index: 500;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 36px;
+  border-bottom: 1px solid var(--grid-dim);
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.header-cell {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 36px;
+  border-right: 1px solid var(--grid-dim);
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.header-cell.grow { flex: 1; min-width: 0; }
+
+/* Mobile: sembunyikan beberapa header cell */
+@media (max-width: 600px) {
+  .header-cell.hide-mobile { display: none !important; }
+  .header-cell { padding: 0 8px; }
+}
+@media (max-width: 768px) {
+  .header-cell.hide-tablet { display: none !important; }
+}
+
+/* ══════════════ TYPOGRAPHY ══════════════ */
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.sans { font-family: 'IBM Plex Sans', sans-serif; }
+
+.label-xs {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.label-sm {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.label-asset {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ══════════════ PANELS ══════════════ */
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--grid-bright);
+  position: relative;
+  overflow: hidden;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,255,136,0.015) 0%, transparent 40%);
+  pointer-events: none;
+}
+.panel-bracket::after,
+.panel-bracket::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--p-mid);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 2;
+}
+.panel-bracket::before { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+.panel-bracket::after  { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--grid-dim);
+  background: var(--surface-0);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ══════════════ ASSET CARDS ══════════════ */
+.asset-card { position: relative; overflow: hidden; }
+.asset-card.xau  { border-color: rgba(255,170,0,0.3); }
+.asset-card.btc  { border-color: rgba(0,255,136,0.35); }
+.asset-card.ihsg { border-color: rgba(0,212,255,0.3); }
+.asset-card.xau::after  { background: linear-gradient(180deg, rgba(255,170,0,0.04) 0%, transparent 50%); }
+.asset-card.btc::after  { background: linear-gradient(180deg, rgba(0,255,136,0.04) 0%, transparent 50%); }
+.asset-card.ihsg::after { background: linear-gradient(180deg, rgba(0,212,255,0.04) 0%, transparent 50%); }
+.asset-card::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.status-bar { height: 2px; width: 100%; }
+.status-bar.xau  { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-bar.btc  { background: var(--p-bright); box-shadow: 0 0 8px var(--p-bright); }
+.status-bar.ihsg { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+
+/* ══════════════ LIVE DOT ══════════════ */
+.dot-live {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--p-bright);
+  box-shadow: 0 0 6px var(--p-bright);
+  display: inline-block;
+  animation: blink-dot 1.2s steps(1) infinite;
+  flex-shrink: 0;
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ══════════════ DIVIDERS & SECTIONS ══════════════ */
+.t-divider { display: flex; align-items: center; gap: 8px; padding: 10px 0 8px; }
+.t-divider::before, .t-divider::after { content: ''; flex: 1; height: 1px; background: var(--grid-bright); }
+.t-divider-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--txt-3); white-space: nowrap; }
+
+.sec-header { display: flex; align-items: center; gap: 10px; padding: 8px 0 6px; flex-wrap: wrap; }
+.sec-id { font-size: 9px; font-weight: 600; letter-spacing: 0.15em; color: var(--p-mute); font-style: italic; }
+.sec-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--txt-2); }
+.sec-line { flex: 1; height: 1px; background: var(--grid-bright); min-width: 20px; }
+
+/* ══════════════ INPUTS & BUTTONS ══════════════ */
+.t-input {
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.t-input:focus { border-color: var(--p-bright); box-shadow: 0 0 0 1px var(--p-ghost); }
+.t-input::placeholder { color: var(--txt-3); }
+
+.t-btn {
+  background: transparent;
+  border: 1px solid var(--p-dim);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.t-btn::before { content: ''; position: absolute; inset: 0; background: var(--p-ghost); transform: scaleX(0); transform-origin: left; transition: transform 0.2s; }
+.t-btn:hover { border-color: var(--p-bright); }
+.t-btn:hover::before { transform: scaleX(1); }
+.t-btn span { position: relative; z-index: 1; }
+
+/* ══════════════ TABS ══════════════ */
+.t-tab {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--txt-3);
+  background: transparent;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap;
+}
+.t-tab:hover { color: var(--txt-2); }
+.t-tab.active { border-color: var(--p-dim); color: var(--p-bright); background: var(--p-ghost); }
+
+/* ══════════════ TABLE ══════════════ */
+.t-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.t-table thead tr { background: var(--surface-0); border-bottom: 1px solid var(--grid-bright); }
+.t-table thead th {
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 5;
+  background: var(--surface-0);
+}
+.t-table tbody tr { border-bottom: 1px solid var(--grid-mute); transition: background 0.1s; }
+.t-table tbody tr:hover { background: rgba(0,255,136,0.02); }
+.t-table tbody td { padding: 7px 10px; color: var(--txt-2); vertical-align: top; line-height: 1.5; }
+.t-table tbody td:first-child { color: var(--txt-1); white-space: nowrap; }
+
+/* Mobile table — sembunyikan kolom minor */
+@media (max-width: 600px) {
+  .t-table thead th:nth-child(4),
+  .t-table tbody td:nth-child(4) { display: none; }
+  .t-table thead th, .t-table tbody td { padding: 6px 6px; font-size: 10px; }
+}
+
+/* ══════════════ TREND BADGES ══════════════ */
+.up   { color: var(--p-bright); font-weight: 600; }
+.down { color: var(--red); font-weight: 600; }
+.side { color: var(--amber); font-weight: 500; }
+
+/* ══════════════ SELECT ══════════════ */
+.t-select {
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.t-select:focus { border-color: var(--p-bright); }
+
+/* ══════════════ QUICK LINKS ══════════════ */
+.q-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--txt-2);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.q-link:hover { border-color: var(--p-dim); color: var(--p-bright); background: var(--p-ghost); }
+
+/* ══════════════ LOAD ANIMATIONS ══════════════ */
+@keyframes fadeInRow {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.row-anim { animation: fadeInRow 0.4s ease forwards; opacity: 0; }
+
+/* ══════════════ CHART CONTAINER ══════════════ */
+.chart-wrap { background: var(--surface-0); border: 1px solid var(--grid-bright); overflow: hidden; }
+
+/* ══════════════ STATUS ROW ══════════════ */
+.status-row { display: flex; align-items: center; gap: 0; font-size: 10px; border-bottom: 1px solid var(--grid-dim); background: var(--surface-0); height: 28px; overflow: hidden; }
+.status-cell { display: flex; align-items: center; gap: 6px; padding: 0 12px; height: 100%; border-right: 1px solid var(--grid-mute); white-space: nowrap; flex-shrink: 0; }
+
+/* ══════════════ CHAT INPUTS ══════════════ */
+.chat-input-field {
+  flex: 1;
+  background: var(--surface-0);
+  border: 1px solid var(--grid-bright);
+  color: var(--p-bright);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  resize: none;
+  outline: none;
+  min-height: 34px;
+  max-height: 90px;
+  transition: border-color 0.15s;
+}
+.chat-input-field:focus { border-color: var(--p-bright); }
+.chat-input-field::placeholder { color: var(--txt-3); }
+
+/* ══════════════ ALERT SYSTEM ══════════════ */
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--txt-2);
+  background: var(--surface-0);
+  padding: 6px 8px;
+  border: 1px solid var(--grid-dim);
+  border-left: 2px solid var(--amber);
+  margin-bottom: 4px;
+}
+.alert-item.triggered { animation: blink-bg 1s infinite; border-left-color: var(--red); }
+@keyframes blink-bg {
+  0%, 100% { background: var(--surface-0); color: var(--txt-2); }
+  50% { background: rgba(255,51,85,0.2); color: var(--red); }
+}
+
+/* ══════════════ PROMPT CHIPS ══════════════ */
+.prompt-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--chat-border, #e2e8f0);
+  -webkit-overflow-scrolling: touch;
+}
+.prompt-scroll::-webkit-scrollbar { height: 2px; }
+.prompt-chip {
+  background: var(--surface-0);
+  border: 1px solid var(--p-mute);
+  color: var(--txt-1);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.prompt-chip:hover { background: var(--p-ghost); border-color: var(--p-bright); color: var(--p-bright); }
+
+/* ══════════════ WATERMARK ══════════════ */
+.wm-text { font-size: 8px; font-weight: 400; letter-spacing: 0.12em; color: var(--txt-3); text-transform: uppercase; }
+
+/* ══════════════════════════════════════════════════════
+   MAIN LAYOUT — RESPONSIVE GRID SYSTEM
+   ══════════════════════════════════════════════════════ */
+
+/* Desktop (>= 1100px): 2-column */
+#mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Tablet Landscape (768px - 1099px): 2-column narrow */
+@media (max-width: 1099px) {
+  #mainGrid { grid-template-columns: 1fr 260px; }
+}
+
+/* Tablet Portrait & Mobile Landscape (600px - 767px) */
+@media (max-width: 767px) {
+  #mainGrid { grid-template-columns: 1fr; }
+  
+  #sidebarCol {
+    position: static !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    border-top: 1px solid var(--grid-bright);
+  }
+}
+
+/* Mobile (< 600px) */
+@media (max-width: 599px) {
+  #mainGrid { grid-template-columns: 1fr; }
+}
+
+/* ── MAIN CONTENT COLUMN ── */
+#contentCol {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  #contentCol { padding: var(--space-sm); gap: var(--space-sm); }
+  #sidebarCol { padding: var(--space-sm); }
+}
+@media (max-width: 599px) {
+  #contentCol { padding: var(--space-xs); gap: var(--space-xs); }
+  #sidebarCol { padding: var(--space-xs); }
+}
+
+/* ── SIDEBAR ── */
+#sidebarCol {
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 76px;
+  max-height: calc(100vh - 76px);
+  overflow-y: auto;
+  border-left: 1px solid var(--grid-bright);
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION 01 — WATCHLIST CARDS (Responsive 3→1 cols)
+   ══════════════════════════════════════════════════════ */
+
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+/* Tablet: 3 cols still OK, but narrower */
+@media (max-width: 900px) {
+  .watchlist-grid { grid-template-columns: 1fr; }
+}
+@media (min-width: 601px) and (max-width: 900px) {
+  .watchlist-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .watchlist-grid { grid-template-columns: 1fr; gap: 6px; }
+}
+
+.asset-card-inner { padding: 8px 10px 0; }
+.asset-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 4px; }
+
+/* ══════════════════════════════════════════════════════
+   SECTION 02 — MACRO RADAR (Responsive 2-col)
+   ══════════════════════════════════════════════════════ */
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 8px;
+}
+
+@media (max-width: 1099px) {
+  .macro-grid { grid-template-columns: 1fr 260px; }
+}
+
+@media (max-width: 767px) {
+  .macro-grid { grid-template-columns: 1fr; }
+  .macro-grid > :last-child { height: 280px !important; }
+}
+
+/* 4-quadrant macro charts */
+.macro-quads {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+  flex: 1;
+}
+
+/* Small mobile: stack vertically */
+@media (max-width: 480px) {
+  .macro-quads {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 180px);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION 03 — TECHNICAL CHART (Responsive toggles)
+   ══════════════════════════════════════════════════════ */
+
+.chart-toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .chart-toggle-bar { gap: 10px; }
+  .chart-toggle-label { display: none; }
+}
+
+/* Multi-TF 3-col grid */
+.mtf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+@media (max-width: 767px) {
+  .mtf-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .mtf-grid { grid-template-columns: 1fr; }
+}
+
+/* Multi-Pair config */
+.mp-config-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+@media (max-width: 767px) {
+  .mp-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .mp-grid { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION 04 — HEATMAPS (3→1 col)
+   ══════════════════════════════════════════════════════ */
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 900px) {
+  .heatmap-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .heatmap-grid { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR — TA Panel (responsive inner flex)
+   ══════════════════════════════════════════════════════ */
+
+#tabAnalysis {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: row;
+  gap: 6px;
+  background: var(--void);
+  padding: 6px;
+  overflow: hidden;
+}
+
+@media (max-width: 1099px) {
+  #tabAnalysis { flex-direction: column; overflow-y: auto; }
+  #tabAnalysis > div { height: 240px !important; flex: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════
+   MODERN CHAT UI
+   ══════════════════════════════════════════════════════ */
+
+.modern-chat-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: #0066ff;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,102,255,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+  z-index: 999;
+}
+.modern-chat-fab:hover { transform: scale(1.1); }
+
+.modern-chat-modal {
+  --chat-bg: #ffffff;
+  --chat-surface: #f8f9fa;
+  --chat-border: #e2e8f0;
+  --chat-text-main: #1e293b;
+  --chat-text-muted: #64748b;
+  --chat-bot-bg: #f1f5f9;
+  --chat-user-bg: #0066ff;
+  --chat-primary: #0066ff;
+
+  position: fixed;
+  bottom: 82px;
+  right: 20px;
+  width: min(360px, calc(100vw - 24px));
+  height: min(550px, calc(100vh - 110px));
+  background-color: var(--chat-bg);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--chat-border);
+  z-index: 1000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Full-screen on tiny phones */
+@media (max-width: 400px) {
+  .modern-chat-modal {
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+  .modern-chat-fab { bottom: 16px; right: 16px; }
+}
+
+.modern-chat-modal.dark-theme {
+  --chat-bg: #0f172a;
+  --chat-surface: #1e293b;
+  --chat-border: #334155;
+  --chat-text-main: #f1f5f9;
+  --chat-text-muted: #94a3b8;
+  --chat-bot-bg: #334155;
+  --chat-user-bg: #3b82f6;
+}
+
+.modern-chat-header {
+  padding: 14px 16px;
+  background-color: var(--chat-bg);
+  border-bottom: 1px solid var(--chat-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.header-title { font-size: 15px; font-weight: 700; color: var(--chat-text-main); display: flex; align-items: center; gap: 8px; }
+.online-indicator { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 2px var(--chat-bg); flex-shrink: 0; }
+.header-subtitle { font-size: 11px; color: var(--chat-text-muted); }
+
+.modern-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background-color: var(--chat-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.modern-chat-body::-webkit-scrollbar { width: 4px; }
+.modern-chat-body::-webkit-scrollbar-thumb { background: var(--chat-border); border-radius: 10px; }
+
+.chat-system-msg { text-align: center; font-size: 10px; color: var(--chat-text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.chat-bubble { max-width: 85%; padding: 12px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+.bot-bubble { background-color: var(--chat-bot-bg); color: var(--chat-text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+.user-bubble { background-color: var(--chat-user-bg); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+.modern-chat-footer {
+  padding: 12px 14px;
+  background-color: var(--chat-bg);
+  border-top: 1px solid var(--chat-border);
+  flex-shrink: 0;
+}
+.input-wrapper { display: flex; align-items: flex-end; gap: 8px; }
+.modern-chat-input {
+  flex: 1;
+  border: 1px solid var(--chat-border);
+  border-radius: 20px;
+  padding: 9px 14px;
+  font-size: 14px;
+  background: var(--chat-surface);
+  color: var(--chat-text-main);
+  outline: none;
+  resize: none;
+  max-height: 100px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.modern-chat-input:focus { border-color: var(--chat-primary); }
+.modern-send-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--chat-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: filter 0.2s, transform 0.1s;
+}
+.modern-send-btn:hover { filter: brightness(1.1); }
+.modern-send-btn:active { transform: scale(0.93); }
+.upload-btn { padding: 8px; color: var(--chat-text-muted); cursor: pointer; display: flex; align-items: center; transition: color 0.2s; background: none; border: none; flex-shrink: 0; }
+.upload-btn:hover { color: var(--chat-primary); }
+.modern-close-btn { background: none; border: none; color: var(--chat-text-muted); cursor: pointer; padding: 6px; border-radius: 8px; display: flex; align-items: center; transition: background 0.2s, color 0.2s; }
+.modern-close-btn:hover { background: var(--chat-surface); color: var(--chat-text-main); }
+.disclaimer-text { text-align: center; font-size: 9px; color: var(--chat-text-muted); margin-top: 8px; }
+
+/* ══════════════ MACRO CHEATSHEET ══════════════ */
+.macro-cheatsheet {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: rgba(255,170,0,0.05);
+  border: 1px dashed var(--amber);
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--txt-1);
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+}
+@media (max-width: 480px) {
+  .macro-cheatsheet { font-size: 8.5px; }
+}
+
+/* ══════════════ TICKER WIDGET ══════════════ */
+.ticker-wrap { overflow: hidden; }
+@media (max-width: 480px) {
+  .ticker-wrap { display: none; } /* hide ticker on tiny phones to save space */
+}
+
+/* ══════════════ SECTION 06 — FILTER BAR ══════════════ */
+.hist-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ══════════════ SYMBOL LOAD BAR ══════════════ */
+.sym-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.sym-bar .t-input { width: 130px; }
+@media (max-width: 480px) {
+  .sym-bar .t-input { width: 100px; font-size: 9px; }
+}
+
+/* ══════════════ MARKET FEED PANEL ══════════════ */
+.market-feed-panel {
+  height: 440px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 767px) {
+  .market-feed-panel { height: 350px; }
+}
+
+/* ══════════════ FX CROSS PANEL ══════════════ */
+.fx-cross-panel {
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 767px) {
+  .fx-cross-panel { height: 200px; }
+}
+
+/* ══════════════ ADV CHART ══════════════ */
+#advancedChart { height: 480px; }
+@media (max-width: 767px) { #advancedChart { height: 380px; } }
+@media (max-width: 480px) { #advancedChart { height: 300px; } }
+
+/* MTF chart height */
+.mtf-chart-box { height: 220px; }
+@media (max-width: 767px) { .mtf-chart-box { height: 200px; } }
+@media (max-width: 480px) { .mtf-chart-box { height: 220px; } }
+
+/* MP chart height */
+.mp-chart-box { height: 220px; }
+
+/* Macro quad height */
+.macro-quad-box { min-height: 180px; }
+@media (max-width: 767px) { .macro-quad-box { min-height: 200px; } }
+
+/* Macro panel height */
+.macro-panel-wrap {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 430px;
+}
+@media (max-width: 767px) {
+  .macro-panel-wrap { height: auto; min-height: 400px; }
+}
+@media (max-width: 480px) {
+  .macro-panel-wrap { height: auto; }
+  .macro-quads { grid-template-columns: 1fr; }
+  .macro-quads > div { height: 180px; }
+}
+
+/* Heatmap heights */
+.heatmap-box { height: 260px; }
+@media (max-width: 480px) { .heatmap-box { height: 200px; } }
+
+/* Forex heatmap */
+.forex-heatmap-box { height: 360px; }
+@media (max-width: 480px) { .forex-heatmap-box { height: 280px; } }
+
+/* Hist chart */
+.hist-chart-box { height: 280px; position: relative; }
+@media (max-width: 480px) { .hist-chart-box { height: 220px; } }
+
+/* ══════════════ PRICE ALERTS SECTION ══════════════ */
+.alert-input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.alert-input-row .t-input { flex: 1; min-width: 60px; }
+@media (max-width: 480px) {
+  .alert-input-row { gap: 4px; }
+}
+
+/* ══════════════ MOBILE NAV BOTTOM ══════════════ */
+/* Mobile bottom navigation for quick jumps */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-0);
+  border-top: 1px solid var(--grid-bright);
+  z-index: 490;
+  padding: 0;
+  height: 48px;
+}
+@media (max-width: 767px) {
+  .mobile-nav { display: flex; }
+  body { padding-bottom: 48px; }
+  .modern-chat-fab { bottom: 64px; }
+  .modern-chat-modal { bottom: 122px; }
+}
+@media (max-width: 400px) {
+  .modern-chat-modal { bottom: 0; height: 100vh; }
+}
+
+.mobile-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+  border-right: 1px solid var(--grid-dim);
+  padding: 0;
+}
+.mobile-nav-btn:last-child { border-right: none; }
+.mobile-nav-btn:hover, .mobile-nav-btn:active { color: var(--p-bright); }
+.mobile-nav-btn svg { width: 16px; height: 16px; }
+
+/* ══════════════ STICKY SIDEBAR ON LARGE SCREENS ══════════════ */
+@media (min-width: 768px) {
+  #sidebarCol { border-left: 1px solid var(--grid-bright); }
+}
+</style>
+</head>
+
+<body>
+<header class="terminal-header">
+
+  <div class="header-bar">
+    <div class="header-cell" style="min-width:170px;">
+      <span style="color:var(--p-bright); font-size:13px; font-weight:700; letter-spacing:0.06em;">F-D<span style="color:var(--txt-3)">//</span>TERMINAL</span>
+      <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.1em;">v2.0</span>
+    </div>
+
+    <div class="header-cell">
+      <span class="dot-live"></span>
+      <span style="font-size:9px; letter-spacing:0.12em; color:var(--p-mid);">LIVE</span>
+    </div>
+
+    <div class="header-cell hide-mobile">
+      <span class="label-xs">CLOCK</span>
+      <span id="clockDisplay" style="font-size:10px; color:var(--p-bright); letter-spacing:0.06em;"></span>
+    </div>
+
+    <div class="header-cell hide-tablet">
+      <span class="label-xs">ZONE</span>
+      <span style="font-size:10px; color:var(--txt-2); letter-spacing:0.08em;">UTC+07 WIB</span>
+    </div>
+
+    <div class="header-cell grow" style="min-width:0;">
+      <span class="label-xs hide-mobile">SESSION</span>
+      <span id="sessionInfo" style="font-size:10px; color:var(--amber); letter-spacing:0.05em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</span>
+    </div>
+
+    <div class="header-cell hide-mobile sym-bar">
+      <span class="label-xs">SYM:</span>
+      <input id="symbolInput" class="t-input" value="OANDA:XAUUSD" style="height:24px; font-size:10px;"/>
+      <button id="applySymbol" class="t-btn" style="height:24px;"><span>LOAD</span></button>
+    </div>
+
+    <div class="header-cell">
+      <button id="openChatBtn" class="t-btn" style="height:24px; letter-spacing:0.12em;"><span>▶ AI</span></button>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="tradingview-widget-container" style="height:40px;">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {"symbols":[{"proName":"BITSTAMP:BTCUSD","title":"BTC"},{"proName":"BITSTAMP:ETHUSD","title":"ETH"},{"proName":"OANDA:XAUUSD","title":"Gold"},{"proName":"IDX:COMPOSITE","title":"IHSG"},{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ"},{"proName":"FX_IDC:EURUSD","title":"EUR/USD"},{"proName":"FX_IDC:USDIDR","title":"USD/IDR"},{"proName":"OANDA:XAGUSD","title":"Silver"},{"proName":"CAPITALCOM:DXY","title":"DXY"}],"colorTheme":"dark","isTransparent":true,"locale":"en","showSymbolLogo":true,"displayMode":"adaptive"}
+      </script>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ MOBILE BOTTOM NAV ══════════════ -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-btn" onclick="scrollToSection('s01')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>WATCH
+  </button>
+  <button class="mobile-nav-btn" onclick="scrollToSection('s02')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>MACRO
+  </button>
+  <button class="mobile-nav-btn" onclick="scrollToSection('s03')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>CHART
+  </button>
+  <button class="mobile-nav-btn" onclick="scrollToSection('s04')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>HEAT
+  </button>
+  <button class="mobile-nav-btn" onclick="scrollToSection('s06')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>HIST
+  </button>
+</nav>
+
+<!-- ══════════════ MAIN GRID ══════════════ -->
+<main id="mainGrid">
+
+  <!-- ═══ CONTENT COLUMN ═══ -->
+  <div id="contentCol">
+
+    <!-- ─── SECTION 01: Watchlist ─── -->
+    <div id="s01">
+      <div class="sec-header row-anim" style="animation-delay:0.05s;">
+        <span class="sec-id">01</span>
+        <span class="sec-title">Primary Watchlist</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em;">XAU · BTC · IHSG</span>
+      </div>
+
+      <div class="watchlist-grid row-anim" style="animation-delay:0.1s;">
+        <!-- XAU -->
+        <div class="panel asset-card xau panel-bracket">
+          <div class="status-bar xau"></div>
+          <div class="asset-card-inner">
+            <div class="asset-card-header">
+              <div>
+                <div class="label-asset" style="color:var(--amber);">XAU/USD</div>
+                <div class="label-xs" style="margin-top:2px;">SPOT GOLD · OANDA</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2);">COMMODITIES</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"OANDA:XAUUSD","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- BTC -->
+        <div class="panel asset-card btc panel-bracket">
+          <div class="status-bar btc"></div>
+          <div class="asset-card-inner">
+            <div class="asset-card-header">
+              <div>
+                <div class="label-asset" style="color:var(--p-bright);">BTC/USD</div>
+                <div class="label-xs" style="margin-top:2px;">BITCOIN · BITSTAMP</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2);">CRYPTO</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"BITSTAMP:BTCUSD","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- IHSG -->
+        <div class="panel asset-card ihsg panel-bracket">
+          <div class="status-bar ihsg"></div>
+          <div class="asset-card-inner">
+            <div class="asset-card-header">
+              <div>
+                <div class="label-asset" style="color:var(--cyan);">IDX:COMP</div>
+                <div class="label-xs" style="margin-top:2px;">IHSG · INDONESIA</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="label-xs">SECTOR</div>
+                <div style="font-size:9px; color:var(--txt-2);">EQUITY</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:175px; margin:0; border:none;">
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+              {"symbol":"IDX:COMPOSITE","width":"100%","height":"100%","locale":"en","dateRange":"3M","colorTheme":"dark","isTransparent":true,"autosize":true,"largeChartUrl":"","noTimeScale":false,"chartOnly":false,"backgroundColor":"transparent"}
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 02: Macro Radar ─── -->
+    <div class="row-anim" id="s02" style="animation-delay:0.15s;">
+      <div class="sec-header">
+        <span class="sec-id">02</span>
+        <span class="sec-title">Macro Radar &amp; Economic Calendar</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); letter-spacing:0.08em; white-space:nowrap;">GLOBAL DRIVERS</span>
+      </div>
+
+      <div class="macro-cheatsheet">
+        <strong style="color:var(--amber); font-size:10px;">[!] MACRO CHEATSHEET:</strong><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">DXY Naik / T-NOTE Turun:</strong> Suku bunga &amp; Dolar menguat. <span style="color:var(--amber);">XAU &amp; BTC biasanya tertekan turun.</span><br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">WTI (Minyak) Naik:</strong> Ancaman inflasi meroket. The Fed berpotensi menahan suku bunga tinggi.<br>
+        <span style="color:var(--amber);">●</span> <strong style="color:var(--p-bright);">SPX500 Anjlok:</strong> Pasar saham panik (Risk-Off). Uang investor biasanya lari ke Safe Haven (Emas).
+      </div>
+
+      <div class="macro-grid">
+        <!-- 4 Quadrant Charts -->
+        <div class="panel panel-bracket macro-panel-wrap">
+          <div class="macro-quads">
+            <div class="macro-quad-box" style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
+              <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 3px;font-weight:bold;">DXY (DOLLAR)</div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"CAPITALCOM:DXY","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+            <div class="macro-quad-box" style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
+              <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--txt-2);background:rgba(4,6,8,0.8);padding:1px 3px;font-weight:bold;">US 10Y T-NOTE</div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:USB10YUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+            <div class="macro-quad-box" style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
+              <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--txt-2);background:rgba(4,6,8,0.8);padding:1px 3px;font-weight:bold;">WTI OIL</div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:WTICOUSD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+            <div class="macro-quad-box" style="border:1px solid var(--grid-dim); position:relative; overflow:hidden;">
+              <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--txt-2);background:rgba(4,6,8,0.8);padding:1px 3px;font-weight:bold;">S&amp;P 500</div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+              {"autosize":true,"symbol":"OANDA:SPX500USD","interval":"D","timezone":"Asia/Jakarta","theme":"dark","style":"1","locale":"en","backgroundColor":"#040608","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"save_image":false,"hide_volume":true}
+              </script>
+            </div>
+          </div>
+        </div>
+
+        <!-- Economic Calendar -->
+        <div class="panel panel-bracket" style="height:430px; overflow:hidden;">
+          <div class="panel-header"><span class="label-sm">Economic Calendar</span></div>
+          <div style="height:calc(100% - 37px);">
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+            {"colorTheme":"dark","isTransparent":true,"locale":"en","countryFilter":"us,eu,id,jp,gb,cn","importanceFilter":"-1,0,1","width":"100%","height":"100%"}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 03: Technical Chart ─── -->
+    <div class="row-anim" id="s03" style="animation-delay:0.2s;">
+      <div class="sec-header">
+        <span class="sec-id">03</span>
+        <span class="sec-title">Technical Chart Analysis</span>
+        <span class="sec-line"></span>
+
+        <div class="chart-toggle-bar">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="label-xs chart-toggle-label">MULTI-TF XAU</span>
+            <button id="mtfToggle" onclick="switchViewMode('mtf')" style="position:relative; width:36px; height:18px; border:1px solid var(--p-mute); background:var(--surface-0); border-radius:10px; cursor:pointer; transition:all 0.2s; padding:0; flex-shrink:0;">
+              <span id="mtfThumb" style="position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--txt-3); transition:all 0.2s; display:block;"></span>
+            </button>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="label-xs chart-toggle-label">MULTI-PAIR</span>
+            <button id="mpToggle" onclick="switchViewMode('mp')" style="position:relative; width:36px; height:18px; border:1px solid var(--p-mute); background:var(--surface-0); border-radius:10px; cursor:pointer; transition:all 0.2s; padding:0; flex-shrink:0;">
+              <span id="mpThumb" style="position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--txt-3); transition:all 0.2s; display:block;"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Single Chart -->
+      <div id="singleChartWrap" class="panel panel-bracket">
+        <div class="panel-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="dot-live"></span>
+            <span class="label-sm">Interactive Advanced Chart</span>
+          </div>
+          <div style="font-size:9px; color:var(--txt-3);">RSI + MACD</div>
+        </div>
+        <div id="advancedChart">
+          <div class="tradingview-widget-container" style="height:100%; width:100%;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"allow_symbol_change":true,"interval":"D","locale":"en","symbol":"OANDA:XAUUSD","theme":"dark","backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.04)","studies":["RSI@tv-basicstudies","MACD@tv-basicstudies"],"autosize":true}
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi TF -->
+      <div id="multiTFWrap" style="display:none;">
+        <div class="panel panel-bracket" style="margin-bottom:4px;">
+          <div class="panel-header">
+            <span class="label-sm" style="color:var(--amber);">XAU/USD — Multi Timeframe View</span>
+            <div style="font-size:9px; color:var(--txt-3);">M1 · M5 · M15 · M30 · H1 · H4</div>
+          </div>
+        </div>
+        <div class="mtf-grid">
+          <div class="mtf-chart-box" style="border:1px solid rgba(255,170,0,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M1</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"1","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+          <div class="mtf-chart-box" style="border:1px solid rgba(255,170,0,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M5</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"5","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+          <div class="mtf-chart-box" style="border:1px solid rgba(255,170,0,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--amber);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M15</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"15","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+          <div class="mtf-chart-box" style="border:1px solid rgba(0,255,136,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - M30</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"30","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+          <div class="mtf-chart-box" style="border:1px solid rgba(0,255,136,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H1</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"60","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+          <div class="mtf-chart-box" style="border:1px solid rgba(0,255,136,0.2); position:relative;">
+            <div style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--p-bright);background:rgba(4,6,8,0.8);padding:1px 4px;">XAU - H4</div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {"autosize":true,"symbol":"OANDA:XAUUSD","interval":"240","theme":"dark","style":"1","hide_top_toolbar":true,"hide_legend":true,"hide_side_toolbar":true,"hide_volume":true,"backgroundColor":"#040608","gridColor":"rgba(0,255,136,0.03)"}
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi Pair -->
+      <div id="multiPairWrap" style="display:none;">
+        <div class="panel panel-bracket" style="margin-bottom:6px; padding:8px 10px;">
+          <div class="mp-config-bar">
+            <span class="label-xs" style="color:var(--cyan);">PAIR:</span>
+            <input id="mpSym1" class="t-input" value="BINANCE:BTCUSDT" style="width:100px; padding:2px 6px; font-size:10px;">
+            <input id="mpSym2" class="t-input" value="BINANCE:ETHUSDT" style="width:100px; padding:2px 6px; font-size:10px;">
+            <input id="mpSym3" class="t-input" value="BINANCE:SOLUSDT" style="width:100px; padding:2px 6px; font-size:10px;">
+            <input id="mpSym4" class="t-input" value="OANDA:XAUUSD" style="width:100px; padding:2px 6px; font-size:10px;">
+            <input id="mpSym5" class="t-input" value="CAPITALCOM:DXY" style="width:100px; padding:2px 6px; font-size:10px;">
+            <input id="mpSym6" class="t-input" value="IDX:COMPOSITE" style="width:100px; padding:2px 6px; font-size:10px;">
+            <button onclick="loadMultiPairCharts()" class="t-btn" style="padding:2px 10px; margin-left:auto;"><span>APPLY</span></button>
+          </div>
+        </div>
+        <div class="mp-grid">
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader1" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 1</div>
+            <div id="mpChart1" style="height:100%;"></div>
+          </div>
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader2" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 2</div>
+            <div id="mpChart2" style="height:100%;"></div>
+          </div>
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader3" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 3</div>
+            <div id="mpChart3" style="height:100%;"></div>
+          </div>
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader4" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 4</div>
+            <div id="mpChart4" style="height:100%;"></div>
+          </div>
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader5" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 5</div>
+            <div id="mpChart5" style="height:100%;"></div>
+          </div>
+          <div class="mp-chart-box" style="border:1px solid rgba(0,212,255,0.2); position:relative;">
+            <div id="mpHeader6" style="position:absolute;top:2px;left:5px;z-index:5;font-size:8px;color:var(--cyan);background:rgba(4,6,8,0.85);padding:1px 5px;font-weight:700;">CHART 6</div>
+            <div id="mpChart6" style="height:100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 04: Heatmaps ─── -->
+    <div class="row-anim" id="s04" style="animation-delay:0.25s;">
+      <div class="sec-header">
+        <span class="sec-id">04</span>
+        <span class="sec-title">Global Equity &amp; Crypto Heatmaps</span>
+        <span class="sec-line"></span>
+      </div>
+      <div class="heatmap-grid">
+        <div class="panel panel-bracket">
+          <div class="panel-header"><span class="label-sm">S&amp;P 500 (US)</span></div>
+          <div class="heatmap-box">
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+            {"dataSource":"SPX500","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
+            </script>
+          </div>
+        </div>
+        <div class="panel panel-bracket">
+          <div class="panel-header"><span class="label-sm" style="color:var(--p-bright);">Crypto Assets</span></div>
+          <div class="heatmap-box">
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+            {"dataSource":"Crypto","blockSize":"market_cap_calc","blockColor":"24h_close_change|5","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
+            </script>
+          </div>
+        </div>
+        <div class="panel panel-bracket">
+          <div class="panel-header"><span class="label-sm" style="color:var(--cyan);">IDX IHSG (ID)</span></div>
+          <div class="heatmap-box">
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+            {"dataSource":"AllID","blockSize":"market_cap_basic","blockColor":"change","grouping":"sector","locale":"en","colorTheme":"dark","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"width":"100%","height":"100%"}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 05: Forex Heatmap ─── -->
+    <div class="row-anim" id="s05" style="animation-delay:0.3s;">
+      <div class="sec-header">
+        <span class="sec-id">05</span>
+        <span class="sec-title">Global Forex Heatmap</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); white-space:nowrap;">CURRENCY STRENGTH</span>
+      </div>
+      <div class="panel panel-bracket">
+        <div class="forex-heatmap-box">
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-heat-map.js" async>
+          {"colorTheme":"dark","isTransparent":true,"locale":"en","currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","NZD","CNY","IDR"],"backgroundColor":"transparent","width":"100%","height":"100%"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 06: Historical Data ─── -->
+    <div class="row-anim" id="s06" style="animation-delay:0.35s;">
+      <div class="sec-header">
+        <span class="sec-id">06</span>
+        <span class="sec-title">Historical Gold Data</span>
+        <span class="sec-line"></span>
+        <span style="font-size:9px; color:var(--txt-3); white-space:nowrap;">XAU/USD 2015–2026</span>
+      </div>
+
+      <div class="panel panel-bracket">
+        <div class="panel-header">
+          <span class="label-sm">Monthly Price Chart</span>
+          <div class="hist-filter-bar">
+            <span class="label-xs">FILTER:</span>
+            <select id="year-select-chart" class="t-select"><option value="all-time" selected>ALL TIME</option></select>
+          </div>
+        </div>
+        <div style="padding:10px; background:var(--surface-0);">
+          <div class="hist-chart-box"><canvas id="priceLineChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;" class="panel panel-bracket">
+        <div class="panel-header">
+          <span class="label-sm">Trend Log — Narrative &amp; Drivers</span>
+          <select id="year-select-table" class="t-select"></select>
+        </div>
+        <div style="overflow:auto; max-height:340px; -webkit-overflow-scrolling:touch;">
+          <table class="t-table" id="trend-data-table">
+            <thead>
+              <tr>
+                <th>PERIOD</th>
+                <th>TREND</th>
+                <th>NARRATIVE</th>
+                <th>KEY DRIVER</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content col -->
+
+  <!-- ═══ SIDEBAR COLUMN ═══ -->
+  <div id="sidebarCol">
+
+    <!-- Market Feed -->
+    <div class="panel panel-bracket market-feed-panel">
+      <div class="panel-header" style="flex-shrink:0;">
+        <span class="label-sm">Market Feed</span>
+        <div style="display:flex; gap:4px;">
+          <button class="t-tab active" id="tabNewsBtn">NEWS</button>
+          <button class="t-tab" id="tabAnalysisBtn">TA</button>
+        </div>
+      </div>
+      <div style="flex:1; position:relative; overflow:hidden;">
+        <div id="tabNews" style="position:absolute; inset:0;">
+          <div class="tradingview-widget-container" style="height:100%; width:100%;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+            {"feedMode":"all_symbols","isTransparent":true,"displayMode":"adaptive","width":"100%","height":"100%","colorTheme":"dark","locale":"en","noSuggest":true,"dateRange":"12m"}
+            </script>
+          </div>
+        </div>
+
+        <div id="tabAnalysis" style="position:absolute; inset:0; display:none;">
+          <div style="border:1px solid var(--grid-bright); flex:1; height:100%; min-height:220px; min-width:0; display:flex; flex-direction:column;">
+            <div style="padding:5px 8px; border-bottom:1px solid var(--grid-dim); background:var(--surface-0); flex-shrink:0;">
+              <span class="label-xs" style="color:var(--amber);">XAU/USD — 4H</span>
+            </div>
+            <div class="tradingview-widget-container" style="flex:1; width:100%;">
+              <div class="tradingview-widget-container__widget"></div>
+              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+              {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"4h","symbol":"OANDA:XAUUSD","showIntervalTabs":true,"width":"100%","height":"100%"}
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Alerts -->
+    <div class="panel panel-bracket" style="padding:12px;">
+      <div class="panel-header" style="padding:0 0 8px 0; border-bottom:1px solid var(--grid-dim); margin-bottom:8px;">
+        <span class="label-sm" style="color:var(--amber);">Price Alerts (Crypto)</span>
+        <span class="dot-live" style="background:var(--amber); box-shadow:0 0 6px var(--amber);"></span>
+      </div>
+      <div class="alert-input-row">
+        <input type="text" id="alertSymbol" class="t-input" placeholder="BTCUSDT" value="BTCUSDT" style="width:80px; text-transform:uppercase;">
+        <select id="alertCondition" class="t-select" style="width:44px;">
+          <option value=">">></option>
+          <option value="<"><</option>
+        </select>
+        <input type="number" id="alertPrice" class="t-input" placeholder="Target Price" style="flex:1; min-width:0;">
+        <button id="addAlertBtn" class="t-btn" style="padding:4px 8px; flex-shrink:0;">SET</button>
+      </div>
+      <div id="activeAlertsList" style="max-height:110px; overflow-y:auto;"></div>
+    </div>
+
+    <!-- FX Cross Rates -->
+    <div class="panel panel-bracket fx-cross-panel">
+      <div class="panel-header" style="flex-shrink:0;">
+        <span class="label-sm">FX Cross Rates</span>
+        <span class="label-xs">MAJOR PAIRS</span>
+      </div>
+      <div style="flex:1; overflow:hidden;">
+        <div class="tradingview-widget-container" style="height:100%; width:100%;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js" async>
+          {"colorTheme":"dark","isTransparent":true,"locale":"en","currencies":["EUR","USD","JPY","GBP","CHF","AUD","CAD","IDR"],"backgroundColor":"transparent","width":"100%","height":"100%"}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- TA Analysis (BTC + IHSG) — only show below market feed in sidebar at wide screen -->
+    <div class="panel panel-bracket" style="height:300px; overflow:hidden;">
+      <div class="panel-header">
+        <span class="label-sm" style="color:var(--p-bright);">BTC/USDT TA — 4H</span>
+      </div>
+      <div class="tradingview-widget-container" style="height:calc(100% - 37px); width:100%;">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+        {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"4h","symbol":"BINANCE:BTCUSDT.P","showIntervalTabs":true,"width":"100%","height":"100%"}
+        </script>
+      </div>
+    </div>
+
+    <div class="panel panel-bracket" style="height:300px; overflow:hidden;">
+      <div class="panel-header">
+        <span class="label-sm" style="color:var(--cyan);">IHSG TA — 1D</span>
+      </div>
+      <div class="tradingview-widget-container" style="height:calc(100% - 37px); width:100%;">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+        {"colorTheme":"dark","displayMode":"single","isTransparent":true,"locale":"en","interval":"1D","symbol":"IDX:COMPOSITE","showIntervalTabs":true,"width":"100%","height":"100%"}
+        </script>
+      </div>
+    </div>
+
+    <!-- Sys Links -->
+    <div class="panel panel-bracket" style="padding:12px;">
+      <div style="font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--txt-3); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--grid-dim);">SYS LINKS</div>
+      <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:12px;">
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="q-link"><span style="color:var(--p-dim);">↑</span> SCROLL TO TOP</button>
+        <a href="https://www.tradingview.com/" target="_blank" class="q-link"><span style="color:var(--p-dim);">→</span> TRADINGVIEW.COM</a>
+        <a href="https://coinmarketcap.com/" target="_blank" class="q-link"><span style="color:var(--p-dim);">→</span> COINMARKETCAP</a>
+        <a href="https://www.idx.co.id/" target="_blank" class="q-link"><span style="color:var(--p-dim);">→</span> IDX.CO.ID</a>
+        <a href="https://finance.yahoo.com/" target="_blank" class="q-link"><span style="color:var(--p-dim);">→</span> YAHOO FINANCE</a>
+      </div>
+      <div style="padding-top:10px; border-top:1px solid var(--grid-dim);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+          <div>
+            <div class="label-xs" style="margin-bottom:3px;">DEVELOPED BY</div>
+            <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:var(--p-bright);">FARID SIDDIQ</div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <a href="https://twitter.com/farid04siddiq" target="_blank" class="q-link" style="width:28px; height:28px; padding:0; justify-content:center; font-size:9px;">X</a>
+            <a href="https://instagram.com/scv.farid1717_" target="_blank" class="q-link" style="width:28px; height:28px; padding:0; justify-content:center; font-size:9px;">IG</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:8px; border:1px solid var(--grid-dim); text-align:center;">
+      <div class="wm-text">⚠ FOR EDUCATIONAL &amp; INFORMATIONAL USE ONLY<br>NOT FINANCIAL OR INVESTMENT ADVICE</div>
+    </div>
+
+  </div><!-- end sidebar -->
+</main>
+
+<!-- ══════════════ CHAT FAB ══════════════ -->
+<button id="chatFab" class="modern-chat-fab" aria-label="Buka Chat AI">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+</button>
+
+<!-- ══════════════ CHAT MODAL ══════════════ -->
+<div id="chatModal" class="modern-chat-modal">
+  <div class="modern-chat-header">
+    <div class="header-info">
+      <div class="header-title">
+        <span class="online-indicator"></span>
+        AI Assistant
+      </div>
+      <div class="header-subtitle">Mode: Text &amp; Image Analysis</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <button id="themeToggle" class="modern-close-btn" title="Ganti Tema">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      <button id="closeChat" class="modern-close-btn" aria-label="Tutup Chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="chatBody" class="modern-chat-body">
+    <div class="chat-system-msg">Sesi Diskusi Dimulai</div>
+    <div class="chat-bubble bot-bubble">Halo! Saya siap membantu analisis market. Ada yang ingin didiskusikan hari ini?</div>
+  </div>
+
+  <div class="modern-chat-footer">
+    <div class="prompt-scroll" id="quickPrompts">
+      <button class="prompt-chip">Analisis Tren XAU H4</button>
+      <button class="prompt-chip">Review Data Makro Hari Ini</button>
+      <button class="prompt-chip">Sentimen S&amp;P 500</button>
+      <button class="prompt-chip">Trading Plan BTCUSDT</button>
+    </div>
+    <div class="input-wrapper">
+      <label for="imageInput" class="upload-btn" title="Unggah Gambar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+      </label>
+      <input id="imageInput" type="file" accept="image/*" style="display:none;">
+      <button id="captureChartBtn" class="upload-btn" title="Auto-Capture Chart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      </button>
+      <textarea id="messageInput" class="modern-chat-input" rows="1" placeholder="Ketik perintah (CMD)..."></textarea>
+      <button id="sendBtn" class="modern-send-btn" aria-label="Kirim">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div class="disclaimer-text">⚠ AI Tool Only · Not Financial Advice</div>
+  </div>
+</div>
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script>
+
+// ── Mobile nav scroll helper ──
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Clock + Session ──
+document.addEventListener('DOMContentLoaded', () => {
+  const SESSIONS = [
+    { name: 'SYDNEY',   open: 21, close: 6 },
+    { name: 'TOKYO',    open: 0,  close: 9 },
+    { name: 'LONDON',   open: 7,  close: 16 },
+    { name: 'NEW YORK', open: 12, close: 21 },
+  ];
+
+  function getActiveSessions(utcH) {
+    return SESSIONS.filter(s => {
+      if (s.open < s.close) return utcH >= s.open && utcH < s.close;
+      else return utcH >= s.open || utcH < s.close;
+    });
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const utcH = now.getUTCHours();
+    const wibTime = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Jakarta',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    }).format(now);
+    const clockEl = document.getElementById('clockDisplay');
+    if (clockEl) clockEl.textContent = wibTime.replace(',', '');
+    const sessionEl = document.getElementById('sessionInfo');
+    if (sessionEl) {
+      const active = getActiveSessions(utcH);
+      if (active.length > 0) {
+        sessionEl.textContent = active.map(s => s.name).join('+') + ' OPEN';
+        sessionEl.style.color = 'var(--amber)';
+      } else {
+        sessionEl.textContent = 'WEEKEND / CLOSED';
+        sessionEl.style.color = 'var(--txt-3)';
+      }
+    }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+});
+
+// ── Responsive layout (JS fallback) ──
+function adjustLayout() {
+  const g = document.getElementById('mainGrid');
+  if (!g) return;
+  const w = window.innerWidth;
+  if (w < 768) {
+    g.style.gridTemplateColumns = '1fr';
+  } else if (w < 1100) {
+    g.style.gridTemplateColumns = '1fr 260px';
+  } else {
+    g.style.gridTemplateColumns = '1fr 300px';
+  }
+}
+window.addEventListener('resize', adjustLayout);
+adjustLayout();
+
+// ── Tabs ──
+const tabNewsBtn = document.getElementById('tabNewsBtn');
+const tabAnalysisBtn = document.getElementById('tabAnalysisBtn');
+const tabNews = document.getElementById('tabNews');
+const tabAnalysis = document.getElementById('tabAnalysis');
+
+tabNewsBtn.addEventListener('click', () => {
+  tabNews.style.display = 'block';
+  tabAnalysis.style.display = 'none';
+  tabNewsBtn.classList.add('active');
+  tabAnalysisBtn.classList.remove('active');
+});
+tabAnalysisBtn.addEventListener('click', () => {
+  tabAnalysis.style.display = 'flex';
+  tabNews.style.display = 'none';
+  tabAnalysisBtn.classList.add('active');
+  tabNewsBtn.classList.remove('active');
+});
+
+// ── Apply Symbol ──
+document.getElementById('applySymbol').addEventListener('click', () => {
+  const sym = document.getElementById('symbolInput').value.trim() || 'OANDA:XAUUSD';
+  const container = document.querySelector('#advancedChart .tradingview-widget-container');
+  let old = document.getElementById('tv-advanced-script');
+  if (old) old.remove();
+  Array.from(container.children).forEach(c => c.remove());
+  const wp = document.createElement('div');
+  wp.className = 'tradingview-widget-container__widget';
+  wp.style.cssText = 'height:100%;width:100%';
+  container.appendChild(wp);
+  const sc = document.createElement('script');
+  sc.type = 'text/javascript'; sc.async = true; sc.id = 'tv-advanced-script';
+  sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  sc.textContent = JSON.stringify({
+    "allow_symbol_change": true, "interval": "D", "locale": "en", "save_image": true,
+    "style": "1", "symbol": sym, "theme": "dark", "timezone": "Asia/Jakarta",
+    "backgroundColor": "#040608", "gridColor": "rgba(0,255,136,0.04)",
+    "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies"], "autosize": true,
+    "hide_side_toolbar": false, "withdateranges": true
+  });
+  container.appendChild(sc);
+});
+
+// ── Chat ──
+const chatFab = document.getElementById('chatFab');
+const chatModal = document.getElementById('chatModal');
+const closeChat = document.getElementById('closeChat');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const sendBtn = document.getElementById('sendBtn');
+const messageInput = document.getElementById('messageInput');
+const chatBody = document.getElementById('chatBody');
+const imageInput = document.getElementById('imageInput');
+const openChatBtn = document.getElementById('openChatBtn');
+
+function updateThemeIcon(isDark) {
+  if (!themeIcon) return;
+  themeIcon.innerHTML = isDark
+    ? '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+}
+
+if (localStorage.getItem('chat-theme') === 'dark') {
+  chatModal.classList.add('dark-theme');
+  updateThemeIcon(true);
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const isDark = chatModal.classList.toggle('dark-theme');
+    localStorage.setItem('chat-theme', isDark ? 'dark' : 'light');
+    updateThemeIcon(isDark);
+  });
+}
+
+function showChat() {
+  chatModal.style.display = 'flex';
+  chatFab.style.display = 'none';
+  setTimeout(() => messageInput.focus(), 250);
+}
+function hideChat() {
+  chatModal.style.display = 'none';
+  chatFab.style.display = 'flex';
+}
+
+chatFab.addEventListener('click', showChat);
+if (openChatBtn) openChatBtn.addEventListener('click', showChat);
+closeChat.addEventListener('click', hideChat);
+
+function appendMsg(who, content, isImage = false) {
+  const bubble = document.createElement('div');
+  bubble.classList.add('chat-bubble');
+  bubble.classList.add(who === 'user' ? 'user-bubble' : 'bot-bubble');
+  if (who === 'user') {
+    if (isImage) {
+      const img = document.createElement('img');
+      img.src = content.imagePreview;
+      img.style.cssText = 'display:block; max-width:100%; border-radius:10px; margin-bottom:5px;';
+      bubble.appendChild(img);
+      const fn = document.createElement('div');
+      fn.style.cssText = 'font-size:10px; opacity:0.8;';
+      fn.textContent = '📷 ' + content.fileName;
+      bubble.appendChild(fn);
+    } else {
+      bubble.style.whiteSpace = 'pre-wrap';
+      bubble.textContent = content;
+    }
+  } else {
+    if (typeof content === 'string' && (content.includes('processing') || content.includes('analyzing'))) {
+      bubble.style.fontStyle = 'italic';
+      bubble.style.opacity = '0.7';
+      bubble.textContent = content.includes('chart') ? 'Menganalisis chart...' : 'Sedang berpikir...';
+    } else {
+      bubble.innerHTML = content
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--chat-primary)">$1</strong>')
+        .replace(/\n/g, '<br>');
+    }
+  }
+  chatBody.appendChild(bubble);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  return bubble;
+}
+
+function disableInputs(d) {
+  messageInput.disabled = d;
+  sendBtn.disabled = d;
+  imageInput.disabled = d;
+  sendBtn.style.opacity = d ? '0.4' : '1';
+}
+
+let chatHistory = [];
+
+async function callGemini(parts, type) {
+  disableInputs(true);
+  const loadingMsg = type === 'text' ? '[ processing... ]' : '[ analyzing chart... ]';
+  let thinkingBubble = appendMsg('bot', loadingMsg);
+  const userMsg = { role: 'user', parts };
+  const contents = [...chatHistory, userMsg];
+  try {
+    const res = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents, model: 'gemini-2.5-flash' })
+    });
+    thinkingBubble.remove();
+    const data = await res.json();
+    if (!res.ok) { appendMsg('bot', 'Error: ' + (data.error || 'Terjadi gangguan server.')); return; }
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (txt) {
+      appendMsg('bot', txt);
+      chatHistory.push(userMsg);
+      chatHistory.push({ role: 'model', parts: [{ text: txt }] });
+    } else {
+      appendMsg('bot', 'Maaf, tidak ada respon yang diterima.');
+    }
+  } catch (e) {
+    if (thinkingBubble) thinkingBubble.remove();
+    appendMsg('bot', 'Gagal koneksi: ' + e.message);
+  } finally {
+    disableInputs(false);
+    messageInput.focus();
+  }
+}
+
+function fileToGenerativePart(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ inlineData: { data: r.result.split(',')[1], mimeType: file.type } });
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function handleSend() {
+  const msg = messageInput.value.trim();
+  if (!msg) return;
+  appendMsg('user', msg);
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  callGemini([{ text: msg }], 'text');
+}
+
+async function handleImage() {
+  const file = imageInput.files[0];
+  if (!file) return;
+  const preview = URL.createObjectURL(file);
+  const msg = messageInput.value.trim();
+  appendMsg('user', { imagePreview: preview, fileName: file.name }, true);
+  let imgPart;
+  try {
+    imgPart = await fileToGenerativePart(file);
+  } catch (e) {
+    appendMsg('bot', 'Gagal membaca file.');
+    imageInput.value = '';
+    return;
+  }
+  const parts = [imgPart, { text: msg || 'Analisis teknikal chart ini secara detail.' }];
+  messageInput.value = '';
+  imageInput.value = '';
+  callGemini(parts, 'multimodal');
+}
+
+sendBtn.addEventListener('click', handleSend);
+messageInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !messageInput.disabled) {
+    e.preventDefault();
+    handleSend();
+  }
+});
+messageInput.addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = this.scrollHeight + 'px';
+});
+imageInput.addEventListener('change', handleImage);
+
+// ── Historical Data ──
+const rawData = [
+  {monthYear:"Jan 2015",trend:"Ranging",desc:"Konsolidasi di tengah penguatan Dolar AS.",factor:"Kekuatan Dolar AS pasca berakhirnya QE The Fed."},
+  {monthYear:"Feb 2015",trend:"Downtrend",desc:"Penurunan tajam, momentum bearish kuat.",factor:"Ekspektasi kenaikan suku bunga AS."},
+  {monthYear:"Mar 2015",trend:"Ranging",desc:"Sideways di area support.",factor:"Pasar mencerna data ekonomi AS yang beragam."},
+  {monthYear:"Apr 2015",trend:"Uptrend",desc:"Rebound teknikal yang kuat.",factor:"Kelemahan sementara pada DXY."},
+  {monthYear:"Mei 2015",trend:"Downtrend",desc:"Tren bearish dominan.",factor:"Pemulihan ekonomi AS & inflasi rendah."},
+  {monthYear:"Jun 2015",trend:"Downtrend",desc:"Penurunan berkelanjutan.",factor:"Krisis utang Yunani memicu ketidakpastian Eurozone."},
+  {monthYear:"Jul 2015",trend:"Downtrend tajam",desc:"Penurunan drastis, terendah multi-tahun.",factor:"Kepastian kenaikan suku bunga Fed mendekat."},
+  {monthYear:"Agu 2015",trend:"Ranging",desc:"Rebound & konsolidasi dari level rendah.",factor:"Devaluasi Yuan Tiongkok memicu volatilitas pasar."},
+  {monthYear:"Sep 2015",trend:"Downtrend",desc:"Tekanan jual kembali dominan.",factor:"The Fed menunda kenaikan suku bunga pertamanya."},
+  {monthYear:"Okt 2015",trend:"Uptrend",desc:"Kenaikan moderat dari bottom.",factor:"Data non-farm payroll AS yang lemah."},
+  {monthYear:"Nov 2015",trend:"Downtrend",desc:"Turun tajam, tembus support krusial.",factor:"Dolar menguat tajam, Fed bersiap rate hike."},
+  {monthYear:"Des 2015",trend:"Ranging",desc:"Sideways menunggu Rate Hike.",factor:"The Fed naikkan suku bunga pertama kali (Des 2015)."},
+  {monthYear:"Jan 2016",trend:"Uptrend kuat",desc:"Rebound masif dari level terendah.",factor:"Kekacauan pasar saham global & harga minyak jatuh."},
+  {monthYear:"Feb 2016",trend:"Uptrend",desc:"Momentum bullish berlanjut.",factor:"Peningkatan permintaan safe haven."},
+  {monthYear:"Mar 2016",trend:"Ranging",desc:"Konsolidasi di area tinggi.",factor:"The Fed bersikap dovish."},
+  {monthYear:"Apr 2016",trend:"Downtrend",desc:"Koreksi setelah kenaikan panjang.",factor:"Kekuatan Dolar AS sementara."},
+  {monthYear:"Mei 2016",trend:"Downtrend",desc:"Penurunan harga stabil.",factor:"Ekspektasi rate hike kedua."},
+  {monthYear:"Jun 2016",trend:"Uptrend tajam",desc:"Lonjakan harga sangat kuat.",factor:"Keputusan Brexit — Inggris keluar dari Uni Eropa."},
+  {monthYear:"Jul 2016",trend:"Ranging",desc:"Konsolidasi pasca Brexit.",factor:"Intervensi bank sentral pasca Brexit."},
+  {monthYear:"Agu 2016",trend:"Downtrend",desc:"Koreksi setelah lonjakan Juni.",factor:"Data ekonomi AS membaik."},
+  {monthYear:"Sep 2016",trend:"Ranging",desc:"Pergerakan mendatar.",factor:"The Fed menahan suku bunga."},
+  {monthYear:"Okt 2016",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Penguatan DXY jelang pemilu AS."},
+  {monthYear:"Nov 2016",trend:"Downtrend tajam",desc:"Penjualan besar-besaran pasca pemilu.",factor:"Kemenangan Donald Trump."},
+  {monthYear:"Des 2016",trend:"Downtrend",desc:"Tekanan jual berlanjut.",factor:"The Fed naikkan suku bunga (Rate Hike kedua)."},
+  {monthYear:"Jan 2017",trend:"Uptrend",desc:"Rebound awal tahun.",factor:"Melemahnya USD pasca kenaikan suku bunga."},
+  {monthYear:"Feb 2017",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Ketidakpastian kebijakan Trump."},
+  {monthYear:"Mar 2017",trend:"Uptrend",desc:"Puncak kuartalan.",factor:"The Fed naikkan suku bunga (Rate Hike ketiga)."},
+  {monthYear:"Apr 2017",trend:"Ranging",desc:"Konsolidasi di area atas.",factor:"Ketegangan geopolitik AS-Korea Utara."},
+  {monthYear:"Mei 2017",trend:"Downtrend",desc:"Koreksi wajar.",factor:"Penguatan Dolar AS."},
+  {monthYear:"Jun 2017",trend:"Ranging",desc:"Sideways di area support.",factor:"The Fed naikkan suku bunga (Rate Hike keempat)."},
+  {monthYear:"Jul 2017",trend:"Uptrend",desc:"Rebound kuat.",factor:"Melemahnya USD secara umum."},
+  {monthYear:"Agu 2017",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Ketegangan geopolitik Korea Utara & Venezuela."},
+  {monthYear:"Sep 2017",trend:"Downtrend",desc:"Koreksi signifikan.",factor:"Fed umumkan pengurangan neraca."},
+  {monthYear:"Okt 2017",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Menunggu kebijakan Fed berikutnya."},
+  {monthYear:"Nov 2017",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Penguatan Dolar AS."},
+  {monthYear:"Des 2017",trend:"Uptrend",desc:"Rally mini akhir tahun.",factor:"The Fed naikkan suku bunga (Rate Hike kelima)."},
+  {monthYear:"Jan 2018",trend:"Uptrend",desc:"Bullish awal tahun.",factor:"Kelemahan DXY & awal ketegangan perdagangan."},
+  {monthYear:"Feb 2018",trend:"Downtrend",desc:"Koreksi tajam.",factor:"Kekuatan Dolar AS kembali."},
+  {monthYear:"Mar 2018",trend:"Ranging",desc:"Sideways.",factor:"The Fed naikkan suku bunga (Rate Hike keenam)."},
+  {monthYear:"Apr 2018",trend:"Downtrend",desc:"Tekanan jual dominan.",factor:"Imbal hasil obligasi AS naik."},
+  {monthYear:"Mei 2018",trend:"Downtrend",desc:"Bearish berkelanjutan.",factor:"Perang Dagang AS-Tiongkok."},
+  {monthYear:"Jun 2018",trend:"Downtrend",desc:"Level terendah.",factor:"The Fed naikkan suku bunga (Rate Hike ketujuh)."},
+  {monthYear:"Jul 2018",trend:"Downtrend",desc:"Penurunan stabil.",factor:"Dolar AS sebagai safe haven."},
+  {monthYear:"Agu 2018",trend:"Ranging",desc:"Base terbentuk di area bawah.",factor:"Investor mencerna kebijakan perdagangan."},
+  {monthYear:"Sep 2018",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Tidak ada katalis besar."},
+  {monthYear:"Okt 2018",trend:"Uptrend",desc:"Rebound besar dari support.",factor:"Koreksi pasar saham global."},
+  {monthYear:"Nov 2018",trend:"Ranging",desc:"Sideways di level tengah.",factor:"Menunggu pertemuan Fed berikutnya."},
+  {monthYear:"Des 2018",trend:"Uptrend kuat",desc:"Rally masif akhir tahun.",factor:"The Fed naikkan suku bunga & pasar saham AS anjlok."},
+  {monthYear:"Jan 2019",trend:"Ranging",desc:"Konsolidasi pasca rally.",factor:"Fed bersikap dovish & isyaratkan pause rate hike."},
+  {monthYear:"Feb 2019",trend:"Downtrend",desc:"Koreksi tajam.",factor:"Kekuatan Dolar AS sementara."},
+  {monthYear:"Mar 2019",trend:"Ranging",desc:"Sideways mencari arah.",factor:"Tidak ada data besar."},
+  {monthYear:"Apr 2019",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Ketidakpastian negosiasi Brexit."},
+  {monthYear:"Mei 2019",trend:"Ranging",desc:"Konsolidasi di support.",factor:"Peningkatan ketegangan AS-Tiongkok."},
+  {monthYear:"Jun 2019",trend:"Uptrend tajam",desc:"Breakout kuat.",factor:"The Fed mengisyaratkan Rate Cut."},
+  {monthYear:"Jul 2019",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"The Fed memangkas suku bunga (Rate Cut pertama)."},
+  {monthYear:"Agu 2019",trend:"Uptrend kuat",desc:"Lonjakan besar ke area 1550.",factor:"Ketegangan perdagangan meningkat tajam."},
+  {monthYear:"Sep 2019",trend:"Downtrend",desc:"Koreksi wajar pasca puncak.",factor:"The Fed memangkas suku bunga (Rate Cut kedua)."},
+  {monthYear:"Okt 2019",trend:"Ranging",desc:"Sideways di level tinggi.",factor:"Harapan damai dagang AS-Tiongkok."},
+  {monthYear:"Nov 2019",trend:"Downtrend",desc:"Penurunan dari level tinggi.",factor:"The Fed memangkas suku bunga (Rate Cut ketiga)."},
+  {monthYear:"Des 2019",trend:"Uptrend",desc:"Rally mini akhir tahun.",factor:"Perjanjian damai dagang fase 1."},
+  {monthYear:"Jan 2020",trend:"Uptrend moderat",desc:"Emas menguat stabil.",factor:"Ketegangan AS-Iran & penyebaran awal COVID-19."},
+  {monthYear:"Feb 2020",trend:"Uptrend kuat",desc:"Lonjakan tajam ke 1680-1700.",factor:"COVID-19 mulai menyebar global."},
+  {monthYear:"Mar 2020",trend:"Volatil",desc:"Turun drastis lalu rebound.",factor:"Crash likuiditas global & intervensi The Fed."},
+  {monthYear:"Apr 2020",trend:"Uptrend tajam",desc:"Rebound kuat ke area 1750.",factor:"Stimulus masif & suku bunga mendekati 0%."},
+  {monthYear:"Mei 2020",trend:"Uptrend stabil",desc:"Permintaan investasi naik.",factor:"The Fed lanjutkan QE."},
+  {monthYear:"Jun 2020",trend:"Uptrend kuat",desc:"Breakout ke area 1800.",factor:"DXY melemah, ekspektasi stimulus."},
+  {monthYear:"Jul 2020",trend:"Uptrend kuat",desc:"Lonjakan besar akibat stimulus.",factor:"Stimulus masif dari The Fed & bantuan COVID-19."},
+  {monthYear:"Agu 2020",trend:"Uptrend → Koreksi",desc:"Puncak historis, lalu koreksi tajam.",factor:"Euforia safe haven puncak, profit taking."},
+  {monthYear:"Sep 2020",trend:"Downtrend",desc:"Tekanan jual pasca puncak.",factor:"Penguatan USD & ekspektasi pemulihan ekonomi."},
+  {monthYear:"Okt 2020",trend:"Ranging",desc:"Konsolidasi 1880-1920.",factor:"Menunggu hasil pemilu AS 2020."},
+  {monthYear:"Nov 2020",trend:"Downtrend",desc:"Penurunan akibat optimisme vaksin.",factor:"Pengumuman vaksin Pfizer-BioNTech."},
+  {monthYear:"Des 2020",trend:"Ranging → Uptrend",desc:"Mulai pulih.",factor:"Paket stimulus tambahan AS disetujui."},
+  {monthYear:"Jan 2021",trend:"Uptrend → Downtrend",desc:"Lonjakan lalu terkoreksi.",factor:"Harapan stimulus Biden, lalu yield naik."},
+  {monthYear:"Feb 2021",trend:"Downtrend",desc:"Yield naik, tekanan jual tinggi.",factor:"Lonjakan yield Treasury 10 tahun."},
+  {monthYear:"Mar 2021",trend:"Ranging → Downtrend",desc:"Gagal rebound.",factor:"Dolar menguat, ekspektasi tapering."},
+  {monthYear:"Apr 2021",trend:"Ranging",desc:"Pasar stabil di area bawah.",factor:"Konsolidasi."},
+  {monthYear:"Mei 2021",trend:"Uptrend kuat",desc:"Rebound besar dari support.",factor:"Inflasi AS naik tajam."},
+  {monthYear:"Jun 2021",trend:"Downtrend tajam",desc:"Penurunan cepat pasca FOMC.",factor:"FOMC sinyalkan kenaikan suku bunga lebih cepat."},
+  {monthYear:"Jul 2021",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Menunggu sinyal Fed."},
+  {monthYear:"Agu 2021",trend:"Ranging",desc:"Tidak ada arah jelas.",factor:"Data ekonomi campuran."},
+  {monthYear:"Sep 2021",trend:"Downtrend",desc:"Tekanan jual dominan.",factor:"Dolar menguat, ekspektasi tapering tinggi."},
+  {monthYear:"Okt 2021",trend:"Uptrend",desc:"Reversal dari support.",factor:"Inflasi tinggi picu safe haven."},
+  {monthYear:"Nov 2021",trend:"Ranging",desc:"Konsolidasi.",factor:"Menanti kepastian tapering Fed."},
+  {monthYear:"Des 2021",trend:"Ranging",desc:"Fluktuasi kecil.",factor:"Volume pasar rendah."},
+  {monthYear:"Jan 2022",trend:"Ranging → Uptrend",desc:"Tekanan beli muncul.",factor:"Ketegangan Rusia-Ukraina meningkat."},
+  {monthYear:"Feb 2022",trend:"Uptrend kuat",desc:"Lonjakan akibat geopolitik.",factor:"Invasi Rusia ke Ukraina (24 Feb)."},
+  {monthYear:"Mar 2022",trend:"Downtrend tajam",desc:"Koreksi kuat pasca lonjakan.",factor:"Ekspektasi kenaikan suku bunga Fed."},
+  {monthYear:"Apr 2022",trend:"Ranging → Downtrend",desc:"Gagal tembus resistance.",factor:"The Fed mulai agresif."},
+  {monthYear:"Mei 2022",trend:"Downtrend",desc:"Bearish stabil.",factor:"Inflasi tinggi, Fed naikkan suku bunga."},
+  {monthYear:"Jun 2022",trend:"Downtrend",desc:"Tekanan jual kuat.",factor:"USD terus menguat, DXY tembus 105."},
+  {monthYear:"Jul 2022",trend:"Ranging",desc:"Konsolidasi membentuk base.",factor:"Ekspektasi inflasi mulai turun."},
+  {monthYear:"Agu 2022",trend:"Uptrend singkat",desc:"Rebound teknikal.",factor:"DXY melemah sementara."},
+  {monthYear:"Sep 2022",trend:"Downtrend",desc:"Turun setelah rally pendek.",factor:"Fed naikkan suku bunga 75 bps lagi."},
+  {monthYear:"Okt 2022",trend:"Ranging",desc:"Area bottom terbentuk.",factor:"Investor mulai akumulasi kembali."},
+  {monthYear:"Nov 2022",trend:"Uptrend",desc:"Breakout resistance besar.",factor:"CPI AS turun, ekspektasi Fed melunak."},
+  {monthYear:"Des 2022",trend:"Uptrend",desc:"Tren naik stabil.",factor:"Optimisme soft landing."},
+  {monthYear:"Jan 2023",trend:"Uptrend",desc:"Higher high konsisten.",factor:"DXY melemah, ekspektasi Fed akan pivot."},
+  {monthYear:"Feb 2023",trend:"Downtrend",desc:"Koreksi dari puncak.",factor:"Data inflasi AS kembali tinggi."},
+  {monthYear:"Mar 2023",trend:"Uptrend",desc:"Rebound kuat.",factor:"Krisis perbankan AS (Silicon Valley Bank)."},
+  {monthYear:"Apr 2023",trend:"Uptrend → Ranging",desc:"Melambat di resistance.",factor:"Fed jaga suku bunga tetap tinggi."},
+  {monthYear:"Mei 2023",trend:"Downtrend",desc:"Tekanan jual meningkat.",factor:"Debt ceiling AS & profit taking."},
+  {monthYear:"Jun 2023",trend:"Ranging",desc:"Harga mendatar.",factor:"Tidak ada katalis besar."},
+  {monthYear:"Jul 2023",trend:"Ranging",desc:"Volatilitas rendah.",factor:"Libur musim panas, volume tipis."},
+  {monthYear:"Agu 2023",trend:"Ranging → Uptrend awal",desc:"Mulai muncul higher low.",factor:"Data inflasi melunak."},
+  {monthYear:"Sep 2023",trend:"Uptrend",desc:"Tren bullish stabil.",factor:"Fed sinyalkan akhir siklus rate hike."},
+  {monthYear:"Okt 2023",trend:"Uptrend kuat",desc:"Breakout resistance utama.",factor:"Konflik Hamas-Israel (7 Okt)."},
+  {monthYear:"Nov 2023",trend:"Uptrend",desc:"Momentum bullish masih dominan.",factor:"Ketegangan Timur Tengah berlanjut."},
+  {monthYear:"Des 2023",trend:"Ranging",desc:"Konsolidasi di area puncak.",factor:"Pasar tenang jelang akhir tahun."},
+  {monthYear:"Jan 2024",trend:"Ranging → Downtrend",desc:"Koreksi awal tahun.",factor:"DXY rebound & data tenaga kerja kuat."},
+  {monthYear:"Feb 2024",trend:"Downtrend",desc:"Penurunan konsisten.",factor:"CPI tinggi, Fed hawkish kembali."},
+  {monthYear:"Mar 2024",trend:"Ranging",desc:"Pasar tenang.",factor:"Tidak ada data besar."},
+  {monthYear:"Apr 2024",trend:"Uptrend kuat",desc:"Breakout signifikan.",factor:"Dolar melemah, data inflasi turun."},
+  {monthYear:"Mei 2024",trend:"Uptrend",desc:"Tren naik terjaga.",factor:"Spekulasi pemotongan suku bunga Fed."},
+  {monthYear:"Jun 2024",trend:"Ranging",desc:"Mendatar di level tinggi.",factor:"Investor tunggu keputusan FOMC."},
+  {monthYear:"Jul 2024",trend:"Downtrend",desc:"Koreksi dari area atas.",factor:"DXY menguat kembali."},
+  {monthYear:"Agu 2024",trend:"Downtrend",desc:"Lanjutan tekanan jual.",factor:"PMI dan CPI positif di AS."},
+  {monthYear:"Sep 2024",trend:"Ranging → Uptrend",desc:"Reversal terbentuk.",factor:"Ekspektasi dovish Fed."},
+  {monthYear:"Okt 2024",trend:"Uptrend",desc:"Kenaikan stabil.",factor:"Inflasi global menurun."},
+  {monthYear:"Nov 2024",trend:"Ranging",desc:"Konsolidasi.",factor:"Menunggu hasil pemilu AS."},
+  {monthYear:"Dec 2024",trend:"Uptrend",desc:"Bullish continuation.",factor:"Euforia pasca pemilu AS."},
+  {monthYear:"Jan 2025",trend:"Uptrend",desc:"Tembus resistance lama.",factor:"The Fed mulai potong suku bunga."},
+  {monthYear:"Feb 2025",trend:"Uptrend",desc:"Kenaikan stabil tembus $2900.",factor:"Geopolitik & pembelian emas sentral."},
+  {monthYear:"Mar 2025",trend:"Uptrend kuat",desc:"Tembus $3000 pertama kali.",factor:"Ketidakpastian ekonomi global."},
+  {monthYear:"Apr 2025",trend:"Uptrend tajam",desc:"Rally ke area $3500.",factor:"Permintaan kuat Safe Haven."},
+  {monthYear:"Mei 2025",trend:"Ranging",desc:"Konsolidasi pasca rally.",factor:"Aksi Profit taking."},
+  {monthYear:"Jun 2025",trend:"Ranging",desc:"Mendatar di $3300-$3400.",factor:"Menunggu data inflasi berikutnya."},
+  {monthYear:"Jul 2025",trend:"Uptrend",desc:"Momentum naik kembali.",factor:"Spekulasi pemotongan lanjutan."},
+  {monthYear:"Agu 2025",trend:"Uptrend",desc:"Kenaikan menjelang FOMC.",factor:"Sinyal dovish makin kuat."},
+  {monthYear:"Sep 2025",trend:"Uptrend kuat",desc:"Breakout tembus $3800.",factor:"Fed memangkas suku bunga 50 bps."},
+  {monthYear:"Okt 2025",trend:"Breakout Historis",desc:"Tembus $4000 pertama kalinya.",factor:"Eskalasi Perang Dagang AS-Tiongkok."},
+  {monthYear:"Nov 2025",trend:"Ranging",desc:"Koreksi dan konsolidasi.",factor:"Pasar mencerna rekor harga baru."},
+  {monthYear:"Des 2025",trend:"Uptrend tajam",desc:"Rally ke rekor $4550.",factor:"Permintaan institusi & ETF membludak."},
+  {monthYear:"Jan 2026",trend:"Puncak Historis",desc:"Lonjakan masif mencapai $5595.",factor:"Krisis energi global & geopolitik."},
+  {monthYear:"Feb 2026",trend:"Downtrend Awal",desc:"Koreksi tajam dari puncak.",factor:"Rotasi modal, ekspektasi rate hike ulang."},
+  {monthYear:"Mar 2026",trend:"Crash",desc:"Jatuh 27% ke level $4099.",factor:"Ketakutan Stagflasi, Dolar & Minyak menguat."}
+];
+
+const priceData = [
+  {month:'Jan',year:2015,high:1307.38,low:1201.76},{month:'Feb',year:2015,high:1295.27,low:1195.42},{month:'Mar',year:2015,high:1224.23,low:1142.34},{month:'Apr',year:2015,high:1224.59,low:1178.61},{month:'Mei',year:2015,high:1232.06,low:1170.92},{month:'Jun',year:2015,high:1204.31,low:1172.93},{month:'Jul',year:2015,high:1165.73,low:1076.62},{month:'Agu',year:2015,high:1131.74,low:1079.17},{month:'Sep',year:2015,high:1156.40,low:1104.99},{month:'Okt',year:2015,high:1184.22,low:1100.86},{month:'Nov',year:2015,high:1150.31,low:1064.95},{month:'Des',year:2015,high:1087.97,low:1046.20},
+  {month:'Jan',year:2016,high:1127.91,low:1070.78},{month:'Feb',year:2016,high:1263.95,low:1092.79},{month:'Mar',year:2016,high:1284.15,low:1206.19},{month:'Apr',year:2016,high:1297.04,low:1210.02},{month:'Mei',year:2016,high:1300.73,low:1209.61},{month:'Jun',year:2016,high:1358.97,low:1201.03},{month:'Jul',year:2016,high:1375.02,low:1308.20},{month:'Agu',year:2016,high:1367.62,low:1310.87},{month:'Sep',year:2016,high:1343.34,low:1302.26},{month:'Okt',year:2016,high:1337.89,low:1241.05},{month:'Nov',year:2016,high:1304.53,low:1170.99},{month:'Des',year:2016,high:1180.76,low:1121.28},
+  {month:'Jan',year:2017,high:1221.78,low:1139.75},{month:'Feb',year:2017,high:1263.26,low:1209.08},{month:'Mar',year:2017,high:1269.46,low:1205.57},{month:'Apr',year:2017,high:1295.63,low:1239.54},{month:'Mei',year:2017,high:1272.76,low:1214.39},{month:'Jun',year:2017,high:1295.73,low:1230.13},{month:'Jul',year:2017,high:1264.44,low:1204.65},{month:'Agu',year:2017,high:1317.02,low:1251.10},{month:'Sep',year:2017,high:1357.75,low:1260.67},{month:'Okt',year:2017,high:1306.07,low:1260.36},{month:'Nov',year:2017,high:1296.38,low:1263.74},{month:'Des',year:2017,high:1299.16,low:1236.78},
+  {month:'Jan',year:2018,high:1366.19,low:1308.26},{month:'Feb',year:2018,high:1361.64,low:1307.74},{month:'Mar',year:2018,high:1357.87,low:1305.10},{month:'Apr',year:2018,high:1365.17,low:1304.57},{month:'Mei',year:2018,high:1324.96,low:1284.11},{month:'Jun',year:2018,high:1309.84,low:1243.61},{month:'Jul',year:2018,high:1265.91,low:1211.96},{month:'Agu',year:2018,high:1220.73,low:1160.03},{month:'Sep',year:2018,high:1215.11,low:1184.14},{month:'Okt',year:2018,high:1243.51,low:1183.05},{month:'Nov',year:2018,high:1249.77,low:1200.73},{month:'Des',year:2018,high:1285.49,low:1219.86},
+  {month:'Jan',year:2019,high:1317.84,low:1276.10},{month:'Feb',year:2019,high:1346.74,low:1280.97},{month:'Mar',year:2019,high:1324.46,low:1281.33},{month:'Apr',year:2019,high:1310.27,low:1266.38},{month:'Mei',year:2019,high:1303.40,low:1266.69},{month:'Jun',year:2019,high:1441.76,low:1270.75},{month:'Jul',year:2019,high:1453.07,low:1381.82},{month:'Agu',year:2019,high:1555.70,low:1451.91},{month:'Sep',year:2019,high:1557.06,low:1459.18},{month:'Okt',year:2019,high:1519.81,low:1457.55},{month:'Nov',year:2019,high:1514.88,low:1445.67},{month:'Des',year:2019,high:1525.18,low:1458.55},
+  {month:'Jan',year:2020,high:1611.36,low:1517.17},{month:'Feb',year:2020,high:1689.21,low:1547.47},{month:'Mar',year:2020,high:1703.17,low:1451.28},{month:'Apr',year:2020,high:1746.57,low:1571.34},{month:'Mei',year:2020,high:1764.71,low:1670.13},{month:'Jun',year:2020,high:1785.72,low:1670.51},{month:'Jul',year:2020,high:1982.31,low:1757.46},{month:'Agu',year:2020,high:2073.68,low:1863.59},{month:'Sep',year:2020,high:1992.29,low:1848.07},{month:'Okt',year:2020,high:1933.17,low:1859.81},{month:'Nov',year:2020,high:1965.41,low:1764.16},{month:'Des',year:2020,high:1906.66,low:1776.74},
+  {month:'Jan',year:2021,high:1959.29,low:1802.43},{month:'Feb',year:2021,high:1871.71,low:1717.03},{month:'Mar',year:2021,high:1759.71,low:1676.62},{month:'Apr',year:2021,high:1797.75,low:1705.76},{month:'Mei',year:2021,high:1912.61,low:1766.04},{month:'Jun',year:2021,high:1916.44,low:1750.62},{month:'Jul',year:2021,high:1834.03,low:1765.63},{month:'Agu',year:2021,high:1831.65,low:1686.78},{month:'Sep',year:2021,high:1833.85,low:1721.57},{month:'Okt',year:2021,high:1813.56,low:1745.82},{month:'Nov',year:2021,high:1877.06,low:1758.53},{month:'Des',year:2021,high:1828.72,low:1753.05},
+  {month:'Jan',year:2022,high:1853.78,low:1779.89},{month:'Feb',year:2022,high:1974.33,low:1788.52},{month:'Mar',year:2022,high:2070.29,low:1889.78},{month:'Apr',year:2022,high:1998.02,low:1871.98},{month:'Mei',year:2022,high:1909.55,low:1786.38},{month:'Jun',year:2022,high:1878.83,low:1802.62},{month:'Jul',year:2022,high:1814.09,low:1680.81},{month:'Agu',year:2022,high:1807.83,low:1705.48},{month:'Sep',year:2022,high:1735.08,low:1614.42},{month:'Okt',year:2022,high:1729.46,low:1616.88},{month:'Nov',year:2022,high:1786.47,low:1616.62},{month:'Des',year:2022,high:1832.97,low:1765.75},
+  {month:'Jan',year:2023,high:1949.11,low:1823.99},{month:'Feb',year:2023,high:1959.63,low:1804.36},{month:'Mar',year:2023,high:2009.66,low:1809.37},{month:'Apr',year:2023,high:2048.59,low:1949.54},{month:'Mei',year:2023,high:2079.81,low:1932.04},{month:'Jun',year:2023,high:1983.33,low:1892.83},{month:'Jul',year:2023,high:1987.42,low:1902.56},{month:'Agu',year:2023,high:1964.62,low:1884.54},{month:'Sep',year:2023,high:1952.33,low:1846.28},{month:'Okt',year:2023,high:2009.32,low:1810.40},{month:'Nov',year:2023,high:2052.03,low:1921.39},{month:'Des',year:2023,high:2144.46,low:1973.03},
+  {month:'Jan',year:2024,high:2078.87,low:2001.74},{month:'Feb',year:2024,high:2065.45,low:1984.12},{month:'Mar',year:2024,high:2247.34,low:2039.03},{month:'Apr',year:2024,high:2431.52,low:2228.47},{month:'Mei',year:2024,high:2450.02,low:2277.08},{month:'Jun',year:2024,high:2387.70,low:2286.72},{month:'Jul',year:2024,high:2483.73,low:2318.43},{month:'Agu',year:2024,high:2531.66,low:2364.26},{month:'Sep',year:2024,high:2685.61,low:2471.82},{month:'Okt',year:2024,high:2790.07,low:2602.17},{month:'Nov',year:2024,high:2762.25,low:2536.75},{month:'Dec',year:2024,high:2726.20,low:2583.38},
+  {month:'Jan',year:2025,high:2817.24,low:2614.41},{month:'Feb',year:2025,high:2956.22,low:2772.15},{month:'Mar',year:2025,high:3128.16,low:2858.83},{month:'Apr',year:2025,high:3500.03,low:2956.37},{month:'Mei',year:2025,high:3435.01,low:3120.65},{month:'Jun',year:2025,high:3451.25,low:3247.92},{month:'Jul',year:2025,high:3438.98,low:3268.03},{month:'Agu',year:2025,high:3453.92,low:3281.56},{month:'Sep',year:2025,high:3865.00,low:3437.02},{month:'Okt',year:2025,high:4379.00,low:3819.33},{month:'Nov',year:2025,high:4232.11,low:4040.50},{month:'Des',year:2025,high:4550.00,low:4190.71},
+  {month:'Jan',year:2026,high:5595.02,low:4534.00},{month:'Feb',year:2026,high:5418.84,low:4800.00},{month:'Mar',year:2026,high:5185.28,low:4099.00}
+];
+
+const uniqueYears = [...new Set(priceData.map(d => d.year))].sort((a, b) => b - a);
+const latestYear = uniqueYears[0];
+const trendTbody = document.querySelector('#trend-data-table tbody');
+const yearSelectChart = document.getElementById('year-select-chart');
+const yearSelectTable = document.getElementById('year-select-table');
+const priceCanvas = document.getElementById('priceLineChart');
+let priceChart;
+
+function getTrendColor(t) {
+  const l = t.toLowerCase();
+  if (l.includes('uptrend') || l.includes('breakout') || l.includes('puncak') || l.includes('rally') || l.includes('rebound')) return 'var(--p-bright, #00ff88)';
+  if (l.includes('downtrend') || l.includes('crash') || l.includes('koreksi')) return 'var(--amber, #ffaa00)';
+  return 'var(--txt-1, #cccccc)';
+}
+
+function renderChart(yr) {
+  let data, labels, pointSz;
+  if (yr === 'all-time') {
+    data = priceData;
+    labels = data.map(d => `${d.month.substring(0,3)}'${String(d.year).slice(2)}`);
+    pointSz = 0;
+  } else {
+    data = priceData.filter(d => d.year === parseInt(yr));
+    labels = data.map(d => d.month);
+    pointSz = 3;
+  }
+  if (priceChart) priceChart.destroy();
+  const colorHigh = 'rgba(0,255,136,1)';
+  const colorHighBg = 'rgba(0,255,136,0.1)';
+  const colorLow = 'rgba(0,200,255,0.9)';
+  priceChart = new Chart(priceCanvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'HIGH', data: data.map(d => d.high), borderColor: colorHigh, backgroundColor: colorHighBg, fill: true, tension: 0.3, pointRadius: pointSz, pointHoverRadius: pointSz + 2, borderWidth: 2, pointBackgroundColor: colorHigh },
+        { label: 'LOW', data: data.map(d => d.low), borderColor: colorLow, backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: pointSz, pointHoverRadius: pointSz + 2, borderWidth: 2, borderDash: [5,5] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', font: { family: "'IBM Plex Mono', monospace", size: 9 }, maxTicksLimit: 8 } },
+        x: { grid: { display: false }, ticks: { color: '#888', font: { family: "'IBM Plex Mono', monospace", size: 9 }, autoSkip: yr === 'all-time', maxTicksLimit: yr === 'all-time' ? 20 : 12 } }
+      },
+      plugins: {
+        legend: { labels: { color: '#ccc', usePointStyle: true, boxWidth: 6, font: { family: "'IBM Plex Mono', monospace", size: 9 }, padding: 16 } },
+        tooltip: {
+          backgroundColor: 'rgba(10,15,20,0.95)', titleColor: '#fff', borderColor: 'rgba(0,255,136,0.3)', borderWidth: 1, padding: 12,
+          titleFont: { family: "'IBM Plex Mono', monospace", size: 11, weight: 'bold' },
+          bodyFont: { family: "'IBM Plex Mono', monospace", size: 11 },
+          callbacks: {
+            labelTextColor: ctx => ctx.dataset.label === 'HIGH' ? '#00ff88' : '#00c8ff',
+            label: ctx => ` ${ctx.dataset.label}: $${ctx.raw.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2})}`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderTable(yr) {
+  trendTbody.innerHTML = '';
+  const items = rawData.filter(d => d.monthYear.includes(yr.toString()));
+  if (!items.length) {
+    trendTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--txt-3); letter-spacing:0.1em;">[ NO DATA FOR ${yr} ]</td></tr>`;
+    return;
+  }
+  items.forEach((item, i) => {
+    const tr = trendTbody.insertRow();
+    tr.style.animationDelay = (i * 0.02) + 's';
+    const trendColor = getTrendColor(item.trend);
+    tr.innerHTML = `<td style="font-size:10px;font-weight:bold;letter-spacing:0.06em;color:var(--txt-1);">${item.monthYear}</td><td style="font-size:10px;font-weight:bold;white-space:nowrap;color:${trendColor};">${item.trend}</td><td style="font-size:10px;color:var(--txt-1);line-height:1.5;">${item.desc}</td><td style="font-size:10px;color:var(--txt-2);line-height:1.5;">${item.factor}</td>`;
+  });
+}
+
+function loadYear(val) {
+  const isAll = val === 'all-time';
+  if (yearSelectChart) yearSelectChart.value = val;
+  renderChart(isAll ? 'all-time' : val);
+  if (yearSelectTable) {
+    const tableVal = isAll ? latestYear : val;
+    yearSelectTable.value = tableVal;
+    renderTable(tableVal);
+  }
+}
+
+function initData() {
+  if (!yearSelectChart || !yearSelectTable) return;
+  uniqueYears.forEach(y => {
+    [yearSelectChart, yearSelectTable].forEach(sel => {
+      if (!sel.querySelector(`option[value="${y}"]`)) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        sel.appendChild(o);
+      }
+    });
+  });
+  yearSelectChart.addEventListener('change', e => loadYear(e.target.value));
+  yearSelectTable.addEventListener('change', e => loadYear(e.target.value));
+  loadYear('all-time');
+}
+document.addEventListener('DOMContentLoaded', initData);
+
+// ── Multi Timeframe Toggle ──
+let currentViewMode = 'single';
+let isMultiPairLoaded = false;
+
+function switchViewMode(target) {
+  const mtfThumb = document.getElementById('mtfThumb');
+  const mtfBtn   = document.getElementById('mtfToggle');
+  const mpThumb  = document.getElementById('mpThumb');
+  const mpBtn    = document.getElementById('mpToggle');
+  const singleWrap = document.getElementById('singleChartWrap');
+  const mtfWrap    = document.getElementById('multiTFWrap');
+  const mpWrap     = document.getElementById('multiPairWrap');
+
+  if (currentViewMode === target) currentViewMode = 'single';
+  else currentViewMode = target;
+
+  [mtfThumb, mpThumb].forEach(t => { t.style.left = '2px'; t.style.background = 'var(--txt-3)'; });
+  [mtfBtn, mpBtn].forEach(b => { b.style.borderColor = 'var(--p-mute)'; b.style.background = 'var(--surface-0)'; });
+  singleWrap.style.display = 'none';
+  mtfWrap.style.display = 'none';
+  mpWrap.style.display = 'none';
+
+  if (currentViewMode === 'mtf') {
+    mtfThumb.style.left = '20px'; mtfThumb.style.background = 'var(--amber)';
+    mtfBtn.style.borderColor = 'var(--amber)'; mtfBtn.style.background = 'var(--amber-ghost)';
+    mtfWrap.style.display = 'block';
+  } else if (currentViewMode === 'mp') {
+    mpThumb.style.left = '20px'; mpThumb.style.background = 'var(--cyan)';
+    mpBtn.style.borderColor = 'var(--cyan)'; mpBtn.style.background = 'var(--cyan-ghost)';
+    mpWrap.style.display = 'block';
+    if (!isMultiPairLoaded) { loadMultiPairCharts(); isMultiPairLoaded = true; }
+  } else {
+    singleWrap.style.display = 'block';
+  }
+}
+
+function loadMultiPairCharts() {
+  for (let i = 1; i <= 6; i++) {
+    const symbolInput = document.getElementById('mpSym' + i).value.trim() || 'BINANCE:BTCUSDT';
+    const chartContainer = document.getElementById('mpChart' + i);
+    const headerLabel = document.getElementById('mpHeader' + i);
+    headerLabel.textContent = symbolInput.split(':').pop();
+    chartContainer.innerHTML = '';
+    const script = document.createElement('script');
+    script.type = 'text/javascript'; script.async = true;
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.textContent = JSON.stringify({
+      "autosize": true, "symbol": symbolInput, "interval": "D", "timezone": "Asia/Jakarta",
+      "theme": "dark", "style": "1", "locale": "en", "backgroundColor": "#040608",
+      "hide_top_toolbar": true, "hide_legend": true, "hide_volume": true,
+      "hide_side_toolbar": true, "save_image": false, "gridColor": "rgba(0,255,136,0.03)"
+    });
+    chartContainer.appendChild(script);
+  }
+}
+
+// ── Price Alerts ──
+let activeAlerts = [];
+const alertAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+document.getElementById('addAlertBtn').addEventListener('click', () => {
+  let sym = document.getElementById('alertSymbol').value.toUpperCase().trim();
+  const cond = document.getElementById('alertCondition').value;
+  const price = parseFloat(document.getElementById('alertPrice').value);
+  if (!sym || !price) return;
+  let displaySym = sym, apiSym = sym;
+  if (sym === 'XAUUSD' || sym === 'XAU' || sym === 'GOLD') { apiSym = 'PAXGUSDT'; displaySym = 'XAUUSD (PAXG)'; }
+  const id = Date.now();
+  activeAlerts.push({ id, displaySym, apiSym, cond, price, triggered: false });
+  renderAlerts();
+  document.getElementById('alertPrice').value = '';
+});
+
+function renderAlerts() {
+  const list = document.getElementById('activeAlertsList');
+  list.innerHTML = '';
+  if (activeAlerts.length === 0) {
+    list.innerHTML = `<div style="text-align:center; color:var(--txt-3); font-size:9px; padding:10px;">[ NO ACTIVE ALERTS ]</div>`;
+    return;
+  }
+  activeAlerts.forEach(a => {
+    const item = document.createElement('div');
+    item.className = `alert-item ${a.triggered ? 'triggered' : ''}`;
+    item.innerHTML = `<span><strong style="color:var(--p-bright);">${a.displaySym}</strong> ${a.cond} $${a.price}</span><button onclick="removeAlert(${a.id})" style="color:var(--red); background:none; border:none; cursor:pointer; font-weight:bold; padding:0 4px;">✕</button>`;
+    list.appendChild(item);
+  });
+}
+
+function removeAlert(id) {
+  activeAlerts = activeAlerts.filter(a => a.id !== id);
+  renderAlerts();
+}
+
+setInterval(async () => {
+  const pending = activeAlerts.filter(a => !a.triggered);
+  if (pending.length === 0) return;
+  try {
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price');
+    const data = await res.json();
+    pending.forEach(alert => {
+      const md = data.find(d => d.symbol === alert.apiSym);
+      if (md) {
+        const cur = parseFloat(md.price);
+        let hit = (alert.cond === '>' && cur >= alert.price) || (alert.cond === '<' && cur <= alert.price);
+        if (hit) {
+          alert.triggered = true;
+          alertAudio.play().catch(() => {});
+          renderAlerts();
+          const header = document.querySelector('.terminal-header');
+          header.style.background = 'rgba(255,51,85,0.3)';
+          setTimeout(() => header.style.background = 'var(--surface-0)', 500);
+          setTimeout(() => header.style.background = 'rgba(255,51,85,0.3)', 1000);
+          setTimeout(() => header.style.background = 'var(--surface-0)', 1500);
+        }
+      }
+    });
+  } catch (e) {}
+}, 3000);
+
+renderAlerts();
+
+// ── Quick Prompts ──
+document.querySelectorAll('.prompt-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const input = document.getElementById('messageInput');
+    input.value = chip.textContent;
+    input.focus();
+  });
+});
+
+// ── Capture Chart ──
+document.getElementById('captureChartBtn').addEventListener('click', async () => {
+  const targetElement = document.getElementById('priceLineChart').parentElement;
+  if (!targetElement) { alert("Elemen chart tidak ditemukan!"); return; }
+  const btn = document.getElementById('captureChartBtn');
+  const oriHTML = btn.innerHTML;
+  btn.innerHTML = `<span style="font-size:10px; color:var(--p-bright);">[REC]</span>`;
+  try {
+    if (typeof html2canvas === 'undefined') {
+      appendMsg('bot', 'html2canvas tidak tersedia. Silakan upload gambar chart secara manual.');
+      return;
+    }
+    const canvas = await html2canvas(targetElement, { backgroundColor: '#040608', scale: 2 });
+    canvas.toBlob(blob => {
+      const file = new File([blob], "historical-chart.png", { type: "image/png" });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      document.getElementById('imageInput').files = dt.files;
+      handleImage();
+    }, 'image/png');
+  } catch (err) {
+    appendMsg('bot', "Gagal mengambil screenshot chart.");
+  } finally {
+    btn.innerHTML = oriHTML;
+  }
+});
+
+</script>
+</body>
+</html>
