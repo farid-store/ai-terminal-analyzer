@@ -154,6 +154,9 @@ body::before {
   border: 1px solid var(--grid-bright);
   position: relative;
   overflow: hidden;
+  /* Tambahan: Pastikan panel dalam sidebar tidak menciut */
+  display: flex;
+  flex-direction: column;
 }
 .panel::before {
   content: '';
@@ -184,6 +187,7 @@ body::before {
   background: var(--surface-0);
   flex-wrap: wrap;
   gap: 6px;
+  flex-shrink: 0; /* Tambahan: Mencegah header menyusut */
 }
 
 /* ══════════════ ASSET CARDS ══════════════ */
@@ -486,6 +490,8 @@ body::before {
   max-height: calc(100vh - 76px);
   overflow-y: auto;
   border-left: 1px solid var(--grid-bright);
+  width: 100%; /* Tambahan: Pastikan lebar penuh */
+  box-sizing: border-box;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -826,23 +832,35 @@ body::before {
 }
 
 /* ══════════════ MARKET FEED PANEL ══════════════ */
+/* Tambahan: Ganti height jadi min-height agar TradingView bisa bernapas di sidebar */
 .market-feed-panel {
-  height: 440px;
+  min-height: 440px;
   display: flex;
   flex-direction: column;
 }
+.market-feed-panel .tradingview-widget-container {
+  flex: 1;
+  min-height: 380px; /* Tambahan: Cegah iframe menyusut jadi gepeng */
+}
+
 @media (max-width: 767px) {
-  .market-feed-panel { height: 350px; }
+  .market-feed-panel { min-height: 400px; }
+  .market-feed-panel .tradingview-widget-container { min-height: 350px; }
 }
 
 /* ══════════════ FX CROSS PANEL ══════════════ */
+/* Tambahan: Konsep min-height yang sama untuk FX */
 .fx-cross-panel {
-  height: 240px;
+  min-height: 240px;
   display: flex;
   flex-direction: column;
 }
+.fx-cross-panel .tradingview-widget-container {
+  flex: 1;
+  min-height: 200px;
+}
 @media (max-width: 767px) {
-  .fx-cross-panel { height: 200px; }
+  .fx-cross-panel { min-height: 220px; }
 }
 
 /* ══════════════ ADV CHART ══════════════ */
@@ -891,15 +909,33 @@ body::before {
 @media (max-width: 480px) { .hist-chart-box { height: 220px; } }
 
 /* ══════════════ PRICE ALERTS SECTION ══════════════ */
+/* Tambahan: Memastikan input form tidak nabrak saat di sidebar HP */
 .alert-input-row {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; 
 }
-.alert-input-row .t-input { flex: 1; min-width: 60px; }
+.alert-input-row .t-input { 
+  flex: 1; 
+  min-width: 80px; /* Jangan sampai terlalu menyusut */
+}
 @media (max-width: 480px) {
   .alert-input-row { gap: 4px; }
+  .alert-input-row input#alertPrice { flex: 1 1 100%; } /* Input Target Price turun ke bawah di HP */
+}
+
+/* ══════════════ WIDGET TA KHUSUS SIDEBAR (XAU/BTC/IHSG) ══════════════ */
+/* Tambahan: Tangani inline-style kamu (height:300px) agar bisa flex di Sidebar */
+#sidebarCol .panel-bracket[style*="height:300px"] {
+  height: auto !important;
+  min-height: 300px;
+  flex-shrink: 0;
+}
+#sidebarCol .panel-bracket[style*="height:300px"] .tradingview-widget-container {
+  min-height: 260px;
+  height: auto !important;
+  flex: 1;
 }
 
 /* ══════════════ MOBILE NAV BOTTOM ══════════════ */
